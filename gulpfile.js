@@ -40,4 +40,4 @@ gulp.task('watch', function() {
   return rebundle();
 });
 
-gulp.task( 'default', ['client'] )
+gulp.task( 'default', gulp.series( 'client' ) )
