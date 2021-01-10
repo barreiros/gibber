@@ -9,3 +9,11 @@
     --b_low: #444444;
     --b_inv: #000000;
 }
+
+header, #hidebtn {
+    display: none !important
+}
+
+.CodeMirror {
+    font-size: 16px;
+}
