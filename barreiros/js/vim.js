@@ -1,5 +1,3 @@
-export default ( ) => { init( ) }
-
 let vimMode = 'insert'
 
 const sequences = [
@@ -49,15 +47,17 @@ const init = ( ) => {
 
 const vimInitialized = ( ) => {
 
+    let editor = Gibber.Environment.editor
+
     extraMaps( ) // This method uses default vim codemirror flow.
 
     customMaps( ) // This method is my own maps complex sequences that I can't achieve with Codemirror flow.
 
-    CodeMirror.on( Gibber.Environment.editor, 'vim-mode-change', setVimMode )
+    CodeMirror.on( editor, 'vim-mode-change', setVimMode )
 
     CodeMirror.Vim.defineEx( 'w', '', ( ) => { 
 
-        Gibber.publish( 'save' )
+        Gibber.publish( 'save', editor.getValue( ) )
 
     } )
 
@@ -164,3 +164,5 @@ const setVimMode = ( data, e ) => {
     vimMode = data[ 'mode' ]
 
 }
+
+export default init

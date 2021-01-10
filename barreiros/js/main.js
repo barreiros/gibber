@@ -1,5 +1,8 @@
+import tools from './tools.js'
 import vim from './vim.js'
+import cue from './cue.js'
 
+// TODO: Does not use intervals.
 let gibberInterval = setInterval( ( ) => {
 
     if( Gibber.hasOwnProperty( 'Environment' ) ) {
@@ -8,23 +11,11 @@ let gibberInterval = setInterval( ( ) => {
 
             clearInterval( gibberInterval )
 
-            Gibber.subscribe( 'save', ( ) => {
-
-                console.log( 'Guardo el código' )
-
-            } )
+            cue( )
 
             vim( )
-            // Gibber.subscribe( 'clear', ( ) => {
-            //
-            //     fetch( './resources/themes/ninetynine.png' )
-            //         .then( data => data.text( ) )
-            //         .then( text => {
-            //             Environment.theme.load( text ) 
-            //         } 
-            //     )
-            //
-            // } )
+
+            window.Barreiros = tools
 
         }
 
@@ -34,14 +25,4 @@ let gibberInterval = setInterval( ( ) => {
 
 window.onbeforeunload = ( ) => {
     // return 'Reload???';
-}
-
-let batch = ( object, action ) => {
-
-    for( let value of object  ) {
-
-        value[ action ]( )
-
-    }
-
 }
