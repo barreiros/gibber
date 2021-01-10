@@ -405,6 +405,7 @@ function blur2d(horizontalExpr, verticalExpr, reps, taps, samplerNum) {
 }
 exports.blur2d = blur2d;
 
+<<<<<<< HEAD
 },{"../mergepass":53,"./blurexpr":6,"./expr":15,"./vecexprs":49}],6:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -436,6 +437,30 @@ class BlurExpr extends expr_1.ExprVec4 {
         // use in gibber or anyone just using javascript
         if (![5, 9, 13].includes(taps)) {
             throw new Error("taps for gauss blur can only be 5, 9 or 13");
+=======
+},{"./accum.js":2,"./add.js":5,"./and.js":7,"./bang.js":11,"./data.js":18,"./div.js":23,"./env.js":24,"./gen.js":32,"./gte.js":34,"./ifelseif.js":37,"./lt.js":40,"./memo.js":44,"./mul.js":50,"./neq.js":51,"./peek.js":56,"./poke.js":59,"./sub.js":70,"./utilities.js":76}],5:[function(require,module,exports){
+'use strict'
+
+const gen = require('./gen.js')
+
+const proto = { 
+  basename:'add',
+  gen() {
+    let inputs = gen.getInputs( this ),
+        out='',
+        sum = 0, numCount = 0, adderAtEnd = false, alreadyFullSummed = true
+
+    if( inputs.length === 0 ) return 0
+
+    out = `  var ${this.name} = `
+
+    inputs.forEach( (v,i) => {
+      if( isNaN( v ) ) {
+        out += v
+        if( i < inputs.length -1 ) {
+          adderAtEnd = true
+          out += ' + '
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
         }
         super(genBlurSource(direction, taps), ["uDirection"]);
         this.direction = direction;
@@ -481,6 +506,7 @@ class Brightness extends expr_1.ExprVec4 {
         this.brightness = expr_1.wrapInValue(brightness);
     }
 }
+<<<<<<< HEAD
 exports.Brightness = Brightness;
 /**
  * changes the brightness of a color
@@ -491,6 +517,27 @@ exports.Brightness = Brightness;
  */
 function brightness(val, col) {
     return new Brightness(expr_1.wrapInValue(val), col);
+=======
+
+},{"./accum.js":2,"./add.js":5,"./and.js":7,"./bang.js":11,"./data.js":18,"./div.js":23,"./env.js":24,"./gen.js":32,"./gtp.js":35,"./ifelseif.js":37,"./lt.js":40,"./mul.js":50,"./neq.js":51,"./not.js":53,"./param.js":55,"./peek.js":56,"./poke.js":59,"./sub.js":70}],7:[function(require,module,exports){
+'use strict'
+
+let gen = require( './gen.js' )
+
+let proto = {
+  basename:'and',
+
+  gen() {
+    let inputs = gen.getInputs( this ), out
+
+    out = `  var ${this.name} = (${inputs[0]} !== 0 && ${inputs[1]} !== 0) | 0\n\n`
+
+    gen.memo[ this.name ] = `${this.name}`
+
+    return [ `${this.name}`, out ]
+  },
+
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 }
 exports.brightness = brightness;
 
@@ -567,6 +614,7 @@ class ChangeCompExpr extends expr_1.Operator {
         this.newVal = expr_1.wrapInValue(newVal);
     }
 }
+<<<<<<< HEAD
 exports.ChangeCompExpr = ChangeCompExpr;
 /**
  * change the components of a vector
@@ -580,6 +628,27 @@ exports.ChangeCompExpr = ChangeCompExpr;
  */
 function changecomp(vec, setter, comps, op) {
     return new ChangeCompExpr(vec, expr_1.wrapInValue(setter), comps, op);
+=======
+
+},{"./gen.js":32,"./history.js":36,"./mul.js":50,"./sub.js":70}],11:[function(require,module,exports){
+'use strict'
+
+let gen = require('./gen.js')
+
+let proto = {
+  gen() {
+    gen.requestMemory( this.memory )
+    
+    let out = 
+`  var ${this.name} = memory[${this.memory.value.idx}]
+  if( ${this.name} === 1 ) memory[${this.memory.value.idx}] = 0      
+      
+`
+    gen.memo[ this.name ] = this.name
+
+    return [ this.name, out ]
+  } 
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 }
 exports.changecomp = changecomp;
 
@@ -755,6 +824,7 @@ function dof(depth, rad, depthInfo, reps) {
 }
 exports.dof = dof;
 
+<<<<<<< HEAD
 },{"../mergepass":53,"./arity2":3,"./blurexpr":6,"./channelsampleexpr":9,"./expr":15,"./gaussianexpr":19,"./getcompexpr":20,"./opexpr":33,"./vecexprs":49}],13:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -778,6 +848,32 @@ class EdgeColorExpr extends expr_1.WrappedExpr {
     setColor(color) {
         this.expr.setUniform("uCustomName0" + this.expr.id, color);
         this.color = color;
+=======
+},{"./floor.js":29,"./gen.js":32,"./memo.js":44,"./sub.js":70}],15:[function(require,module,exports){
+'use strict'
+
+let gen  = require('./gen.js')
+
+let proto = {
+  basename:'cos',
+
+  gen() {
+    let out,
+        inputs = gen.getInputs( this )
+    
+    
+    const isWorklet = gen.mode === 'worklet'
+
+    const ref = isWorklet ? '' : 'gen.'
+
+    if( isNaN( inputs[0] ) ) {
+      gen.closures.add({ 'cos': isWorklet ? 'Math.cos' : Math.cos })
+
+      out = `${ref}cos( ${inputs[0]} )` 
+
+    } else {
+      out = Math.cos( parseFloat( inputs[0] ) )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
 }
 exports.EdgeColorExpr = EdgeColorExpr;
@@ -847,6 +943,7 @@ function toGLSLFloatString(num) {
         str += ".";
     return str;
 }
+<<<<<<< HEAD
 class Expr {
     constructor(sourceLists, defaultNames) {
         // update me on change to needs
@@ -870,6 +967,36 @@ class Expr {
         if (sourceLists.sections.length - sourceLists.values.length !== 1) {
             // this cannot happen if you use `tag` to destructure a template string
             throw new Error("wrong lengths for source and values");
+=======
+
+},{"./data.js":18,"./gen.js":32,"./mul.js":50,"./peek.js":56,"./phasor.js":58}],18:[function(require,module,exports){
+'use strict'
+
+const gen  = require('./gen.js'),
+      utilities = require( './utilities.js' ),
+      peek = require('./peek.js'),
+      poke = require('./poke.js')
+
+const proto = {
+  basename:'data',
+  globals: {},
+  memo:{},
+
+  gen() {
+    let idx
+    //console.log( 'data name:', this.name, proto.memo )
+    //debugger
+    if( gen.memo[ this.name ] === undefined ) {
+      let ugen = this
+      gen.requestMemory( this.memory, this.immutable ) 
+      idx = this.memory.values.idx
+      if( this.buffer !== undefined ) {
+        try {
+          gen.memory.heap.set( this.buffer, idx )
+        }catch( e ) {
+          console.log( e )
+          throw Error( 'error with request. asking for ' + this.buffer.length +'. current index: ' + gen.memoryIndex + ' of ' + gen.memory.heap.length )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
         }
         if (sourceLists.values.length !== defaultNames.length) {
             console.log(sourceLists);
@@ -936,6 +1063,7 @@ class Expr {
         this.uniformValChangeMap[name].val = newVal;
         this.uniformValChangeMap[name].changed = true;
     }
+<<<<<<< HEAD
     /**
      * parses this expression into a string, adding info as it recurses into
      * nested expressions
@@ -955,6 +1083,49 @@ class Expr {
         // TODO does sourceCode have to be a member?
         this.sourceCode += this.sourceLists.sections[this.sourceLists.sections.length - 1];
         return this.sourceCode;
+=======
+  }else if( typeof x === 'string' ) {
+    //buffer = { length: y > 1 ? y : gen.samplerate * 60 } // XXX what???
+    //if( proto.memo[ x ] === undefined ) {
+      buffer = { length: y > 1 ? y : 1 } // XXX what???
+      shouldLoad = true
+    //}else{
+      //buffer = proto.memo[ x ]
+    //}
+  }else if( x instanceof Float32Array ) {
+    buffer = x
+  }
+  
+  ugen = Object.create( proto ) 
+
+  Object.assign( ugen, 
+  { 
+    buffer,
+    name: proto.basename + gen.getUID(),
+    dim:  buffer !== undefined ? buffer.length : 1, // XXX how do we dynamically allocate this?
+    channels : 1,
+    onload: properties !== undefined ? properties.onload || null : null,
+    //then( fnc ) {
+    //  ugen.onload = fnc
+    //  return ugen
+    //},
+    immutable: properties !== undefined && properties.immutable === true ? true : false,
+    load( filename, __resolve ) {
+      let promise = utilities.loadSample( filename, ugen )
+      promise.then( _buffer => { 
+        proto.memo[ x ] = _buffer
+        ugen.name = filename
+        ugen.memory.values.length = ugen.dim = _buffer.length
+
+        gen.requestMemory( ugen.memory, ugen.immutable ) 
+        gen.memory.heap.set( _buffer, ugen.memory.values.idx )
+        if( typeof ugen.onload === 'function' ) ugen.onload( _buffer ) 
+        __resolve( ugen )
+      })
+    },
+    memory : {
+      values: { length:buffer !== undefined ? buffer.length : 1, idx:null }
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
     addFuncs(funcs) {
         this.externalFuncs.push(...funcs);
@@ -972,6 +1143,7 @@ class Expr {
         return this;
     }
 }
+<<<<<<< HEAD
 exports.Expr = Expr;
 /**
  * increments for each expression created; used to uniquely id each expression
@@ -992,12 +1164,83 @@ exports.cfloat = cfloat;
 /** create a custom vec2 function (use with [[tag]]) */
 function cvec2(sourceLists, externalFuncs = []) {
     return new ExprVec2(sourceLists, genCustomNames(sourceLists)).addFuncs(externalFuncs);
+=======
+
+
+},{"./gen.js":32,"./peek.js":56,"./poke.js":59,"./utilities.js":76}],19:[function(require,module,exports){
+'use strict'
+
+let gen     = require( './gen.js' ),
+    history = require( './history.js' ),
+    sub     = require( './sub.js' ),
+    add     = require( './add.js' ),
+    mul     = require( './mul.js' ),
+    memo    = require( './memo.js' )
+
+module.exports = ( in1 ) => {
+  let x1 = history(),
+      y1 = history(),
+      filter
+
+  //History x1, y1; y = in1 - x1 + y1*0.9997; x1 = in1; y1 = y; out1 = y;
+  filter = memo( add( sub( in1, x1.out ), mul( y1.out, .9997 ) ) )
+  x1.in( in1 )
+  y1.in( filter )
+
+  return filter
+}
+
+},{"./add.js":5,"./gen.js":32,"./history.js":36,"./memo.js":44,"./mul.js":50,"./sub.js":70}],20:[function(require,module,exports){
+'use strict'
+
+let gen     = require( './gen.js' ),
+    history = require( './history.js' ),
+    mul     = require( './mul.js' ),
+    t60     = require( './t60.js' )
+
+module.exports = ( decayTime = 44100, props ) => {
+  let properties = Object.assign({}, { initValue:1 }, props ),
+      ssd = history ( properties.initValue )
+
+  ssd.in( mul( ssd.out, t60( decayTime ) ) )
+
+  ssd.out.trigger = ()=> {
+    ssd.value = 1
+  }
+
+  return ssd.out 
+}
+
+},{"./gen.js":32,"./history.js":36,"./mul.js":50,"./t60.js":72}],21:[function(require,module,exports){
+'use strict'
+
+const gen  = require( './gen.js'  ),
+      data = require( './data.js' ),
+      poke = require( './poke.js' ),
+      peek = require( './peek.js' ),
+      sub  = require( './sub.js'  ),
+      wrap = require( './wrap.js' ),
+      accum= require( './accum.js'),
+      memo = require( './memo.js' )
+
+const proto = {
+  basename:'delay',
+
+  gen() {
+    let inputs = gen.getInputs( this )
+    
+    gen.memo[ this.name ] = inputs[0]
+    
+    return inputs[0]
+  },
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 }
 exports.cvec2 = cvec2;
 /** create a custom vec3 function (use with [[tag]]) */
 function cvec3(sourceLists, externalFuncs = []) {
     return new ExprVec3(sourceLists, genCustomNames(sourceLists)).addFuncs(externalFuncs);
 }
+<<<<<<< HEAD
 exports.cvec3 = cvec3;
 /** create a custom vec4 function (use with [[tag]]) */
 function cvec4(sourceLists, externalFuncs = []) {
@@ -1039,6 +1282,65 @@ class Mutable {
     brandExprWithRegion(space) {
         return this;
     }
+=======
+
+},{"./accum.js":2,"./data.js":18,"./gen.js":32,"./memo.js":44,"./peek.js":56,"./poke.js":59,"./sub.js":70,"./wrap.js":78}],22:[function(require,module,exports){
+'use strict'
+
+let gen     = require( './gen.js' ),
+    history = require( './history.js' ),
+    sub     = require( './sub.js' )
+
+module.exports = ( in1 ) => {
+  let n1 = history()
+    
+  n1.in( in1 )
+
+  let ugen = sub( in1, n1.out )
+  ugen.name = 'delta'+gen.getUID()
+
+  return ugen
+}
+
+},{"./gen.js":32,"./history.js":36,"./sub.js":70}],23:[function(require,module,exports){
+'use strict'
+
+let gen = require('./gen.js')
+
+const proto = {
+  basename:'div',
+  gen() {
+    let inputs = gen.getInputs( this ),
+        out=`  var ${this.name} = `,
+        diff = 0, 
+        numCount = 0,
+        lastNumber = inputs[ 0 ],
+        lastNumberIsUgen = isNaN( lastNumber ), 
+        divAtEnd = false
+
+    inputs.forEach( (v,i) => {
+      if( i === 0 ) return
+
+      let isNumberUgen = isNaN( v ),
+        isFinalIdx   = i === inputs.length - 1
+
+      if( !lastNumberIsUgen && !isNumberUgen ) {
+        lastNumber = lastNumber / v
+        out += lastNumber
+      }else{
+        out += `${lastNumber} / ${v}`
+      }
+
+      if( !isFinalIdx ) out += ' / ' 
+    })
+
+    out += '\n'
+
+    gen.memo[ this.name ] = this.name
+
+    return [ this.name, out ]
+  }
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 }
 exports.Mutable = Mutable;
 /**
@@ -1065,6 +1367,7 @@ class Primitive {
         return this;
     }
 }
+<<<<<<< HEAD
 exports.Primitive = Primitive;
 class PrimitiveFloat extends Primitive {
     constructor(num) {
@@ -1085,6 +1388,27 @@ class PrimitiveFloat extends Primitive {
     applyUniform(gl, loc) {
         gl.uniform1f(loc, this.value);
     }
+=======
+
+},{"./data":18,"./gen":32,"./peek":56,"./phasor":58,"./windows":77}],25:[function(require,module,exports){
+'use strict'
+
+let gen = require( './gen.js' )
+
+let proto = {
+  basename:'eq',
+
+  gen() {
+    let inputs = gen.getInputs( this ), out
+
+    out = this.inputs[0] === this.inputs[1] ? 1 : `  var ${this.name} = (${inputs[0]} === ${inputs[1]}) | 0\n\n`
+
+    gen.memo[ this.name ] = `${this.name}`
+
+    return [ `${this.name}`, out ]
+  },
+
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 }
 exports.PrimitiveFloat = PrimitiveFloat;
 class PrimitiveVec extends Primitive {
@@ -1368,9 +1692,37 @@ class GaussianExpr extends expr_1.ExprFloat {
         this.setUniform("uFloatX" + this.id, x);
         this.x = expr_1.wrapInValue(x);
     }
+<<<<<<< HEAD
     setA(a) {
         this.setUniform("uFloatA" + this.id, a);
         this.a = expr_1.wrapInValue(a);
+=======
+  }
+}
+
+gen.__proto__ = new EE()
+
+module.exports = gen
+
+},{"events":147,"memory-helper":79}],33:[function(require,module,exports){
+'use strict'
+
+let gen  = require('./gen.js')
+
+let proto = {
+  basename:'gt',
+
+  gen() {
+    let out,
+        inputs = gen.getInputs( this )
+    
+    out = `  var ${this.name} = `  
+
+    if( isNaN( this.inputs[0] ) || isNaN( this.inputs[1] ) ) {
+      out += `(( ${inputs[0]} > ${inputs[1]}) | 0 )`
+    } else {
+      out += inputs[0] > inputs[1] ? 1 : 0 
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
     setB(b) {
         this.setUniform("uFloatB" + this.id, b);
@@ -1500,9 +1852,127 @@ class Get4CompExpr extends expr_1.ExprVec4 {
         super(genCompSource(vec, comps), ["uVec4Min"]);
         this.vec4Min = vec;
     }
+<<<<<<< HEAD
     setVec(vec) {
         this.setUniform("uVec4Min", vec);
         this.vec4Min = vec;
+=======
+
+    Object.assign( destination, library )
+
+    Object.defineProperty( library, 'samplerate', {
+      get() { return library.gen.samplerate },
+      set(v) {}
+    })
+
+    library.in = destination.input
+    library.history = destination.ssd
+    library.switch = destination.ternary
+
+    destination.clip = library.clamp
+  },
+
+  gen:      require( './gen.js' ),
+  
+  abs:      require( './abs.js' ),
+  round:    require( './round.js' ),
+  param:    require( './param.js' ),
+  add:      require( './add.js' ),
+  sub:      require( './sub.js' ),
+  mul:      require( './mul.js' ),
+  div:      require( './div.js' ),
+  accum:    require( './accum.js' ),
+  counter:  require( './counter.js' ),
+  sin:      require( './sin.js' ),
+  cos:      require( './cos.js' ),
+  tan:      require( './tan.js' ),
+  tanh:     require( './tanh.js' ),
+  asin:     require( './asin.js' ),
+  acos:     require( './acos.js' ),
+  atan:     require( './atan.js' ),  
+  phasor:   require( './phasor.js' ),
+  data:     require( './data.js' ),
+  peek:     require( './peek.js' ),
+  peekDyn:  require( './peekDyn.js' ),
+  cycle:    require( './cycle.js' ),
+  history:  require( './history.js' ),
+  delta:    require( './delta.js' ),
+  floor:    require( './floor.js' ),
+  ceil:     require( './ceil.js' ),
+  min:      require( './min.js' ),
+  max:      require( './max.js' ),
+  sign:     require( './sign.js' ),
+  dcblock:  require( './dcblock.js' ),
+  memo:     require( './memo.js' ),
+  rate:     require( './rate.js' ),
+  wrap:     require( './wrap.js' ),
+  mix:      require( './mix.js' ),
+  clamp:    require( './clamp.js' ),
+  poke:     require( './poke.js' ),
+  delay:    require( './delay.js' ),
+  fold:     require( './fold.js' ),
+  mod :     require( './mod.js' ),
+  sah :     require( './sah.js' ),
+  noise:    require( './noise.js' ),
+  not:      require( './not.js' ),
+  gt:       require( './gt.js' ),
+  gte:      require( './gte.js' ),
+  lt:       require( './lt.js' ), 
+  lte:      require( './lte.js' ), 
+  bool:     require( './bool.js' ),
+  gate:     require( './gate.js' ),
+  train:    require( './train.js' ),
+  slide:    require( './slide.js' ),
+  in:       require( './in.js' ),
+  t60:      require( './t60.js'),
+  mtof:     require( './mtof.js'),
+  ltp:      require( './ltp.js'),        // TODO: test
+  gtp:      require( './gtp.js'),        // TODO: test
+  switch:   require( './switch.js' ),
+  mstosamps:require( './mstosamps.js' ), // TODO: needs test,
+  selector: require( './selector.js' ),
+  utilities:require( './utilities.js' ),
+  pow:      require( './pow.js' ),
+  attack:   require( './attack.js' ),
+  decay:    require( './decay.js' ),
+  windows:  require( './windows.js' ),
+  env:      require( './env.js' ),
+  ad:       require( './ad.js'  ),
+  adsr:     require( './adsr.js' ),
+  ifelse:   require( './ifelseif.js' ),
+  bang:     require( './bang.js' ),
+  and:      require( './and.js' ),
+  pan:      require( './pan.js' ),
+  eq:       require( './eq.js' ),
+  neq:      require( './neq.js' ),
+  exp:      require( './exp.js' ),
+  process:  require( './process.js' ),
+  seq:      require( './seq.js' )
+}
+
+library.gen.lib = library
+
+module.exports = library
+
+},{"./abs.js":1,"./accum.js":2,"./acos.js":3,"./ad.js":4,"./add.js":5,"./adsr.js":6,"./and.js":7,"./asin.js":8,"./atan.js":9,"./attack.js":10,"./bang.js":11,"./bool.js":12,"./ceil.js":13,"./clamp.js":14,"./cos.js":15,"./counter.js":16,"./cycle.js":17,"./data.js":18,"./dcblock.js":19,"./decay.js":20,"./delay.js":21,"./delta.js":22,"./div.js":23,"./env.js":24,"./eq.js":25,"./exp.js":26,"./floor.js":29,"./fold.js":30,"./gate.js":31,"./gen.js":32,"./gt.js":33,"./gte.js":34,"./gtp.js":35,"./history.js":36,"./ifelseif.js":37,"./in.js":38,"./lt.js":40,"./lte.js":41,"./ltp.js":42,"./max.js":43,"./memo.js":44,"./min.js":45,"./mix.js":46,"./mod.js":47,"./mstosamps.js":48,"./mtof.js":49,"./mul.js":50,"./neq.js":51,"./noise.js":52,"./not.js":53,"./pan.js":54,"./param.js":55,"./peek.js":56,"./peekDyn.js":57,"./phasor.js":58,"./poke.js":59,"./pow.js":60,"./process.js":61,"./rate.js":62,"./round.js":63,"./sah.js":64,"./selector.js":65,"./seq.js":66,"./sign.js":67,"./sin.js":68,"./slide.js":69,"./sub.js":70,"./switch.js":71,"./t60.js":72,"./tan.js":73,"./tanh.js":74,"./train.js":75,"./utilities.js":76,"./windows.js":77,"./wrap.js":78}],40:[function(require,module,exports){
+'use strict'
+
+let gen  = require('./gen.js')
+
+let proto = {
+  basename:'lt',
+
+  gen() {
+    let out,
+        inputs = gen.getInputs( this )
+
+    out = `  var ${this.name} = `  
+
+    if( isNaN( this.inputs[0] ) || isNaN( this.inputs[1] ) ) {
+      out += `(( ${inputs[0]} < ${inputs[1]}) | 0  )`
+    } else {
+      out += inputs[0] < inputs[1] ? 1 : 0 
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
 }
 exports.Get4CompExpr = Get4CompExpr;
@@ -1800,6 +2270,7 @@ function monochrome(col) {
 }
 exports.monochrome = monochrome;
 
+<<<<<<< HEAD
 },{"../glslfunctions":51,"./expr":15}],27:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -1826,6 +2297,46 @@ class MotionBlurLoop extends mergepass_1.EffectLoop {
         if (!(this.persistence instanceof expr_1.BasicFloat))
             throw new Error("persistence expression not basic float");
         this.persistence.setVal(float);
+=======
+},{"./add.js":5,"./gen.js":32,"./memo.js":44,"./mul.js":50,"./sub.js":70}],47:[function(require,module,exports){
+'use strict'
+
+let gen = require('./gen.js')
+
+module.exports = (...args) => {
+  let mod = {
+    id:     gen.getUID(),
+    inputs: args,
+
+    gen() {
+      let inputs = gen.getInputs( this ),
+          out='(',
+          diff = 0, 
+          numCount = 0,
+          lastNumber = inputs[ 0 ],
+          lastNumberIsUgen = isNaN( lastNumber ), 
+          modAtEnd = false
+
+      inputs.forEach( (v,i) => {
+        if( i === 0 ) return
+
+        let isNumberUgen = isNaN( v ),
+            isFinalIdx   = i === inputs.length - 1
+
+        if( !lastNumberIsUgen && !isNumberUgen ) {
+          lastNumber = lastNumber % v
+          out += lastNumber
+        }else{
+          out += `${lastNumber} % ${v}`
+        }
+
+        if( !isFinalIdx ) out += ' % ' 
+      })
+
+      out += ')'
+
+      return out
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
 }
 exports.MotionBlurLoop = MotionBlurLoop;
@@ -2177,6 +2688,7 @@ function region(space, success, failure, not = false) {
 }
 exports.region = region;
 
+<<<<<<< HEAD
 },{"../mergepass":53,"./expr":15,"./fragcolorexpr":16,"./getcompexpr":20,"./normfragcoordexpr":31,"./opexpr":33,"./ternaryexpr":45}],38:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -2187,6 +2699,129 @@ class ResolutionExpr extends expr_1.ExprVec2 {
     constructor() {
         super(expr_1.tag `uResolution`, []);
     }
+=======
+
+},{"./data.js":18,"./gen.js":32}],57:[function(require,module,exports){
+const gen  = require('./gen.js'),
+      dataUgen = require('./data.js')
+
+const proto = {
+  basename:'peek',
+
+  gen() {
+    let genName = 'gen.' + this.name,
+        inputs = gen.getInputs( this ),
+        out, functionBody, next, lengthIsLog2, indexer, dataStart, length
+    
+    // data object codegens to its starting index
+    dataStart = inputs[0]
+    length    = inputs[1]
+    indexer   = inputs[2]
+
+    //lengthIsLog2 = (Math.log2( length ) | 0)  === Math.log2( length )
+
+    if( this.mode !== 'simple' ) {
+
+      functionBody = `  var ${this.name}_dataIdx  = ${dataStart}, 
+        ${this.name}_phase = ${this.mode === 'samples' ? indexer : indexer + ' * ' + (length) }, 
+        ${this.name}_index = ${this.name}_phase | 0,\n`
+
+      if( this.boundmode === 'wrap' ) {
+        next =`${this.name}_index + 1 >= ${length} ? ${this.name}_index + 1 - ${length} : ${this.name}_index + 1`
+      }else if( this.boundmode === 'clamp' ) {
+        next = 
+          `${this.name}_index + 1 >= ${length} -1 ? ${length} - 1 : ${this.name}_index + 1`
+      } else if( this.boundmode === 'fold' || this.boundmode === 'mirror' ) {
+        next = 
+          `${this.name}_index + 1 >= ${length} - 1 ? ${this.name}_index - ${length} - 1 : ${this.name}_index + 1`
+      }else{
+         next = 
+        `${this.name}_index + 1`     
+      }
+
+      if( this.interp === 'linear' ) {      
+        functionBody += `      ${this.name}_frac  = ${this.name}_phase - ${this.name}_index,
+        ${this.name}_base  = memory[ ${this.name}_dataIdx +  ${this.name}_index ],
+        ${this.name}_next  = ${next},`
+        
+        if( this.boundmode === 'ignore' ) {
+          functionBody += `
+        ${this.name}_out   = ${this.name}_index >= ${length} - 1 || ${this.name}_index < 0 ? 0 : ${this.name}_base + ${this.name}_frac * ( memory[ ${this.name}_dataIdx + ${this.name}_next ] - ${this.name}_base )\n\n`
+        }else{
+          functionBody += `
+        ${this.name}_out   = ${this.name}_base + ${this.name}_frac * ( memory[ ${this.name}_dataIdx + ${this.name}_next ] - ${this.name}_base )\n\n`
+        }
+      }else{
+        functionBody += `      ${this.name}_out = memory[ ${this.name}_dataIdx + ${this.name}_index ]\n\n`
+      }
+
+    } else { // mode is simple
+      functionBody = `memory[ ${dataStart} + ${ indexer } ]`
+      
+      return functionBody
+    }
+
+    gen.memo[ this.name ] = this.name + '_out'
+
+    return [ this.name+'_out', functionBody ]
+  },
+
+  defaults : { channels:1, mode:'phase', interp:'linear', boundmode:'wrap' }
+}
+
+module.exports = ( input_data, length, index=0, properties ) => {
+  const ugen = Object.create( proto )
+
+  // XXX why is dataUgen not the actual function? some type of browserify nonsense...
+  const finalData = typeof input_data.basename === 'undefined' ? gen.lib.data( input_data ) : input_data
+
+  Object.assign( ugen, 
+    { 
+      'data':     finalData,
+      dataName:   finalData.name,
+      uid:        gen.getUID(),
+      inputs:     [ input_data, length, index, finalData ],
+    },
+    proto.defaults,
+    properties 
+  )
+  
+  ugen.name = ugen.basename + ugen.uid
+
+  return ugen
+}
+
+
+},{"./data.js":18,"./gen.js":32}],58:[function(require,module,exports){
+'use strict'
+
+let gen   = require( './gen.js' ),
+    accum = require( './accum.js' ),
+    mul   = require( './mul.js' ),
+    proto = { basename:'phasor' },
+    div   = require( './div.js' )
+
+const defaults = { min: -1, max: 1 }
+
+module.exports = ( frequency = 1, reset = 0, _props ) => {
+  const props = Object.assign( {}, defaults, _props )
+
+  const range = props.max - props.min
+
+  const ugen = typeof frequency === 'number' 
+    ? accum( (frequency * range) / gen.samplerate, reset, props ) 
+    : accum( 
+        div( 
+          mul( frequency, range ),
+          gen.samplerate
+        ), 
+        reset, props 
+    )
+
+  ugen.name = proto.basename + gen.getUID()
+
+  return ugen
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 }
 exports.ResolutionExpr = ResolutionExpr;
 /** creates an expression that evaluates to a vector representing the resolution */
@@ -2195,6 +2830,7 @@ function resolution() {
 }
 exports.resolution = resolution;
 
+<<<<<<< HEAD
 },{"./expr":15}],39:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -2212,6 +2848,37 @@ class RGBToHSVExpr extends expr_1.ExprVec4 {
     setColor(color) {
         this.setUniform("uRGBCol", color);
         this.color = color;
+=======
+},{"./accum.js":2,"./div.js":23,"./gen.js":32,"./mul.js":50}],59:[function(require,module,exports){
+'use strict'
+
+let gen  = require('./gen.js'),
+    mul  = require('./mul.js'),
+    wrap = require('./wrap.js')
+
+let proto = {
+  basename:'poke',
+
+  gen() {
+    let dataName = 'memory',
+        inputs = gen.getInputs( this ),
+        idx, out, wrapped
+    
+    idx = this.data.gen()
+
+    //gen.requestMemory( this.memory )
+    //wrapped = wrap( this.inputs[1], 0, this.dataLength ).gen()
+    //idx = wrapped[0]
+    //gen.functionBody += wrapped[1]
+    let outputStr = this.inputs[1] === 0 ?
+      `  ${dataName}[ ${idx} ] = ${inputs[0]}\n` :
+      `  ${dataName}[ ${idx} + ${inputs[1]} ] = ${inputs[0]}\n`
+
+    if( this.inline === undefined ) {
+      gen.functionBody += outputStr
+    }else{
+      return [ this.inline, outputStr ]
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
 }
 exports.RGBToHSVExpr = RGBToHSVExpr;
@@ -2225,6 +2892,7 @@ function rgb2hsv(col) {
 }
 exports.rgb2hsv = rgb2hsv;
 
+<<<<<<< HEAD
 },{"../glslfunctions":51,"./expr":15}],40:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -2248,6 +2916,38 @@ class RotateExpr extends expr_1.ExprVec2 {
     setAngle(angle) {
         this.setUniform("uAngle" + this.id, angle);
         this.angle = expr_1.wrapInValue(angle);
+=======
+},{"./gen.js":32,"./mul.js":50,"./wrap.js":78}],60:[function(require,module,exports){
+'use strict'
+
+let gen  = require('./gen.js')
+
+let proto = {
+  basename:'pow',
+
+  gen() {
+    let out,
+        inputs = gen.getInputs( this )
+    
+    
+    const isWorklet = gen.mode === 'worklet'
+    const ref = isWorklet? '' : 'gen.'
+
+    if( isNaN( inputs[0] ) || isNaN( inputs[1] ) ) {
+      gen.closures.add({ 'pow': isWorklet ? 'Math.pow' : Math.pow })
+
+      out = `${ref}pow( ${inputs[0]}, ${inputs[1]} )` 
+
+    } else {
+      if( typeof inputs[0] === 'string' && inputs[0][0] === '(' ) {
+        inputs[0] = inputs[0].slice(1,-1)
+      }
+      if( typeof inputs[1] === 'string' && inputs[1][0] === '(' ) {
+        inputs[1] = inputs[1].slice(1,-1)
+      }
+
+      out = Math.pow( parseFloat( inputs[0] ), parseFloat( inputs[1]) )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
 }
 exports.RotateExpr = RotateExpr;
@@ -2261,6 +2961,7 @@ function rotate(vec, angle) {
 }
 exports.rotate = rotate;
 
+<<<<<<< HEAD
 },{"../glslfunctions":51,"./expr":15}],41:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -2291,6 +2992,20 @@ function input(vec) {
     return new SceneSampleExpr(vec);
 }
 exports.input = input;
+=======
+},{"./gen.js":32}],61:[function(require,module,exports){
+'use strict'
+
+let gen  = require('./gen.js')
+const proto = {
+  basename:'process',
+
+  gen() {
+    let out,
+        inputs = gen.getInputs( this )
+
+    gen.closures.add({ [''+this.funcname] : this.func })
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 },{"./expr":15,"./normfragcoordexpr":31}],42:[function(require,module,exports){
 "use strict";
@@ -2309,6 +3024,7 @@ class SetColorExpr extends expr_1.ExprVec4 {
 }
 exports.SetColorExpr = SetColorExpr;
 
+<<<<<<< HEAD
 },{"./expr":15}],43:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -2326,6 +3042,43 @@ class SimplexNoise extends expr_1.ExprFloat {
         this.setUniform("uPos", pos);
         this.pos = pos;
     }
+=======
+},{"./gen.js":32}],62:[function(require,module,exports){
+'use strict'
+
+let gen     = require( './gen.js' ),
+    history = require( './history.js' ),
+    sub     = require( './sub.js' ),
+    add     = require( './add.js' ),
+    mul     = require( './mul.js' ),
+    memo    = require( './memo.js' ),
+    delta   = require( './delta.js' ),
+    wrap    = require( './wrap.js' )
+
+let proto = {
+  basename:'rate',
+
+  gen() {
+    let inputs = gen.getInputs( this ),
+        phase  = history(),
+        inMinus1 = history(),
+        genName = 'gen.' + this.name,
+        filter, sum, out
+
+    gen.closures.add({ [ this.name ]: this }) 
+
+    out = 
+` var ${this.name}_diff = ${inputs[0]} - ${genName}.lastSample
+  if( ${this.name}_diff < -.5 ) ${this.name}_diff += 1
+  ${genName}.phase += ${this.name}_diff * ${inputs[1]}
+  if( ${genName}.phase > 1 ) ${genName}.phase -= 1
+  ${genName}.lastSample = ${inputs[0]}
+`
+    out = ' ' + out
+
+    return [ genName + '.phase', out ]
+  }
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 }
 exports.SimplexNoise = SimplexNoise;
 /**
@@ -2337,6 +3090,7 @@ function simplex(pos) {
 }
 exports.simplex = simplex;
 
+<<<<<<< HEAD
 },{"../glslfunctions":51,"./expr":15}],44:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -2349,8 +3103,34 @@ class SobelExpr extends expr_1.ExprVec4 {
         super(expr_1.tag `sobel()`, []);
         this.externalFuncs = [glslfunctions_1.glslFuncs.sobel];
         this.brandExprWithChannel(0, samplerNum);
+=======
+},{"./add.js":5,"./delta.js":22,"./gen.js":32,"./history.js":36,"./memo.js":44,"./mul.js":50,"./sub.js":70,"./wrap.js":78}],63:[function(require,module,exports){
+'use strict'
+
+let gen  = require('./gen.js')
+
+let proto = {
+  name:'round',
+
+  gen() {
+    let out,
+        inputs = gen.getInputs( this )
+
+    
+    const isWorklet = gen.mode === 'worklet'
+    const ref = isWorklet? '' : 'gen.'
+
+    if( isNaN( inputs[0] ) ) {
+      gen.closures.add({ [ this.name ]: isWorklet ? 'Math.round' : Math.round })
+
+      out = `${ref}round( ${inputs[0]} )`
+
+    } else {
+      out = Math.round( parseFloat( inputs[0] ) )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
 }
+<<<<<<< HEAD
 exports.SobelExpr = SobelExpr;
 /**
  * creates a Sobel edge detection expression that outputs the raw result; for
@@ -2360,6 +3140,50 @@ exports.SobelExpr = SobelExpr;
  */
 function sobel(samplerNum) {
     return new SobelExpr(samplerNum);
+=======
+
+module.exports = x => {
+  let round = Object.create( proto )
+
+  round.inputs = [ x ]
+
+  return round
+}
+
+},{"./gen.js":32}],64:[function(require,module,exports){
+'use strict'
+
+let gen     = require( './gen.js' )
+
+let proto = {
+  basename:'sah',
+
+  gen() {
+    let inputs = gen.getInputs( this ), out
+
+    //gen.data[ this.name ] = 0
+    //gen.data[ this.name + '_control' ] = 0
+
+    gen.requestMemory( this.memory )
+
+
+    out = 
+` var ${this.name}_control = memory[${this.memory.control.idx}],
+      ${this.name}_trigger = ${inputs[1]} > ${inputs[2]} ? 1 : 0
+
+  if( ${this.name}_trigger !== ${this.name}_control  ) {
+    if( ${this.name}_trigger === 1 ) 
+      memory[${this.memory.value.idx}] = ${inputs[0]}
+    
+    memory[${this.memory.control.idx}] = ${this.name}_trigger
+  }
+`
+    
+    gen.memo[ this.name ] = `memory[${this.memory.value.idx}]`//`gen.data.${this.name}`
+
+    return [ `memory[${this.memory.value.idx}]`, ' ' +out ]
+  }
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 }
 exports.sobel = sobel;
 
@@ -2394,6 +3218,7 @@ function genTernarySourceList(floats, success, failure, not) {
     sourceList.sections.push(")");
     return sourceList;
 }
+<<<<<<< HEAD
 class TernaryExpr extends expr_1.Operator {
     constructor(floats, success, failure, not) {
         super(success, genTernarySourceList(floats, success, failure, not), [
@@ -2406,6 +3231,40 @@ class TernaryExpr extends expr_1.Operator {
         this.success = success;
         this.failure = failure;
         this.needs.passCount = floats === null;
+=======
+
+},{"./gen.js":32}],65:[function(require,module,exports){
+'use strict'
+
+let gen = require( './gen.js' )
+
+let proto = {
+  basename:'selector',
+
+  gen() {
+    let inputs = gen.getInputs( this ), out, returnValue = 0
+    
+    switch( inputs.length ) {
+      case 2 :
+        returnValue = inputs[1]
+        break;
+      case 3 :
+        out = `  var ${this.name}_out = ${inputs[0]} === 1 ? ${inputs[1]} : ${inputs[2]}\n\n`;
+        returnValue = [ this.name + '_out', out ]
+        break;  
+      default:
+        out = 
+` var ${this.name}_out = 0
+  switch( ${inputs[0]} + 1 ) {\n`
+
+        for( let i = 1; i < inputs.length; i++ ){
+          out +=`    case ${i}: ${this.name}_out = ${inputs[i]}; break;\n` 
+        }
+
+        out += '  }\n\n'
+        
+        returnValue = [ this.name + '_out', ' ' + out ]
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
 }
 exports.TernaryExpr = TernaryExpr;
@@ -2428,6 +3287,7 @@ function ternary(floats, success, failure, not = false) {
 }
 exports.ternary = ternary;
 
+<<<<<<< HEAD
 },{"./expr":15}],46:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -2439,6 +3299,49 @@ class TimeExpr extends expr_1.ExprFloat {
         super(expr_1.tag `uTime`, []);
         this.needs.timeUniform = true;
     }
+=======
+},{"./gen.js":32}],66:[function(require,module,exports){
+'use strict'
+
+let gen   = require( './gen.js' ),
+    accum = require( './accum.js' ),
+    counter= require( './counter.js' ),
+    peek  = require( './peek.js' ),
+    ssd   = require( './history.js' ),
+    data  = require( './data.js' ),
+    proto = { basename:'seq' }
+
+module.exports = ( durations = 11025, values = [0,1], phaseIncrement = 1) => {
+  let clock
+  
+  if( Array.isArray( durations ) ) {
+    // we want a counter that is using our current
+    // rate value, but we want the rate value to be derived from
+    // the counter. must insert a single-sample dealy to avoid
+    // infinite loop.
+    const clock2 = counter( 0, 0, durations.length )
+    const __durations = peek( data( durations ), clock2, { mode:'simple' }) 
+    clock = counter( phaseIncrement, 0, __durations )
+    
+    // add one sample delay to avoid codegen loop
+    const s = ssd()
+    s.in( clock.wrap )
+    clock2.inputs[0] = s.out
+  }else{
+    // if the rate argument is a single value we don't need to
+    // do anything tricky.
+    clock = counter( phaseIncrement, 0, durations )
+  }
+  
+  const stepper = accum( clock.wrap, 0, { min:0, max:values.length })
+   
+  const ugen = peek( data( values ), stepper, { mode:'simple' })
+
+  ugen.name = proto.basename + gen.getUID()
+  ugen.trigger = clock.wrap
+
+  return ugen
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 }
 exports.TimeExpr = TimeExpr;
 /** creates a time expression that evaluates to the current time */
@@ -2447,6 +3350,7 @@ function time() {
 }
 exports.time = time;
 
+<<<<<<< HEAD
 },{"./expr":15}],47:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -2471,6 +3375,31 @@ class TranslateExpr extends expr_1.ExprVec2 {
     setPos(pos) {
         this.setUniform("uPos" + this.id, pos);
         this.pos = pos;
+=======
+},{"./accum.js":2,"./counter.js":16,"./data.js":18,"./gen.js":32,"./history.js":36,"./peek.js":56}],67:[function(require,module,exports){
+'use strict'
+
+let gen  = require('./gen.js')
+
+let proto = {
+  name:'sign',
+
+  gen() {
+    let out,
+        inputs = gen.getInputs( this )
+
+    
+    const isWorklet = gen.mode === 'worklet'
+    const ref = isWorklet? '' : 'gen.'
+
+    if( isNaN( inputs[0] ) ) {
+      gen.closures.add({ [ this.name ]: isWorklet ? 'Math.sign' : Math.sign })
+
+      out = `${ref}sign( ${inputs[0]} )`
+
+    } else {
+      out = Math.sign( parseFloat( inputs[0] ) )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
 }
 exports.TranslateExpr = TranslateExpr;
@@ -2480,6 +3409,7 @@ function translate(vec, pos) {
 }
 exports.translate = translate;
 
+<<<<<<< HEAD
 },{"./expr":15}],48:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -2497,6 +3427,31 @@ class TrueDepthExpr extends expr_1.ExprFloat {
     setDist(depth) {
         this.setUniform("uDist", depth);
         this.depth = expr_1.wrapInValue(depth);
+=======
+},{"./gen.js":32}],68:[function(require,module,exports){
+'use strict'
+
+let gen  = require('./gen.js')
+
+let proto = {
+  basename:'sin',
+
+  gen() {
+    let out,
+        inputs = gen.getInputs( this )
+    
+    
+    const isWorklet = gen.mode === 'worklet'
+    const ref = isWorklet? '' : 'gen.'
+
+    if( isNaN( inputs[0] ) ) {
+      gen.closures.add({ 'sin': isWorklet ? 'Math.sin' : Math.sin })
+
+      out = `${ref}sin( ${inputs[0]} )` 
+
+    } else {
+      out = Math.sin( parseFloat( inputs[0] ) )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
 }
 exports.TrueDepthExpr = TrueDepthExpr;
@@ -2506,6 +3461,7 @@ function truedepth(depth) {
 }
 exports.truedepth = truedepth;
 
+<<<<<<< HEAD
 },{"../glslfunctions":51,"./expr":15}],49:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -2528,6 +3484,85 @@ function vecSourceList(...components) {
 /** creates a basic vec2 expression */
 function vec2(comp1, comp2) {
     return new expr_1.BasicVec2(...vecSourceList(...[comp1, comp2].map((c) => expr_1.wrapInValue(c))));
+=======
+},{"./gen.js":32}],69:[function(require,module,exports){
+'use strict'
+
+let gen     = require( './gen.js' ),
+    history = require( './history.js' ),
+    sub     = require( './sub.js' ),
+    add     = require( './add.js' ),
+    mul     = require( './mul.js' ),
+    memo    = require( './memo.js' ),
+    gt      = require( './gt.js' ),
+    div     = require( './div.js' ),
+    _switch = require( './switch.js' )
+
+module.exports = ( in1, slideUp = 1, slideDown = 1 ) => {
+  let y1 = history(0),
+      filter, slideAmount
+
+  //y (n) = y (n-1) + ((x (n) - y (n-1))/slide) 
+  slideAmount = _switch( gt(in1,y1.out), slideUp, slideDown )
+
+  filter = memo( add( y1.out, div( sub( in1, y1.out ), slideAmount ) ) )
+
+  y1.in( filter )
+
+  return filter
+}
+
+},{"./add.js":5,"./div.js":23,"./gen.js":32,"./gt.js":33,"./history.js":36,"./memo.js":44,"./mul.js":50,"./sub.js":70,"./switch.js":71}],70:[function(require,module,exports){
+'use strict'
+
+const gen = require('./gen.js')
+
+const proto = {
+  basename:'sub',
+  gen() {
+    let inputs = gen.getInputs( this ),
+        out=0,
+        diff = 0,
+        needsParens = false, 
+        numCount = 0,
+        lastNumber = inputs[ 0 ],
+        lastNumberIsUgen = isNaN( lastNumber ), 
+        subAtEnd = false,
+        hasUgens = false,
+        returnValue = 0
+
+    this.inputs.forEach( value => { if( isNaN( value ) ) hasUgens = true })
+
+    out = '  var ' + this.name + ' = '
+
+    inputs.forEach( (v,i) => {
+      if( i === 0 ) return
+
+      let isNumberUgen = isNaN( v ),
+          isFinalIdx   = i === inputs.length - 1
+
+      if( !lastNumberIsUgen && !isNumberUgen ) {
+        lastNumber = lastNumber - v
+        out += lastNumber
+        return
+      }else{
+        needsParens = true
+        out += `${lastNumber} - ${v}`
+      }
+
+      if( !isFinalIdx ) out += ' - ' 
+    })
+
+    out += '\n'
+
+    returnValue = [ this.name, out ]
+
+    gen.memo[ this.name ] = this.name
+
+    return returnValue
+  }
+
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 }
 exports.vec2 = vec2;
 /** creates a basic vec3 expression */
@@ -2557,9 +3592,26 @@ function pvec4(comp1, comp2, comp3, comp4) {
 }
 exports.pvec4 = pvec4;
 
+<<<<<<< HEAD
 },{"./expr":15}],50:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+=======
+},{"./gen.js":32}],71:[function(require,module,exports){
+'use strict'
+
+let gen = require( './gen.js' )
+
+let proto = {
+  basename:'switch',
+
+  gen() {
+    let inputs = gen.getInputs( this ), out
+
+    if( inputs[1] === inputs[2] ) return inputs[1] // if both potential outputs are the same just return one of them
+    
+    out = `  var ${this.name}_out = ${inputs[0]} === 1 ? ${inputs[1]} : ${inputs[2]}\n`
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 },{}],51:[function(require,module,exports){
 "use strict";
@@ -2695,9 +3747,14 @@ exports.glslFuncs = {
   float lumaMin = min(lumaM, min(min(lumaNW, lumaNE), min(lumaSW, lumaSE)));
   float lumaMax = max(lumaM, max(max(lumaNW, lumaNE), max(lumaSW, lumaSE)));
 
+<<<<<<< HEAD
   vec2 dir;
   dir.x = -((lumaNW + lumaNE) - (lumaSW + lumaSE));
   dir.y = ((lumaNW + lumaSW) - (lumaNE + lumaSE));
+=======
+},{"./gen.js":32}],72:[function(require,module,exports){
+'use strict'
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   float dirReduce = max(
     (lumaNW + lumaNE + lumaSW + lumaSE) * (0.25 * FXAA_REDUCE_MUL), FXAA_REDUCE_MIN);
@@ -2798,11 +3855,16 @@ exports.glslFuncs = {
   vec2 i  = floor(v + dot(v, C.yy));
   vec2 x0 = v - i + dot(i, C.xx);
 
+<<<<<<< HEAD
   // Other two corners (x1, x2)
   vec2 i1 = vec2(0.0);
   i1 = (x0.x > x0.y)? vec2(1.0, 0.0):vec2(0.0, 1.0);
   vec2 x1 = x0.xy + C.xx - i1;
   vec2 x2 = x0.xy + C.zz;
+=======
+},{"./gen.js":32}],73:[function(require,module,exports){
+'use strict'
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   // Do some permutations to avoid
   // truncation effects in permutation
@@ -2857,10 +3919,15 @@ vec3 permute(vec3 x) { return mod289_3(((x*34.0)+1.0)*x); }`,
   k[2] = texture2D(uSampler, uv + vec2(w, -h));
   k[3] = texture2D(uSampler, uv + vec2(-w, 0.));
 
+<<<<<<< HEAD
   k[4] = texture2D(uSampler, uv + vec2(w, 0.));
   k[5] = texture2D(uSampler, uv + vec2(-w, h));
   k[6] = texture2D(uSampler, uv + vec2(0., h));
   k[7] = texture2D(uSampler, uv + vec2(w, h));
+=======
+},{"./gen.js":32}],74:[function(require,module,exports){
+'use strict'
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   vec4 edge_h = k[2] + (2. * k[4]) + k[7] - (k[0] + (2. * k[3]) + k[5]);
   vec4 edge_v = k[0] + (2. * k[1]) + k[2] - (k[5] + (2. * k[6]) + k[7]);
@@ -2961,6 +4028,7 @@ const webglprogramloop_1 = require("./webglprogramloop");
 function wrapInSetColors(effects) {
     return effects.map((e) => e instanceof expr_1.ExprVec4 || e instanceof EffectLoop ? e : new setcolorexpr_1.SetColorExpr(e));
 }
+<<<<<<< HEAD
 // should be function of loop?
 function processEffectMap(eMap) {
     const result = {};
@@ -2973,6 +4041,45 @@ function processEffectMap(eMap) {
 class EffectDictionary {
     constructor(effectMap) {
         this.effectMap = processEffectMap(effectMap);
+=======
+
+},{"./gen.js":32}],75:[function(require,module,exports){
+'use strict'
+
+let gen     = require( './gen.js' ),
+    lt      = require( './lt.js' ),
+    accum   = require( './accum.js' ),
+    div     = require( './div.js' )
+
+module.exports = ( frequency=440, pulsewidth=.5 ) => {
+  let graph = lt( accum( div( frequency, 44100 ) ), pulsewidth )
+
+  graph.name = `train${gen.getUID()}`
+
+  return graph
+}
+
+
+},{"./accum.js":2,"./div.js":23,"./gen.js":32,"./lt.js":40}],76:[function(require,module,exports){
+'use strict'
+
+const AWPF = require( './external/audioworklet-polyfill.js' ),
+      gen  = require( './gen.js' ),
+      data = require( './data.js' )
+
+let isStereo = false
+
+const utilities = {
+  ctx: null,
+  buffers: {},
+  isStereo:false,
+
+  clear() {
+    if( this.workletNode !== undefined ) {
+      this.workletNode.disconnect()
+    }else{
+      this.callback = () => 0
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
     toProgramMap(gl, vShader, uniformLocs, fShaders) {
         const programMap = {};
@@ -3258,6 +4365,101 @@ class Merger {
             console.log(effects);
             console.log(this.programMap);
         }
+<<<<<<< HEAD
+=======
+      }else{
+        setTimeout( ()=> resolve( utilities.buffers[ soundFilePath ] ), 0 )
+      }
+    })
+
+    if( !isLoaded ) req.send()
+
+    return promise
+  }
+
+}
+
+utilities.clear.callbacks = []
+
+module.exports = utilities
+
+},{"./data.js":18,"./external/audioworklet-polyfill.js":27,"./gen.js":32}],77:[function(require,module,exports){
+'use strict'
+
+/*
+ * many windows here adapted from https://github.com/corbanbrook/dsp.js/blob/master/dsp.js
+ * starting at line 1427
+ * taken 8/15/16
+*/ 
+
+const windows = module.exports = { 
+  bartlett( length, index ) {
+    return 2 / (length - 1) * ((length - 1) / 2 - Math.abs(index - (length - 1) / 2)) 
+  },
+
+  bartlettHann( length, index ) {
+    return 0.62 - 0.48 * Math.abs(index / (length - 1) - 0.5) - 0.38 * Math.cos( 2 * Math.PI * index / (length - 1))
+  },
+
+  blackman( length, index, alpha ) {
+    let a0 = (1 - alpha) / 2,
+        a1 = 0.5,
+        a2 = alpha / 2
+
+    return a0 - a1 * Math.cos(2 * Math.PI * index / (length - 1)) + a2 * Math.cos(4 * Math.PI * index / (length - 1))
+  },
+
+  cosine( length, index ) {
+    return Math.cos(Math.PI * index / (length - 1) - Math.PI / 2)
+  },
+
+  gauss( length, index, alpha ) {
+    return Math.pow(Math.E, -0.5 * Math.pow((index - (length - 1) / 2) / (alpha * (length - 1) / 2), 2))
+  },
+
+  hamming( length, index ) {
+    return 0.54 - 0.46 * Math.cos( Math.PI * 2 * index / (length - 1))
+  },
+
+  hann( length, index ) {
+    return 0.5 * (1 - Math.cos( Math.PI * 2 * index / (length - 1)) )
+  },
+
+  lanczos( length, index ) {
+    let x = 2 * index / (length - 1) - 1;
+    return Math.sin(Math.PI * x) / (Math.PI * x)
+  },
+
+  rectangular( length, index ) {
+    return 1
+  },
+
+  triangular( length, index ) {
+    return 2 / length * (length / 2 - Math.abs(index - (length - 1) / 2))
+  },
+
+  // parabola
+  welch( length, _index, ignore, shift=0 ) {
+    //w[n] = 1 - Math.pow( ( n - ( (N-1) / 2 ) ) / (( N-1 ) / 2 ), 2 )
+    const index = shift === 0 ? _index : (_index + Math.floor( shift * length )) % length
+    const n_1_over2 = (length - 1) / 2 
+
+    return 1 - Math.pow( ( index - n_1_over2 ) / n_1_over2, 2 )
+  },
+  inversewelch( length, _index, ignore, shift=0 ) {
+    //w[n] = 1 - Math.pow( ( n - ( (N-1) / 2 ) ) / (( N-1 ) / 2 ), 2 )
+    let index = shift === 0 ? _index : (_index + Math.floor( shift * length )) % length
+    const n_1_over2 = (length - 1) / 2
+
+    return Math.pow( ( index - n_1_over2 ) / n_1_over2, 2 )
+  },
+
+  parabola( length, index ) {
+    if( index <= length / 2 ) {
+      return windows.inversewelch( length / 2, index ) - 1
+    }else{
+      return 1 - windows.inversewelch( length / 2, index - length / 2 )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
     /**
      * use the source and channels to draw effect to target context; mouse
@@ -3347,12 +4549,43 @@ class Merger {
         this.programLoop = this.programMap[str];
     }
 }
+<<<<<<< HEAD
 exports.Merger = Merger;
 /** creates a texture given a context and options */
 function makeTexture(gl, options) {
     const texture = gl.createTexture();
     if (texture === null) {
         throw new Error("problem creating texture");
+=======
+
+},{}],78:[function(require,module,exports){
+'use strict'
+
+let gen  = require('./gen.js'),
+    floor= require('./floor.js'),
+    sub  = require('./sub.js'),
+    memo = require('./memo.js')
+
+let proto = {
+  basename:'wrap',
+
+  gen() {
+    let code,
+        inputs = gen.getInputs( this ),
+        signal = inputs[0], min = inputs[1], max = inputs[2],
+        out, diff
+
+    //out = `(((${inputs[0]} - ${this.min}) % ${diff}  + ${diff}) % ${diff} + ${this.min})`
+    //const long numWraps = long((v-lo)/range) - (v < lo);
+    //return v - range * double(numWraps);   
+    
+    if( this.min === 0 ) {
+      diff = max
+    }else if ( isNaN( max ) || isNaN( min ) ) {
+      diff = `${max} - ${min}`
+    }else{
+      diff = max - min
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
     // flip the order of the pixels, or else it displays upside down
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
@@ -3380,6 +4613,7 @@ function sendTexture(gl, src) {
 }
 exports.sendTexture = sendTexture;
 
+<<<<<<< HEAD
 },{"./codebuilder":1,"./exprs/expr":15,"./exprs/fragcolorexpr":16,"./exprs/regiondecorator":37,"./exprs/scenesampleexpr":41,"./exprs/setcolorexpr":42,"./exprs/ternaryexpr":45,"./settings":54,"./webglprogramloop":56}],54:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -3395,6 +4629,10 @@ exports.settings = {
     /** texture offset */
     offset: 0,
 };
+=======
+},{"./floor.js":29,"./gen.js":32,"./memo.js":44,"./sub.js":70}],79:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 },{}],55:[function(require,module,exports){
 "use strict";
@@ -3796,12 +5034,25 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     return dummy
   };
 
+<<<<<<< HEAD
   LooseParser.prototype.eat = function eat (type) {
     if (this.tok.type === type) {
       this.next();
       return true
     } else {
       return false
+=======
+    if (idx + amount >= this.heap.length) {
+      throw Error('No available blocks remain sufficient for allocation request.');
+    }
+    return idx;
+  },
+  free: function free(index) {
+    if (typeof this.list[index] !== 'number') {
+      //throw Error('Calling free() on non-existing block.');
+      console.warn('calling free() on non-existing block:', index, this.list )
+      return
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
   };
 
@@ -3840,10 +5091,16 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     this.curIndent = this.context.pop();
   };
 
+<<<<<<< HEAD
   LooseParser.prototype.lineEnd = function lineEnd (pos) {
     while (pos < this.input.length && !acorn.isNewLine(this.input.charCodeAt(pos))) { ++pos; }
     return pos
   };
+=======
+},{}],80:[function(require,module,exports){
+const Gibberish = require( 'gibberish-dsp' )
+const Ugen      = require( './ugen.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   LooseParser.prototype.indentationAfter = function indentationAfter (pos) {
     for (var count = 0;; ++pos) {
@@ -3873,10 +5130,33 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     this[name] = f(this[name]);
   };
 
+<<<<<<< HEAD
   LooseParser.prototype.parse = function parse () {
     this.next();
     return this.parseTopLevel()
   };
+=======
+},{"./ugen.js":114,"gibberish-dsp":295}],81:[function(require,module,exports){
+const Gibberish   = require( 'gibberish-dsp' )
+const Ugen        = require( './ugen.js' )
+const Instruments = require( './instruments.js' )
+const Oscillators = require( './oscillators.js' )
+const Effects     = require( './effects.js' )
+const Filters     = require( './filters.js' )
+const Binops      = require( './binops.js' )
+const Analysis    = require( './analysis.js' )
+const Envelopes   = require( './envelopes.js' )
+const Busses      = require( './busses.js' )
+const Ensemble    = require( './ensemble.js' )
+const Utility     = require( './utility.js' )
+const Freesound   = require( './freesound.js' )
+const Gen         = require( './gen.js' )
+const WavePattern = require( './wavePattern.js' )
+const WaveObjects = require( './waveObjects.js' )
+//const Core        = require( 'gibber.core.lib' )
+const AWPF        = require( './external/audioworklet-polyfill.js' )
+//const Arp         = require( './arp.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   LooseParser.extend = function extend () {
       var plugins = [], len = arguments.length;
@@ -3997,11 +5277,33 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     }
   };
 
+<<<<<<< HEAD
   lp.lookAhead = function(n) {
     while (n > this.ahead.length)
       { this.ahead.push(this.readToken()); }
     return this.ahead[n - 1]
   };
+=======
+      Gibberish.init( 44100*60*60, ctx ).then( processorNode => {
+        // XXX remove once gibber.core.lib has been properly integrated 
+        Audio.Core.Audio = Audio.Core.audio = Audio
+
+        Audio.initialized = true
+        Audio.node = processorNode
+        Audio.Gen = Gen( Audio )
+        Audio.Gen.init()
+        //Audio.Arp = Arp( Gibber )
+        Audio.Gen.export( Audio.Gen.ugens )
+        Audio.Theory.init( window.Gibber )
+        Audio.Ugen = Ugen
+        Audio.Utilities = Utility
+        Audio.WavePattern = WavePattern( Audio )
+        Audio.ctx = ctx
+        Audio.Out = Gibberish.output
+        
+        // must wait for Gen to be initialized
+        Audio.Clock.init( Audio.Gen, Audio )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   function isDummy(node) { return node.name === "✖" }
 
@@ -4450,6 +5752,7 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     return elts
   };
 
+<<<<<<< HEAD
   lp$1.parseExportSpecifierList = function() {
     var elts = [];
     var indent = this.curIndent, line = this.curLineStart, continuedLine = this.nextLineStart;
@@ -4470,6 +5773,38 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     this.popCx();
     return elts
   };
+=======
+    ramp.__wrapped__.from = from
+    ramp.__wrapped__.to = to
+
+    return obj
+  },
+
+  // what properties should be automatically (automagickally?)
+  // filtered through Audio.Clock.time()?
+  timeProps : {
+    Synth:[ 'attack', 'decay', 'sustain', 'release' ],
+    PolySynth:[ 'attack', 'decay', 'sustain', 'release' ],
+    Complex:[ 'attack', 'decay', 'sustain', 'release' ],
+    PolyComplex:[ 'attack', 'decay', 'sustain', 'release' ],
+    FM:[ 'attack', 'decay', 'sustain', 'release' ],
+    PolyFM:[ 'attack', 'decay', 'sustain', 'release' ],
+    Monosynth:[ 'attack', 'decay', 'sustain', 'release' ],
+    PolyMono:[ 'attack', 'decay', 'sustain', 'release' ],
+    Delay:[ 'time' ], 
+  }
+}
+
+module.exports = Audio
+
+},{"./analysis.js":80,"./binops.js":82,"./busses.js":83,"./clock.js":84,"./drums.js":85,"./effects.js":86,"./ensemble.js":87,"./envelopes.js":88,"./external/audioworklet-polyfill.js":89,"./filters.js":92,"./freesound.js":93,"./gen.js":94,"./instruments.js":95,"./make.js":96,"./oscillators.js":97,"./presets.js":98,"./theory.js":113,"./ugen.js":114,"./utility.js":115,"./waveObjects.js":116,"./wavePattern.js":117,"gibberish-dsp":295}],82:[function(require,module,exports){
+const Gibberish = require( 'gibberish-dsp' )
+const Ugen      = require( './ugen.js' )
+
+const Binops = {
+  create( Audio ) {
+    const binops = {}
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   var lp$2 = LooseParser.prototype;
 
@@ -4489,6 +5824,7 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     }
   };
 
+<<<<<<< HEAD
   lp$2.parseExpression = function(noIn) {
     var start = this.storeCurrentPos();
     var expr = this.parseMaybeAssign(noIn);
@@ -4500,6 +5836,11 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     }
     return expr
   };
+=======
+},{"./ugen.js":114,"gibberish-dsp":295}],83:[function(require,module,exports){
+const Gibberish = require( 'gibberish-dsp' )
+const Ugen      = require( './ugen.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   lp$2.parseParenExpression = function() {
     this.pushCx();
@@ -4550,11 +5891,49 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     return expr
   };
 
+<<<<<<< HEAD
   lp$2.parseExprOps = function(noIn) {
     var start = this.storeCurrentPos();
     var indent = this.curIndent, line = this.curLineStart;
     return this.parseExprOp(this.parseMaybeUnary(false), start, -1, noIn, indent, line)
   };
+=======
+    busses.Bus2 = Ugen( Gibberish.Bus2, bus2Description, Audio )
+    busses.__Bus2 = function( ...args ) {
+      let props
+      if( args.length > 1 || (args.length === 1 && typeof args[0] !== 'string' && args[0].type !== 'ensemble' )) {
+        props = { inputs:args }
+      }else if( args.length === 1 ) {
+        props = args[0]
+      }
+      
+      return props !== undefined ? busses.__Bus2( props ) : busses.__Bus2()
+    }
+
+    return busses
+  }
+}
+
+module.exports = Busses
+
+},{"./ugen.js":114,"gibberish-dsp":295}],84:[function(require,module,exports){
+const Gibberish = require( 'gibberish-dsp' )
+const serialize = require( 'serialize-javascript' )
+
+const Clock = {
+  __beatCount:0,
+  id:null,
+  nogibberish:true,
+  bpm:140,
+  seq:null,
+
+  store:function() { 
+    Gibberish.Clock = this
+    this.beatCount = 0
+    this.queue = []
+    this.init()
+  },
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   lp$2.parseExprOp = function(left, start, minPrec, noIn, indent, line) {
     if (this.curLineStart !== line && this.curIndent < indent && this.tokenStartsLine()) { return left }
@@ -4751,8 +6130,14 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     case acorn.tokTypes.braceL:
       return this.parseObj()
 
+<<<<<<< HEAD
     case acorn.tokTypes._class:
       return this.parseClass(false)
+=======
+},{"gibberish-dsp":295,"serialize-javascript":118}],85:[function(require,module,exports){
+const Ugen = require( './ugen.js' )
+const Presets = require( './presets.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     case acorn.tokTypes._function:
       node = this.startNode();
@@ -4945,6 +6330,7 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     return this.finishNode(node, "Identifier")
   };
 
+<<<<<<< HEAD
   lp$2.initFunction = function(node) {
     node.id = null;
     node.params = [];
@@ -4955,6 +6341,11 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     if (this.options.ecmaVersion >= 8)
       { node.async = false; }
   };
+=======
+},{"./presets.js":98,"./ugen.js":114}],86:[function(require,module,exports){
+const Gibberish = require( 'gibberish-dsp' )
+const Ugen      = require( './ugen.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   // Convert existing expression atom to assignable pattern
   // if possible.
@@ -5021,6 +6412,7 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     return this.finishNode(node, "FunctionExpression")
   };
 
+<<<<<<< HEAD
   lp$2.parseArrowExpression = function(node, params, isAsync) {
     var oldInAsync = this.inAsync, oldInFunction = this.inFunction;
     this.initFunction(node);
@@ -5035,6 +6427,14 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     } else {
       node.body = this.parseBlock();
       this.toks.adaptDirectivePrologue(node.body.body);
+=======
+},{"./ugen.js":114,"gibberish-dsp":295}],87:[function(require,module,exports){
+module.exports = function( Audio ) {
+  const Gibberish = Audio.Gibberish
+  const Ensemble = function( props ) {
+    const cp = {
+      shouldAddToUgen:true
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
     this.inAsync = oldInAsync;
     this.inFunction = oldInFunction;
@@ -5098,7 +6498,13 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
   (global = global || self, factory((global.acorn = global.acorn || {}, global.acorn.walk = {})));
 }(this, function (exports) { 'use strict';
 
+<<<<<<< HEAD
   // AST walker module for Mozilla Parser API compatible trees
+=======
+},{}],88:[function(require,module,exports){
+const Gibberish = require( 'gibberish-dsp' )
+const Ugen      = require( './ugen.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   // A simple walk is one where you simply specify callbacks to be
   // called on specific nodes. The last two arguments are optional. A
@@ -5164,6 +6570,7 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
 
   var Found = function Found(node, state) { this.node = node; this.state = state; };
 
+<<<<<<< HEAD
   // A full walk triggers the callback on each node
   function full(node, callback, baseVisitor, state, override) {
     if (!baseVisitor) { baseVisitor = base
@@ -5173,6 +6580,11 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
       if (!override) { callback(node, st, type); }
     })(node, state, override);
   }
+=======
+},{"./ugen.js":114,"gibberish-dsp":295}],89:[function(require,module,exports){
+arguments[4][27][0].apply(exports,arguments)
+},{"./realm.js":90,"dup":27}],90:[function(require,module,exports){
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   // An fullAncestor walk is like an ancestor walk, but triggers
   // the callback on each node
@@ -5247,6 +6659,7 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     }
   }
 
+<<<<<<< HEAD
   // Find the outermost matching node before a given position.
   function findNodeBefore(node, pos, test, baseVisitor, state) {
     test = makeTest(test);
@@ -5261,6 +6674,9 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     })(node, state);
     return max
   }
+=======
+},{}],91:[function(require,module,exports){
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   // Fallback to an Object.create polyfill for older environments.
   var create = Object.create || function(proto) {
@@ -5595,11 +7011,114 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
 
   nonASCIIidentifierStartChars = nonASCIIidentifierChars = null;
 
+<<<<<<< HEAD
   // These are a run-length and offset encoded representation of the
   // >0xffff code points that are a valid part of identifiers. The
   // offset starts at 0x10000, and each pair of numbers represents an
   // offset to the next range, and then a size of the range. They were
   // generated by bin/generate-identifier-regex.js
+=======
+	/* visualize in console */
+	//console.log(" ");
+	//console.log("LOADED "+name);
+	//console.log(this.TuningList[name].description);
+	//console.log(this.scale);
+	//var vis = [];
+	//for (var i=0;i<100;i++) {
+	//  vis[i] = " ";
+	//}
+	//for (var i=0;i<this.scale.length;i++) {
+	//  var spot = Math.round(this.scale[i] * 100 - 100);
+	//  if (i<10) {
+	//    vis.splice(spot,1,i+1);
+	//  } else {
+	//    vis.splice(spot,5,i+1);
+	//  }
+	//}
+	//var textvis = "";
+	//for (var i=0;i<vis.length;i++) {
+	//  textvis += vis[i];
+	//}
+	//console.log(name)
+	//console.log(textvis)
+	//// ET scale vis
+	//var vis = [];
+	//for (var i=0;i<100;i++) {
+	//  vis[i] = " ";
+	//}
+	//for (var i=0;i<this.etmajor.length;i++) {
+	//  var spot = Math.round(this.etmajor[i]/this.etmajor[0] * 100 - 100);
+	//  if (i<10) {
+	//    vis.splice(spot,1,i+1);
+	//  } else {
+	//    vis.splice(spot,5,i+1);
+	//  }
+		
+	//}
+	//var textvis = "";
+	//for (var i=0;i<vis.length;i++) {
+	//  textvis += vis[i];
+	//}
+	//console.log(textvis)
+	//console.log("equal-tempered major (reference)")
+}
+
+/* Search the names of tunings
+	 Returns an array of names of tunings */
+
+Tune.prototype.search = function(letters) {
+	var possible = []
+	for (var key in this.TuningList) {
+		if (key.toLowerCase().indexOf(letters.toLowerCase())!=-1) {
+			possible.push(key)
+		}
+	}
+	return possible
+}
+
+/* Return a collection of notes as an array */
+
+Tune.prototype.chord = function(midis) {
+	var output = []
+	for (var i=0;i<midis.length;i++) {
+		output.push(this.note(midis[i]))
+	}
+	return output;
+}
+
+
+/* Change the tonic frequency? */
+
+Tune.prototype.root = function(newmidi, newfreq) {
+	this.rootFreq = newfreq
+	// not working now ... needs much work.
+	// setKey is not transposing now, either.
+}
+
+module.exports = Tune
+
+},{}],92:[function(require,module,exports){
+const Gibberish = require( 'gibberish-dsp' )
+const Ugen      = require( './ugen.js' )
+
+const Filters = {
+  create( Audio ) {
+    const filters = {}
+
+    for( let filterName in Gibberish.filters ) {
+      const gibberishConstructor = Gibberish.filters[ filterName ]
+
+      const methods = Filters.descriptions[ filterName ] === undefined ? null : Filters.descriptions[ filterName ].methods
+      const description = { 
+        properties:gibberishConstructor.defaults || {}, 
+        methods:methods,
+        name:filterName,
+        category:'effects'
+      }
+      description.__defaults__ = { isStereo : true }
+      description.properties.isStereo = true
+      description.properties.type = 'fx'
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   // eslint-disable-next-line comma-spacing
   var astralIdentifierStartCodes = [0,11,2,25,2,18,2,1,2,14,3,13,35,122,70,52,268,28,4,48,48,31,14,29,6,37,11,29,3,35,5,7,2,4,43,157,19,35,5,35,5,39,9,51,157,310,10,21,11,7,153,5,3,0,2,43,2,1,4,0,3,22,11,22,10,30,66,18,2,1,11,21,11,25,71,55,7,1,65,0,16,3,2,2,2,28,43,28,4,28,36,7,2,27,28,53,11,21,11,18,14,17,111,72,56,50,14,50,14,35,477,28,11,0,9,21,155,22,13,52,76,44,33,24,27,35,30,0,12,34,4,0,13,47,15,3,22,0,2,0,36,17,2,24,85,6,2,0,2,3,2,14,2,9,8,46,39,7,3,1,3,21,2,6,2,1,2,4,4,0,19,0,13,4,159,52,19,3,21,0,33,47,21,1,2,0,185,46,42,3,37,47,21,0,60,42,14,0,72,26,230,43,117,63,32,0,161,7,3,38,17,0,2,0,29,0,11,39,8,0,22,0,12,45,20,0,35,56,264,8,2,36,18,0,50,29,113,6,2,1,2,37,22,0,26,5,2,1,2,31,15,0,328,18,270,921,103,110,18,195,2749,1070,4050,582,8634,568,8,30,114,29,19,47,17,3,32,20,6,18,689,63,129,74,6,0,67,12,65,1,2,0,29,6135,9,754,9486,286,50,2,18,3,9,395,2309,106,6,12,4,8,8,9,5991,84,2,70,2,1,3,0,3,1,3,3,2,11,2,0,2,6,2,64,2,3,3,7,2,6,2,27,2,3,2,4,2,0,4,6,2,339,3,24,2,24,2,30,2,24,2,30,2,24,2,30,2,24,2,30,2,24,2,7,2357,44,11,6,17,0,370,43,1301,196,60,67,8,0,1205,3,2,26,2,1,2,0,3,0,2,9,2,3,2,0,2,0,7,0,5,0,2,0,2,0,2,2,2,1,2,0,3,0,2,0,2,0,2,0,2,0,2,1,2,0,3,3,2,6,2,3,2,3,2,0,2,9,2,16,6,2,2,4,2,16,4421,42710,42,4148,12,221,3,5761,15,7472,3104,541];
@@ -5620,6 +7139,7 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     }
   }
 
+<<<<<<< HEAD
   // Test whether a given character code starts an identifier.
 
   function isIdentifierStart(code, astral) {
@@ -5699,6 +7219,120 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
 
     options.keyword = name;
     return keywords$1[name] = new TokenType(name, options)
+=======
+},{"./ugen.js":114,"gibberish-dsp":295}],93:[function(require,module,exports){
+module.exports = function( Audio ) {
+  const token = '6a00f80ba02b2755a044cc4ef004febfc4ccd476'
+
+  const Freesound = function( query, options ) {
+    const props = Object.assign( { count:1, maxVoices:1, panVoices:true }, typeof query === 'object' ? query : options )
+    const sampler = Audio.instruments.Multisampler( props )
+    queries[ typeof query ]( query, sampler, props.count )
+    return sampler
+  }
+
+  Freesound.loaded = {}
+  Freesound.queries = {}
+
+  Freesound.defaults = {
+    sort:          'downloads',
+    single:        true,
+    searchFilename:true,
+    min: 0,
+    max: .5,
+    reverse:false,
+    count:15
+  }
+
+  const queries = {
+    number( id, sampler, num=0 ) {
+      if (typeof Freesound.loaded[ id ] === 'undefined') {
+        fetch( `https://freesound.org/apiv2/sounds/${id}/?&format=json&token=${token}` )
+          .then( response => response.json() )
+          .then( json => {
+            const path = json.previews[ 'preview-hq-mp3' ]
+            
+            sampler.loadSample( path )
+            console.log( 'loading:', path )
+          }) 
+      }else{
+        if( Audio.Gibberish.mode === 'worklet' ) {
+          sampler.samplers[ num ].loadBuffer( Freesound.loaded[ id ] )
+        }
+      }
+    },
+
+    // search for text query, and then use returned id to 
+    // fetch by number 
+    string( query, sampler, count ) {
+      sampler.length = count
+      console.log( 'Searching freesound for ' + query )
+      let queryString ='https://freesound.org/apiv2/search/text/?'
+
+      if( query.indexOf( 'query' ) > -1 ) {
+        queryString += query
+        queryString += `&token=${token}&fields=name,id,previews`
+      }else{
+        queryString += `query=${query}&token=${token}&fields=name,id,previews&filter=original_filename:${query.split(' ')[0]} ac_single_event:true&sort=downloads_desc`
+
+      }
+
+      fetch( queryString )
+        .then( data => data.json() )
+        .then( sounds => {
+            sampler.length = count < sounds.results.length ? count : sounds.results.length
+            for( let i = 0; i < count; i++ ) {
+              const result = sounds.results[i]
+              if( result !== undefined ) {
+                const filename = result.name,
+                      id = result.id,
+                      url = result.previews[ 'preview-hq-mp3' ] 
+
+                if( Freesound.loaded[ url ] === undefined ) {
+                  console.log( `loading freesound file: ${filename}` )
+
+                  sampler.loadSample( url, (__sampler,buffer) => {
+                    //if( Audio !== undefined && Audio.Gibberish.mode === 'worklet' ) {
+                      Freesound.loaded[ url ] = buffer.data.buffer
+                    //}
+                  })
+
+                }else{
+                  // XXX memoing the files causes an error
+                  if( Gibberish.mode === 'worklet' ) {
+                    console.log( 'reusing freesound file:', filename )
+
+                    //setTimeout( ()=> {
+                      sampler.loadSample( url, null, Freesound.loaded[ url ] )
+                    //}, 0 )
+                  }
+                }
+              }
+            }
+        })
+    },
+
+    object( queryObj, sampler ) {
+      const q = Object.assign( {}, Freesound.defaults, queryObj )
+ 
+      let query = `query=${q.query}&format=json`
+  
+      query += `&filter=duration:[${q.min} TO ${q.max}]`
+      if( q.single ) query += ` ac_single_event:true`
+      if( q.searchFilename ) query += ` original_filename:${q.query}`
+
+      let sort = q.sort
+
+      // user error check
+      if( sort === 'ratings' ) sort = 'rating'
+
+      sort += q.reverse ? '_asc' : '_desc'
+
+      query += `&sort=${sort}`
+
+      queries.string( query, sampler, q.count )
+    }
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
   }
 
   var types = {
@@ -5708,6 +7342,7 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     name: new TokenType("name", startsExpr),
     eof: new TokenType("eof"),
 
+<<<<<<< HEAD
     // Punctuation token types.
     bracketL: new TokenType("[", {beforeExpr: true, startsExpr: true}),
     bracketR: new TokenType("]"),
@@ -5726,6 +7361,16 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     ellipsis: new TokenType("...", beforeExpr),
     backQuote: new TokenType("`", startsExpr),
     dollarBraceL: new TokenType("${", {beforeExpr: true, startsExpr: true}),
+=======
+},{}],94:[function(require,module,exports){
+module.exports = function( Audio ) {
+  
+const binops = [ 
+  'min','max','add','sub','mul','div','rdiv','mod',
+  'and','or','gt','eq','eqp','gte','gtep','gtp','lt','lte','ltep','ltp','neq',
+  'step' 
+]
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     // Operators. These carry several kinds of properties to help the
     // parser use them properly (the presence of these properties is
@@ -6284,7 +7929,23 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     return expr.type === "Identifier" || expr.type === "MemberExpression"
   };
 
+<<<<<<< HEAD
   var pp$1 = Parser.prototype;
+=======
+    let count = 0
+    out.__wrapped__.output = out.output = function( v ) {
+      //if( Audio.Gibber.Environment !== undefined ) {
+        // XXX should these be averaged instead of only taking every sixth sample (roughly
+        // corresponds to 58 frames a second)
+        if( count++ % 6 === 0 ) {
+          // XXX this shouldn't happen here, should happen when the annotation is created.
+          if( Audio.Gibber.Environment.Annotations.waveform.widgets[ temp ] === undefined ) {
+            Audio.Gibber.Environment.Annotations.waveform.widgets[ temp ] = out.widget
+          }
+          Audio.Gibber.Environment.Annotations.waveform.updateWidget( out.widget, v, false )
+        }
+      //}
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   // ### Statement parsing
 
@@ -6337,12 +7998,18 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     return false
   };
 
+<<<<<<< HEAD
   // check 'async [no LineTerminator here] function'
   // - 'async /*foo*/ function' is OK.
   // - 'async /*\n*/ function' is invalid.
   pp$1.isAsyncFunction = function() {
     if (this.options.ecmaVersion < 8 || !this.isContextual("async"))
       { return false }
+=======
+},{}],95:[function(require,module,exports){
+const Gibberish = require( 'gibberish-dsp' )
+const Ugen      = require( './ugen.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     skipWhiteSpace.lastIndex = this.pos;
     var skip = skipWhiteSpace.exec(this.input);
@@ -6367,9 +8034,82 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
       kind = "let";
     }
 
+<<<<<<< HEAD
     // Most types of statements are recognized by the keyword they
     // start with. Many are trivial to parse, some require a bit of
     // complexity.
+=======
+  descriptions: {
+    Clap:{
+      methods:[ 'trigger' ],
+    },   
+    Conga:{
+      methods:[ 'note','trigger' ],
+    },
+    Clave:{
+      methods:[ 'note','trigger' ],
+    },
+    Cowbell:{
+      methods:[ 'note','trigger' ],
+    },
+    FM:{
+      methods:[ 'note','trigger' ],
+    },
+    Hat:{
+      methods:[ 'note','trigger' ],
+    },
+    Karplus:{
+      methods:[ 'note','trigger' ],
+    },
+    Kick:{
+      methods:[ 'note','trigger' ],
+    },
+    Monosynth:{
+      methods:[ 'note','trigger' ],
+    },
+    Sampler:{
+      methods:[ 'note', 'trigger', 'loadFile', 'loadBuffer' ],
+    },
+    Multisampler:{
+      methods:[ 'note', 'trigger', 'pick', 'pickFile', 'loadSample'], 
+    },
+    Snare:{
+      methods:[ 'note','trigger' ],
+    },
+    Synth:{
+      methods:[ 'note','trigger' ],
+    },
+    Complex:{
+      methods:[ 'note','trigger' ],
+    },
+    Tom:{
+      methods:[ 'note','trigger' ],
+    },
+    PolySynth:{
+      methods:[ 'chord','note','trigger' ],
+    },
+    PolyComplex:{
+      methods:[ 'chord','note','trigger' ],
+    },
+    PolyFM:{
+      methods:[ 'chord','note','trigger' ],
+    },
+    PolyKarplus:{
+      methods:[ 'chord','note','trigger' ],
+    },
+    PolyMono:{
+      methods:[ 'chord','note','trigger' ],
+    },
+    PolyConga:{
+      methods:[ 'chord','note','trigger' ],
+    },
+    PolyTom:{
+      methods:[ 'chord','note','trigger' ],
+    },
+  },
+  
+}
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     switch (starttype) {
     case types._break: case types._continue: return this.parseBreakContinueStatement(node, starttype.keyword)
@@ -6408,6 +8148,7 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
           { return this.parseExpressionStatement(node, this.parseExpression()) }
       }
 
+<<<<<<< HEAD
       if (!this.options.allowImportExportEverywhere) {
         if (!topLevel)
           { this.raise(this.start, "'import' and 'export' may only appear at the top level"); }
@@ -6415,6 +8156,11 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
           { this.raise(this.start, "'import' and 'export' may appear only with 'sourceType: module'"); }
       }
       return starttype === types._import ? this.parseImport(node) : this.parseExport(node, exports)
+=======
+},{"./ugen.js":114,"gibberish-dsp":295}],96:[function(require,module,exports){
+module.exports = function( Gibber ) {
+  const Gibberish = Gibber.Gibberish
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
       // If the statement does not start with a statement keyword or a
       // brace, it's an ExpressionStatement or LabeledStatement. We
@@ -6487,6 +8233,7 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
   // part (semicolon immediately after the opening parenthesis), it
   // is a regular `for` loop.
 
+<<<<<<< HEAD
   pp$1.parseForStatement = function(node) {
     this.next();
     var awaitAt = (this.options.ecmaVersion >= 9 && (this.inAsync || (!this.inFunction && this.options.allowAwaitOutsideFunction)) && this.eatContextual("await")) ? this.lastTokStart : -1;
@@ -6496,6 +8243,35 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     if (this.type === types.semi) {
       if (awaitAt > -1) { this.unexpected(awaitAt); }
       return this.parseFor(node, null)
+=======
+/* example use:
+def = {
+  name:'Mysine',
+  type:'Ugen',
+  properties:{ frequency:220 },
+  constructor: function() {
+    const gen = Gibberish.genish
+    const graph = gen.cycle( gen.in('frequency') )
+    return graph
+  }
+}
+ 
+Mysine = Make( def )
+sine = S()
+sine.frequency.seq( [110,220,330], 1/8 )
+sine.connect()
+*/
+
+},{}],97:[function(require,module,exports){
+const Gibberish = require( 'gibberish-dsp' )
+const Ugen      = require( './ugen.js' )
+
+const Oscillators = {
+  create( Audio ) {
+    const oscillators = {}
+    const defaults = {
+      frequency:220, gain:.25, pulsewidth:.5
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
     var isLet = this.isLet();
     if (this.type === types._var || this.type === types._const || isLet) {
@@ -6555,10 +8331,17 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     // optional arguments, we eagerly look for a semicolon or the
     // possibility to insert one.
 
+<<<<<<< HEAD
     if (this.eat(types.semi) || this.insertSemicolon()) { node.argument = null; }
     else { node.argument = this.parseExpression(); this.semicolon(); }
     return this.finishNode(node, "ReturnStatement")
   };
+=======
+},{"./ugen.js":114,"gibberish-dsp":295}],98:[function(require,module,exports){
+const Presets = {
+  process( description, args, Audio ) {
+    let output
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   pp$1.parseSwitchStatement = function(node) {
     this.next();
@@ -6609,9 +8392,26 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     return this.finishNode(node, "ThrowStatement")
   };
 
+<<<<<<< HEAD
   // Reused empty array added for node fields that are always empty.
 
   var empty = [];
+=======
+  instruments: {
+    Complex: require( './presets/complex_presets.js' ),
+    Synth: require( './presets/synth_presets.js' ),
+    FM:    require( './presets/fm_presets.js' ),
+    Monosynth: require( './presets/monosynth_presets.js' ),
+    PolyMono: require( './presets/monosynth_presets.js' ),
+    Snare: require( './presets/snare_presets.js' ),
+    Kick: require( './presets/kick_presets.js' ),
+    Hat: require( './presets/hat_presets.js' ),
+
+    EDrums: require( './presets/edrums_presets.js' ),
+    Drums:  require( './presets/drums_presets.js' ),
+    Multisampler: require( './presets/multisampler.js' )
+  },
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   pp$1.parseTryStatement = function(node) {
     this.next();
@@ -6670,6 +8470,7 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     return this.finishNode(node, "EmptyStatement")
   };
 
+<<<<<<< HEAD
   pp$1.parseLabeledStatement = function(node, maybeName, expr, context) {
     for (var i$1 = 0, list = this.labels; i$1 < list.length; i$1 += 1)
       {
@@ -6686,6 +8487,86 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
         label$1.statementStart = this.start;
         label$1.kind = kind;
       } else { break }
+=======
+},{"./presets/bus2_presets.js":99,"./presets/chorus_presets.js":100,"./presets/complex_presets.js":101,"./presets/distortion_presets.js":102,"./presets/drums_presets.js":103,"./presets/edrums_presets.js":104,"./presets/flanger_presets.js":105,"./presets/fm_presets.js":106,"./presets/hat_presets.js":107,"./presets/kick_presets.js":108,"./presets/monosynth_presets.js":109,"./presets/multisampler.js":110,"./presets/snare_presets.js":111,"./presets/synth_presets.js":112}],99:[function(require,module,exports){
+module.exports = {
+
+  'spaceverb': {
+    presetInit: function( audio ) {
+      this.fx.verb = audio.effects.Freeverb({ roomSize:.985, dry:1 })
+      this.fx.add( this.fx.verb )
+    }
+  },
+  'echoverb.1/3': {
+    presetInit: function( audio ) {
+      this.fx.delay = audio.effects.Delay({ time:1/3, feedback:.35, wetdry:.5 })
+      this.fx.reverb  = audio.effects.Freeverb({ roomSize:.985, dry:1 })
+      this.fx.add( this.fx.delay )
+      this.fx.add( this.fx.reverb )
+      this.feedback = this.fx.delay.feedback
+      this.time = this.fx.delay.time
+      this.roomSize = this.fx.reverb.roomSize
+    }
+  },
+  'echoverb.1/6': {
+    presetInit: function( audio ) {
+      this.fx.delay = audio.effects.Delay({ time:1/6, feedback:.35, wetdry:.5 })
+      this.fx.verb  = audio.effects.Freeverb({ roomSize:.985, dry:1 })
+      this.fx.add( this.fx.delay, this.fx.reverb )
+      this.feedback = this.fx.delay.feedback
+      this.time = this.fx.delay.time
+      this.roomSize = this.fx.reverb.roomSize
+    }
+  },
+  'delay.1/6': {
+    presetInit: function( audio ) {
+      this.fx.delay = audio.effects.Delay({ time:1/6, feedback:.35, wetdry:.5 })
+      this.fx.add( this.fx.delay )
+      this.feedback = this.fx.delay.feedback
+      this.time = this.fx.delay.time
+    }
+  },
+  'delay.1/3': {
+    presetInit: function( audio ) {
+      this.fx.delay = audio.effects.Delay({ time:1/3, feedback:.35, wetdry:1 })
+      this.fx.add( this.fx.delay )
+      this.feedback = this.fx.delay.feedback
+      this.time = this.fx.delay.time
+    }
+  }, 
+  'delay.1/6.fb': {
+    presetInit: function( audio ) {
+      this.delay = audio.effects.Delay({ time:1/6, feedback:.825, wetdry:1 })
+      this.fx.add( this.delay ) 
+    }
+  },
+  'delay.1/3.fb': {
+    presetInit: function( audio ) {
+      this.delay = audio.effects.Delay({ time:1/3, feedback:.825, wetdry:1 })
+      this.fx.add( this.delay )
+    }
+  },
+  'delay.1/5': {
+    presetInit: function( audio ) {
+      this.fx.delay = audio.effects.Delay({ time:1/5, feedback:.35, wetdry:1 })
+      this.fx.add( this.fx.delay )
+      this.feedback = this.fx.delay.feedback
+      this.time = this.fx.delay.time
+    }
+  },
+  'delay.1/8': {
+    presetInit: function( audio ) {
+      this.fx.delay = audio.effects.Delay({ time:1/8, feedback:.35, wetdry:1 })
+      this.fx.add( this.fx.delay )
+      this.feedback = this.fx.delay.feedback
+      this.time = this.fx.delay.time
+    }
+  },
+  'delay.1/9': {
+    presetInit: function( audio ) {
+      this.fx.delay = audio.effects.Delay({ time:1/9, feedback:.35, wetdry:1 })
+      this.fx.add( this.fx.delay )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
     this.labels.push({name: maybeName, kind: kind, statementStart: this.start});
     node.body = this.parseStatement(context ? context.indexOf("label") === -1 ? context + "label" : context : "label");
@@ -6694,11 +8575,16 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     return this.finishNode(node, "LabeledStatement")
   };
 
+<<<<<<< HEAD
   pp$1.parseExpressionStatement = function(node, expr) {
     node.expression = expr;
     this.semicolon();
     return this.finishNode(node, "ExpressionStatement")
   };
+=======
+},{}],100:[function(require,module,exports){
+module.exports = {
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   // Parse a semicolon-enclosed block of statements, handling `"use
   // strict"` declarations when `allowStrict` is true (used for
@@ -6719,9 +8605,32 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     return this.finishNode(node, "BlockStatement")
   };
 
+<<<<<<< HEAD
   // Parse a regular `for` loop. The disambiguation code in
   // `parseStatement` will already have parsed the init statement or
   // expression.
+=======
+},{}],101:[function(require,module,exports){
+module.exports = {
+  'plucked': {
+    bias:.35,
+    gain:1,
+    decay:1/5,
+    pregain:4
+  },
+  
+  'perc': {
+    bias:.35,
+    gain:1,
+    decay:1/5,
+    pregain:5,
+  }
+
+}
+
+},{}],102:[function(require,module,exports){
+module.exports = {
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   pp$1.parseFor = function(node, init) {
     node.init = init;
@@ -6770,7 +8679,12 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     return this.finishNode(node, isForIn ? "ForInStatement" : "ForOfStatement")
   };
 
+<<<<<<< HEAD
   // Parse a list of variable declarations.
+=======
+},{}],103:[function(require,module,exports){
+module.exports = {
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   pp$1.parseVar = function(node, isFor, kind) {
     node.declarations = [];
@@ -6800,8 +8714,13 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
 
   var FUNC_STATEMENT = 1, FUNC_HANGING_STATEMENT = 2, FUNC_NULLABLE_ID = 4;
 
+<<<<<<< HEAD
   // Parse a function declaration or literal (depending on the
   // `statement & FUNC_STATEMENT`).
+=======
+},{}],104:[function(require,module,exports){
+module.exports = {
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   // Remove `allowExpressionBody` for 7.0.0, as it is only called with false
   pp$1.parseFunction = function(node, statement, allowExpressionBody, isAsync) {
@@ -6824,11 +8743,21 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
         { this.checkLVal(node.id, (this.strict || node.generator || node.async) ? this.treatFunctionsAsVar ? BIND_VAR : BIND_LEXICAL : BIND_FUNCTION); }
     }
 
+<<<<<<< HEAD
     var oldYieldPos = this.yieldPos, oldAwaitPos = this.awaitPos, oldAwaitIdentPos = this.awaitIdentPos;
     this.yieldPos = 0;
     this.awaitPos = 0;
     this.awaitIdentPos = 0;
     this.enterScope(functionFlags(node.async, node.generator));
+=======
+},{}],105:[function(require,module,exports){
+module.exports = {
+  moderate: {
+    feedback: .25,
+    frequency:.5,
+    offset:.1
+  },
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     if (!(statement & FUNC_STATEMENT))
       { node.id = this.type === types.name ? this.parseIdent() : null; }
@@ -6836,11 +8765,16 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     this.parseFunctionParams(node);
     this.parseFunctionBody(node, allowExpressionBody, false);
 
+<<<<<<< HEAD
     this.yieldPos = oldYieldPos;
     this.awaitPos = oldAwaitPos;
     this.awaitIdentPos = oldAwaitIdentPos;
     return this.finishNode(node, (statement & FUNC_STATEMENT) ? "FunctionDeclaration" : "FunctionExpression")
   };
+=======
+},{}],106:[function(require,module,exports){
+module.exports = {
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   pp$1.parseFunctionParams = function(node) {
     this.expect(types.parenL);
@@ -6848,8 +8782,23 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     this.checkYieldAwaitInDefaultParams();
   };
 
+<<<<<<< HEAD
   // Parse a class declaration or literal (depending on the
   // `isStatement` parameter).
+=======
+  perc:{
+    attack : 1/4096,
+    index : .5,
+    cmRatio : 4/3,
+    decay : 1/8,
+    shape:'exponential',
+    presetInit: function( audio ) {
+      if( this.voices && this.voices.length > 1 ) {
+        this.spread( .99 )
+      }
+    }
+  },
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   pp$1.parseClass = function(node, isStatement) {
     this.next();
@@ -6937,6 +8886,7 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     return method
   };
 
+<<<<<<< HEAD
   pp$1.parseClassMethod = function(method, isGenerator, isAsync, allowsDirectSuper) {
     method.value = this.parseMethod(isGenerator, isAsync, allowsDirectSuper);
     return this.finishNode(method, "MethodDefinition")
@@ -6957,6 +8907,42 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
   pp$1.parseClassSuper = function(node) {
     node.superClass = this.eat(types._extends) ? this.parseExprSubscripts() : null;
   };
+=======
+	clarinet : {
+		cmRatio	: 3 / 2,
+		index	: 1.5,
+		attack: audio => audio.Clock.ms( 50 ), 
+		decay:  audio => audio.Clock.ms( 200 )
+  },
+
+  fun : {
+    decay:1/2,
+    feedback: .0015,
+    gain:.1
+  },
+
+  chirp: {
+		attack: audio => audio.Clock.ms( 1 ), 
+    index : 1.15,
+    glide : 1,
+    feedback : .5,
+    cmRatio : 1.5,
+    decay : 1/4,
+    octave : 1,
+    shape:'exponential'
+  }
+}
+
+},{}],107:[function(require,module,exports){
+module.exports = {
+  short: {
+    decay:.01
+  }
+}
+
+},{}],108:[function(require,module,exports){
+module.exports = {
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   // Parses module export declaration.
 
@@ -7035,11 +9021,16 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
         {
           var prop = list[i];
 
+<<<<<<< HEAD
           this.checkPatternExport(exports, prop);
         } }
     else if (type === "ArrayPattern")
       { for (var i$1 = 0, list$1 = pat.elements; i$1 < list$1.length; i$1 += 1) {
         var elt = list$1[i$1];
+=======
+},{}],109:[function(require,module,exports){
+module.exports = {
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
           if (elt) { this.checkPatternExport(exports, elt); }
       } }
@@ -7095,6 +9086,7 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
 
   // Parses import declaration.
 
+<<<<<<< HEAD
   pp$1.parseImport = function(node) {
     this.next();
     // import '...'
@@ -7109,6 +9101,44 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     this.semicolon();
     return this.finishNode(node, "ImportDeclaration")
   };
+=======
+  easy : {
+    attack: audio=> audio.Clock.ms(1),
+    decay:2,
+    cutoff:.3,
+    glide:.9995,
+  },
+  
+  easyfx : {
+    attack: audio=> audio.Clock.ms(1),
+    decay:2,
+    presetInit: function( audio ) {
+      this.fx.add( audio.effects.Delay( Clock.time(1/6), .3) )
+    },
+    cutoff:.125,
+    glide:1000,
+    detune2:.001,
+    detune3:-.001,
+    filterType:1,
+    filterMult:4,
+    Q:.5,
+  },
+  chords: {
+    attack: audio=> audio.Clock.ms(1),
+    decay:1/2,
+    presetInit: function( audio ) {
+      this.fx.add( audio.effects.Delay( Clock.time(1/6), .5) )
+    },
+    amp:.3,
+    octave2:0,
+    octave3:0,
+    cutoff:.5,
+    glide:.9995,
+    filterType:1,
+    filterMult:3,
+    Q:.75,
+  },
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   // Parses a comma-separated list of module imports.
 
@@ -7168,10 +9198,48 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     )
   };
 
+<<<<<<< HEAD
   var pp$2 = Parser.prototype;
 
   // Convert existing expression atom to assignable pattern
   // if possible.
+=======
+  'bass.muted': {
+    Q:.45,
+    cutoff:.5,
+    useADSR:true,
+    shape:'exponential',
+    decay:1/8,
+    sustain:1/4,
+    release:1/1024,
+    octave:-3,
+    panVoices:true,
+    filterMult:.5
+  },
+  'bass.stab': {
+    Q:.35,
+    detune2:1.5,
+    detune3:.5,
+    cutoff:.5,
+    useADSR:true,
+    shape:'exponential',
+    decay:1/10,
+    sustain:1/4,
+    release:1/1024,
+    octave:-3,
+    filterMult:1.85,
+    gain:.75
+  },
+  short: { 
+    attack:1/4096,
+    decay:1/16, 
+    maxVoices:3, 
+    cutoff:1.5, 
+    filterMult:0,
+    useADSR:false,
+    gain:.5
+  },
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   pp$2.toAssignable = function(node, isBinding, refDestructuringErrors) {
     if (this.options.ecmaVersion >= 6 && node) {
@@ -7186,11 +9254,200 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
       case "RestElement":
         break
 
+<<<<<<< HEAD
       case "ObjectExpression":
         node.type = "ObjectPattern";
         if (refDestructuringErrors) { this.checkPatternErrors(refDestructuringErrors, true); }
         for (var i = 0, list = node.properties; i < list.length; i += 1) {
           var prop = list[i];
+=======
+},{}],110:[function(require,module,exports){
+module.exports = {
+
+  drums: { 
+    files:[
+      'resources/audiofiles/kick.wav',
+      'resources/audiofiles/hat.wav',
+      'resources/audiofiles/snare.wav',
+      'resources/audiofiles/openhat.wav'
+    ],
+    presetInit() {
+      this.length = 4
+    }
+  },
+  test: {
+    files:[
+      'resources/audiofiles/kick.wav',
+      'resources/audiofiles/openhat.wav'
+    ],
+    presetInit() {
+      this.length = 2
+    }
+  },
+  beatbox: {
+    files:[
+      'resources/audiofiles/beatbox/^k.wav',
+      'resources/audiofiles/beatbox/^p.wav',
+      'resources/audiofiles/beatbox/^tss.wav',
+      'resources/audiofiles/beatbox/8.wav',
+      'resources/audiofiles/beatbox/a.wav',
+      'resources/audiofiles/beatbox/b.wav',
+      'resources/audiofiles/beatbox/d.wav',
+      'resources/audiofiles/beatbox/dot.wav',
+      'resources/audiofiles/beatbox/duf.wav',
+      'resources/audiofiles/beatbox/f.wav',
+      'resources/audiofiles/beatbox/k.wav',
+      'resources/audiofiles/beatbox/h.wav',
+      'resources/audiofiles/beatbox/m.wav',
+      'resources/audiofiles/beatbox/n.wav',
+    ],
+    presetInit() {
+      this.length = 14
+    }
+  },
+  bleeps: {
+    files:[
+      'resources/audiofiles/bent-bleeps/51063__stamperadam__bleep1.wav',
+      'resources/audiofiles/bent-bleeps/51064__stamperadam__bleep2.wav',
+      'resources/audiofiles/bent-bleeps/51065__stamperadam__clap.wav',
+      'resources/audiofiles/bent-bleeps/51066__stamperadam__click.wav',
+      'resources/audiofiles/bent-bleeps/51067__stamperadam__click1.wav',
+      'resources/audiofiles/bent-bleeps/51068__stamperadam__g1.wav',
+      'resources/audiofiles/bent-bleeps/51069__stamperadam__g2.wav',
+      'resources/audiofiles/bent-bleeps/51070__stamperadam__g3.wav',
+      'resources/audiofiles/bent-bleeps/51071__stamperadam__g4.wav',
+      'resources/audiofiles/bent-bleeps/51072__stamperadam__g5.wav',
+      'resources/audiofiles/bent-bleeps/51073__stamperadam__g6.wav',
+      'resources/audiofiles/bent-bleeps/51074__stamperadam__g7.wav',
+      'resources/audiofiles/bent-bleeps/51075__stamperadam__g8.wav',
+      'resources/audiofiles/bent-bleeps/51076__stamperadam__g9.wav',
+      'resources/audiofiles/bent-bleeps/51077__stamperadam__glitch.wav',
+      'resources/audiofiles/bent-bleeps/51078__stamperadam__hatt.wav',
+      'resources/audiofiles/bent-bleeps/51079__stamperadam__hit.wav',
+      'resources/audiofiles/bent-bleeps/51080__stamperadam__hitt.wav',
+      'resources/audiofiles/bent-bleeps/51081__stamperadam__hum.wav',
+      'resources/audiofiles/bent-bleeps/51082__stamperadam__kik.wav',
+      'resources/audiofiles/bent-bleeps/51083__stamperadam__snar.wav',
+      'resources/audiofiles/bent-bleeps/51084__stamperadam__wa.wav',
+    ],
+    presetInit() {
+      this.length = 22
+    }
+  },
+  cr7030: {
+    files:[
+      'resources/audiofiles/cr7030/68602__birdflu__bongo7030.wav',
+      'resources/audiofiles/cr7030/68603__birdflu__clave7030.wav',
+      'resources/audiofiles/cr7030/68606__birdflu__hatclosed7030.wav',
+      'resources/audiofiles/cr7030/68607__birdflu__hatopen7030.wav',
+      'resources/audiofiles/cr7030/68608__birdflu__kick7030.wav',
+      'resources/audiofiles/cr7030/68609__birdflu__snare7030.wav',
+      'resources/audiofiles/cr7030/68610__birdflu__tom7030.wav',
+    ],
+    presetInit(){
+      this.length = 7
+    }
+  },
+  kicks: {
+    files:[
+      'resources/audiofiles/kicks/249200__netr-si__kick-32.wav',
+      'resources/audiofiles/kicks/249201__netr-si__kick-33.wav',
+      'resources/audiofiles/kicks/249202__netr-si__kick-27.wav',
+      'resources/audiofiles/kicks/249203__netr-si__kick-28.wav',
+      'resources/audiofiles/kicks/249204__netr-si__kick-25.wav',
+      'resources/audiofiles/kicks/249205__netr-si__kick-26.wav',
+      'resources/audiofiles/kicks/249206__netr-si__kick-30.wav',
+      'resources/audiofiles/kicks/249207__netr-si__kick-31.wav',
+      'resources/audiofiles/kicks/249208__netr-si__kick-29.wav',
+      'resources/audiofiles/kicks/249209__netr-si__kick-3.wav',
+      'resources/audiofiles/kicks/249211__netr-si__kick-42.wav',
+      'resources/audiofiles/kicks/249212__netr-si__kick-41.wav',
+      'resources/audiofiles/kicks/249213__netr-si__kick-35.wav',
+      'resources/audiofiles/kicks/249214__netr-si__kick-34.wav',
+      'resources/audiofiles/kicks/249215__netr-si__kick-37.wav',
+      'resources/audiofiles/kicks/249216__netr-si__kick-36.wav',
+      'resources/audiofiles/kicks/249217__netr-si__kick-39.wav',
+      'resources/audiofiles/kicks/249218__netr-si__kick-38.wav',
+      'resources/audiofiles/kicks/249219__netr-si__kick-40.wav',
+      'resources/audiofiles/kicks/249220__netr-si__kick-4.wav',
+      'resources/audiofiles/kicks/249222__netr-si__kick-87.wav',
+      'resources/audiofiles/kicks/249223__netr-si__kick-9.wav',
+      'resources/audiofiles/kicks/249224__netr-si__kick-83.wav',
+      'resources/audiofiles/kicks/249225__netr-si__kick-84.wav',
+      'resources/audiofiles/kicks/249226__netr-si__kick-85.wav',
+      'resources/audiofiles/kicks/249227__netr-si__kick-86.wav',
+      'resources/audiofiles/kicks/249228__netr-si__kick-8.wav',
+      'resources/audiofiles/kicks/249229__netr-si__kick-80.wav',
+      'resources/audiofiles/kicks/249230__netr-si__kick-81.wav',
+      'resources/audiofiles/kicks/249231__netr-si__kick-82.wav',
+      'resources/audiofiles/kicks/249232__netr-si__kick-20.wav',
+      'resources/audiofiles/kicks/249233__netr-si__kick-2.wav',
+      'resources/audiofiles/kicks/249234__netr-si__kick-19.wav',
+      'resources/audiofiles/kicks/249235__netr-si__kick-18.wav',
+      'resources/audiofiles/kicks/249236__netr-si__kick-24.wav',
+      'resources/audiofiles/kicks/249237__netr-si__kick-23.wav',
+      'resources/audiofiles/kicks/249238__netr-si__kick-22.wav',
+      'resources/audiofiles/kicks/249239__netr-si__kick-21.wav',
+      'resources/audiofiles/kicks/249240__netr-si__kick-25-2.wav',
+      'resources/audiofiles/kicks/249241__netr-si__kick-25-1.wav',
+      'resources/audiofiles/kicks/249242__netr-si__kick-12.wav',
+      'resources/audiofiles/kicks/249243__netr-si__kick-11.wav',
+      'resources/audiofiles/kicks/249244__netr-si__kick-10.wav',
+      'resources/audiofiles/kicks/249245__netr-si__kick-1.wav',
+      'resources/audiofiles/kicks/249246__netr-si__kick-15.wav',
+      'resources/audiofiles/kicks/249247__netr-si__kick-14.wav',
+      'resources/audiofiles/kicks/249248__netr-si__kick-14-1.wav',
+      'resources/audiofiles/kicks/249249__netr-si__kick-13.wav',
+      'resources/audiofiles/kicks/249250__netr-si__kick-17.wav',
+      'resources/audiofiles/kicks/249251__netr-si__kick-16.wav',
+      'resources/audiofiles/kicks/249252__netr-si__kick-67.wav',
+      'resources/audiofiles/kicks/249253__netr-si__kick-68.wav',
+      'resources/audiofiles/kicks/249254__netr-si__kick-65.wav',
+      'resources/audiofiles/kicks/249255__netr-si__kick-66.wav',
+      'resources/audiofiles/kicks/249256__netr-si__kick-63.wav',
+      'resources/audiofiles/kicks/249257__netr-si__kick-64.wav',
+      'resources/audiofiles/kicks/249258__netr-si__kick-61.wav',
+      'resources/audiofiles/kicks/249259__netr-si__kick-62s.wav',
+      'resources/audiofiles/kicks/249260__netr-si__kick-69.wav',
+      'resources/audiofiles/kicks/249261__netr-si__kick-7.wav',
+      'resources/audiofiles/kicks/249262__netr-si__kick-75.wav',
+      'resources/audiofiles/kicks/249263__netr-si__kick-74.wav',
+      'resources/audiofiles/kicks/249264__netr-si__kick-77.wav',
+      'resources/audiofiles/kicks/249265__netr-si__kick-76.wav',
+      'resources/audiofiles/kicks/249266__netr-si__kick-71.wav',
+      'resources/audiofiles/kicks/249267__netr-si__kick-70.wav',
+      'resources/audiofiles/kicks/249268__netr-si__kick-73.wav',
+      'resources/audiofiles/kicks/249269__netr-si__kick-72.wav',
+      'resources/audiofiles/kicks/249270__netr-si__kick-79.wav',
+      'resources/audiofiles/kicks/249271__netr-si__kick-78.wav',
+      'resources/audiofiles/kicks/249272__netr-si__kick-43.wav',
+      'resources/audiofiles/kicks/249273__netr-si__kick-44.wav',
+      'resources/audiofiles/kicks/249274__netr-si__kick-45.wav',
+      'resources/audiofiles/kicks/249275__netr-si__kick-46.wav',
+      'resources/audiofiles/kicks/249276__netr-si__kick-47.wav',
+      'resources/audiofiles/kicks/249277__netr-si__kick-48.wav',
+      'resources/audiofiles/kicks/249278__netr-si__kick-49.wav',
+      'resources/audiofiles/kicks/249279__netr-si__kick-5.wav',
+      'resources/audiofiles/kicks/249280__netr-si__kick-50.wav',
+      'resources/audiofiles/kicks/249281__netr-si__kick-51.wav',
+      'resources/audiofiles/kicks/249282__netr-si__kick-60.wav',
+      'resources/audiofiles/kicks/249283__netr-si__kick-6.wav',
+      'resources/audiofiles/kicks/249284__netr-si__kick-59.wav',
+      'resources/audiofiles/kicks/249285__netr-si__kick-58.wav',
+      'resources/audiofiles/kicks/249286__netr-si__kick-57.wav',
+      'resources/audiofiles/kicks/249287__netr-si__kick-56.wav',
+      'resources/audiofiles/kicks/249288__netr-si__kick-55.wav',
+      'resources/audiofiles/kicks/249289__netr-si__kick-54.wav',
+      'resources/audiofiles/kicks/249290__netr-si__kick-53.wav',
+      'resources/audiofiles/kicks/249291__netr-si__kick-52.wav',
+    ],
+    presetInit() { this.length = 90 }
+  }
+}
+
+},{}],111:[function(require,module,exports){
+module.exports = {
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
         this.toAssignable(prop, isBinding);
           // Early error:
@@ -7219,12 +9476,17 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
         this.toAssignableList(node.elements, isBinding);
         break
 
+<<<<<<< HEAD
       case "SpreadElement":
         node.type = "RestElement";
         this.toAssignable(node.argument, isBinding);
         if (node.argument.type === "AssignmentPattern")
           { this.raise(node.argument.start, "Rest elements cannot have a default value"); }
         break
+=======
+},{}],112:[function(require,module,exports){
+module.exports = {
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
       case "AssignmentExpression":
         if (node.operator !== "=") { this.raise(node.left.end, "Only '=' operator can be used for specifying default value."); }
@@ -7290,6 +9552,7 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
 
   // Parses lvalue (assignable) atom.
 
+<<<<<<< HEAD
   pp$2.parseBindingAtom = function() {
     if (this.options.ecmaVersion >= 6) {
       switch (this.type) {
@@ -7298,6 +9561,32 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
         this.next();
         node.elements = this.parseBindingList(types.bracketR, true, true);
         return this.finishNode(node, "ArrayPattern")
+=======
+  rhodes:{
+    waveform:'sine',
+    presetInit( audio ) {
+      this.tremolo = audio.effects.Tremolo()
+      this.fx.add( this.tremolo )
+    },
+    decay:4,
+    gain:.125,
+    shape:'exponential'
+  }
+}
+
+},{}],113:[function(require,module,exports){
+const Gibberish = require( 'gibberish-dsp' )
+const serialize = require( 'serialize-javascript' )
+const Tune      = require( './external/tune-api-only.js' )
+
+let Gibber = null
+
+const Theory = {
+  // needed to force library to be serialized for transport to 
+  // worklet processor, must use key:function() {} format
+  // for methods for serialize to work
+  __Tune:Tune,
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
       case types.braceL:
         return this.parseObj(true)
@@ -7346,12 +9635,23 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     return this.finishNode(node, "AssignmentPattern")
   };
 
+<<<<<<< HEAD
   // Verify that a node is an lval — something that can be assigned
   // to.
   // bindingType can be either:
   // 'var' indicating that the lval creates a 'var' binding
   // 'let' indicating that the lval creates a lexical ('let' or 'const') binding
   // 'none' indicating that the binding should be checked for illegal identifiers, but not for duplicate references
+=======
+  setup( tuning='et', mode='aeolian' ) {
+    this.tuning = tuning
+    this.mode = mode
+  }, 
+
+  // adapted from https://gist.github.com/stuartmemo/3766449
+  __noteToFreq( note ) {
+    note = note.toUpperCase() 
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   pp$2.checkLVal = function(expr, bindingType, checkClashes) {
     if ( bindingType === void 0 ) bindingType = BIND_NONE;
@@ -7742,10 +10042,17 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
         { this.unexpected(); }
       return this.finishNode(node, "Super")
 
+<<<<<<< HEAD
     case types._this:
       node = this.startNode();
       this.next();
       return this.finishNode(node, "ThisExpression")
+=======
+},{"./external/tune-api-only.js":91,"gibberish-dsp":295,"serialize-javascript":118}],114:[function(require,module,exports){
+const Presets = require( './presets.js' )
+const Theory  = require( './theory.js' )
+const Gibberish = require( 'gibberish-dsp' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     case types.name:
       var startPos = this.start, startLoc = this.startLoc, containsEsc = this.containsEsc;
@@ -7843,12 +10150,30 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     return this.finishNode(node, "Literal")
   };
 
+<<<<<<< HEAD
   pp$3.parseParenExpression = function() {
     this.expect(types.parenL);
     var val = this.parseExpression();
     this.expect(types.parenR);
     return val
   };
+=======
+          for( let seq of this.__tidals ) {
+            future( seq => seq.stop(), time, { seq })
+          }
+        }
+        return this
+      },
+      play( time=null ) {
+        if( time === null ) {
+          for( let seq of this.__sequencers ) seq.start()
+          for( let seq of this.__tidals ) seq.start()
+        }else{
+          time = Audio.Clock.time( time )
+          for( let seq of this.__sequencers ) {
+            future( seq => seq.start(), time, { seq })
+          }
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   pp$3.parseParenAndDistinguishExpression = function(canBeArrow) {
     var startPos = this.start, startLoc = this.startLoc, val, allowTrailingComma = this.options.ecmaVersion >= 8;
@@ -7926,6 +10251,7 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
   // argument to parseSubscripts to prevent it from consuming the
   // argument list.
 
+<<<<<<< HEAD
   var empty$1 = [];
 
   pp$3.parseNew = function() {
@@ -7950,6 +10276,73 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     else { node.arguments = empty$1; }
     return this.finishNode(node, "NewExpression")
   };
+=======
+          //createProperty( obj, propertyName, __wrappedObject, timeProps, Audio, true )
+          // we don't have a way to add properties to objects in the processor thread
+          // so we'll just add a method... sequencing will still work the same.
+          Gibberish.worklet.port.postMessage({
+            address:'addMethod',
+            id:__wrappedObject.id,
+            key:propertyName+'V',
+            function:`function( v ) {this.voices[ this.voiceCount % this.voices.length ][ '${propertyName}' ] = v }`
+          })
+        }
+      }
+    }
+
+    // wrap methods and add sequencing to them
+    if( description.methods !== null ) {
+      for( let methodName of description.methods ) {
+        if( methodName !== 'note' || description.name.indexOf('Sampler') > -1 || description.name.indexOf('Multisampler') > -1  ) {
+          //obj[ methodName ] = __wrappedObject[ methodName ].bind( __wrappedObject )
+          obj[ methodName ] = function( ...args ) {
+            if( args.length === 0 ) {
+              __wrappedObject[ methodName ]()
+            }else{ //if( args.length === 1 ) {
+              //if( Array.isArray( args[0] ) ) {
+              //  obj[ methodName ].seq( args[0], 1/args[0].length )
+              //}else if( typeof args[0] === 'string' ) {
+              //  obj[ methodName ].tidal( args[0] )
+              //}else{
+                __wrappedObject[ methodName ]( ...args )
+              //}
+            }/*else{
+              // could be a .tidal or a seq 
+              if( typeof args[0] === 'string' ) { // must be tidal with tidal id #
+                obj[ methodName ].tidal( ...args )
+              }else{
+                obj[ methodName ].seq( ...args )  // must be sequence
+              }
+            }*/
+            return obj
+          }
+        }else{
+          // in this block we are monkey patching the note method of Gibberish synths so that
+          // they use Gibber's harmonic system inside the AudioWorkletProcessor.
+
+          obj[ methodName ] = function( ...args ) {
+            let shouldSendNoteNow = false
+            if( args.length === 0 ) {
+               shouldSendNoteNow = true
+            }else if( args.length === 1 ) {
+              if( Array.isArray( args[0] ) ) {
+                obj[ methodName ].seq( args[0], 1/args[0].length )
+              }else if( typeof args[0] === 'string' ) {
+                obj[ methodName ].tidal( args[0] )
+              }else{
+                shouldSendNoteNow = true
+              }
+            }else{
+              /*
+              // could be a .tidal or a seq 
+              if( typeof args[0] === 'string' ) { // must be tidal with tidal id #
+                obj[ methodName ].tidal( ...args )
+              }else{
+                obj[ methodName ].seq( ...args )  // must be sequence
+              }
+              */
+            }
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   // Parse template expression.
 
@@ -8176,9 +10569,25 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
   pp$3.parseArrowExpression = function(node, params, isAsync) {
     var oldYieldPos = this.yieldPos, oldAwaitPos = this.awaitPos, oldAwaitIdentPos = this.awaitIdentPos;
 
+<<<<<<< HEAD
     this.enterScope(functionFlags(isAsync, false) | SCOPE_ARROW);
     this.initFunction(node);
     if (this.options.ecmaVersion >= 8) { node.async = !!isAsync; }
+=======
+          obj.__wrapped__.connected.push( [ dest.__owner[ dest.name ], obj ] )
+        }else{
+          // if no fx chain, connect directly to output
+          if( obj.fx.length === 0 ) {
+            __wrappedObject.connect( dest, level )
+          }else{
+            // otherwise, connect last effect in chain to output
+            obj.fx[ obj.fx.length - 1 ].__wrapped__.connect( dest, level )
+          }
+        }
+      }else{
+        console.warn( 'You cannot connect to a number; perhaps you meant this to be the level for your connection?' )
+      }
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     this.yieldPos = 0;
     this.awaitPos = 0;
@@ -8253,9 +10662,25 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
       {
       var param = list[i];
 
+<<<<<<< HEAD
       this.checkLVal(param, BIND_VAR, allowDuplicates ? null : nameHash);
     }
   };
+=======
+},{"./presets.js":98,"./theory.js":113,"gibberish-dsp":295}],115:[function(require,module,exports){
+const Utility = {
+  rndf( min=0, max=1, number, canRepeat=true ) {
+    let out = 0
+  	if( number === undefined ) {
+  		let diff = max - min,
+  		    r = Math.random(),
+  		    rr = diff * r
+
+  		out =  min + rr;
+  	}else{
+      let output = [],
+  		    tmp = []
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   // Parses a comma-separated list of expressions, and returns them as
   // an array. `close` is the token type that ends the list, and
@@ -8506,6 +10931,7 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
 
   // Finish an AST node, adding `type` and `end` properties.
 
+<<<<<<< HEAD
   function finishNodeAt(node, type, pos, loc) {
     node.type = type;
     node.end = pos;
@@ -8515,6 +10941,11 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
       { node.range[1] = pos; }
     return node
   }
+=======
+},{}],116:[function(require,module,exports){
+module.exports = function( Gibber ) {
+   const gen = Gibber.Gen.make  
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   pp$6.finishNode = function(node, type) {
     return finishNodeAt.call(this, node, type, this.lastTokEnd, this.lastTokEndLoc)
@@ -8647,6 +11078,7 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     this.exprAllowed = false;
   };
 
+<<<<<<< HEAD
   types.star.updateContext = function(prevType) {
     if (prevType === types._function) {
       var index = this.context.length - 1;
@@ -8657,6 +11089,10 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     }
     this.exprAllowed = true;
   };
+=======
+},{}],117:[function(require,module,exports){
+module.exports = function( Gibber ) {
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   types.name.updateContext = function(prevType) {
     var allowed = false;
@@ -8685,6 +11121,7 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
   // #table-unicode-general-category-values
   var unicodeGeneralCategoryValues = "Cased_Letter LC Close_Punctuation Pe Connector_Punctuation Pc Control Cc cntrl Currency_Symbol Sc Dash_Punctuation Pd Decimal_Number Nd digit Enclosing_Mark Me Final_Punctuation Pf Format Cf Initial_Punctuation Pi Letter L Letter_Number Nl Line_Separator Zl Lowercase_Letter Ll Mark M Combining_Mark Math_Symbol Sm Modifier_Letter Lm Modifier_Symbol Sk Nonspacing_Mark Mn Number N Open_Punctuation Ps Other C Other_Letter Lo Other_Number No Other_Punctuation Po Other_Symbol So Paragraph_Separator Zp Private_Use Co Punctuation P punct Separator Z Space_Separator Zs Spacing_Mark Mc Surrogate Cs Symbol S Titlecase_Letter Lt Unassigned Cn Uppercase_Letter Lu";
 
+<<<<<<< HEAD
   // #table-unicode-script-values
   var ecma9ScriptValues = "Adlam Adlm Ahom Ahom Anatolian_Hieroglyphs Hluw Arabic Arab Armenian Armn Avestan Avst Balinese Bali Bamum Bamu Bassa_Vah Bass Batak Batk Bengali Beng Bhaiksuki Bhks Bopomofo Bopo Brahmi Brah Braille Brai Buginese Bugi Buhid Buhd Canadian_Aboriginal Cans Carian Cari Caucasian_Albanian Aghb Chakma Cakm Cham Cham Cherokee Cher Common Zyyy Coptic Copt Qaac Cuneiform Xsux Cypriot Cprt Cyrillic Cyrl Deseret Dsrt Devanagari Deva Duployan Dupl Egyptian_Hieroglyphs Egyp Elbasan Elba Ethiopic Ethi Georgian Geor Glagolitic Glag Gothic Goth Grantha Gran Greek Grek Gujarati Gujr Gurmukhi Guru Han Hani Hangul Hang Hanunoo Hano Hatran Hatr Hebrew Hebr Hiragana Hira Imperial_Aramaic Armi Inherited Zinh Qaai Inscriptional_Pahlavi Phli Inscriptional_Parthian Prti Javanese Java Kaithi Kthi Kannada Knda Katakana Kana Kayah_Li Kali Kharoshthi Khar Khmer Khmr Khojki Khoj Khudawadi Sind Lao Laoo Latin Latn Lepcha Lepc Limbu Limb Linear_A Lina Linear_B Linb Lisu Lisu Lycian Lyci Lydian Lydi Mahajani Mahj Malayalam Mlym Mandaic Mand Manichaean Mani Marchen Marc Masaram_Gondi Gonm Meetei_Mayek Mtei Mende_Kikakui Mend Meroitic_Cursive Merc Meroitic_Hieroglyphs Mero Miao Plrd Modi Modi Mongolian Mong Mro Mroo Multani Mult Myanmar Mymr Nabataean Nbat New_Tai_Lue Talu Newa Newa Nko Nkoo Nushu Nshu Ogham Ogam Ol_Chiki Olck Old_Hungarian Hung Old_Italic Ital Old_North_Arabian Narb Old_Permic Perm Old_Persian Xpeo Old_South_Arabian Sarb Old_Turkic Orkh Oriya Orya Osage Osge Osmanya Osma Pahawh_Hmong Hmng Palmyrene Palm Pau_Cin_Hau Pauc Phags_Pa Phag Phoenician Phnx Psalter_Pahlavi Phlp Rejang Rjng Runic Runr Samaritan Samr Saurashtra Saur Sharada Shrd Shavian Shaw Siddham Sidd SignWriting Sgnw Sinhala Sinh Sora_Sompeng Sora Soyombo Soyo Sundanese Sund Syloti_Nagri Sylo Syriac Syrc Tagalog Tglg Tagbanwa Tagb Tai_Le Tale Tai_Tham Lana Tai_Viet Tavt Takri Takr Tamil Taml Tangut Tang Telugu Telu Thaana Thaa Thai Thai Tibetan Tibt Tifinagh Tfng Tirhuta Tirh Ugaritic Ugar Vai Vaii Warang_Citi Wara Yi Yiii Zanabazar_Square Zanb";
   var ecma10ScriptValues = ecma9ScriptValues + " Dogra Dogr Gunjala_Gondi Gong Hanifi_Rohingya Rohg Makasar Maka Medefaidrin Medf Old_Sogdian Sogo Sogdian Sogd";
@@ -8694,6 +11131,14 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     10: ecma10ScriptValues,
     11: ecma11ScriptValues
   };
+=======
+},{}],118:[function(require,module,exports){
+/*
+Copyright (c) 2014, Yahoo! Inc. All rights reserved.
+Copyrights licensed under the New BSD License.
+See the accompanying LICENSE file for terms.
+*/
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   var data = {};
   function buildUnicodeData(ecmaVersion) {
@@ -8916,10 +11361,21 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
       return true
     }
 
+<<<<<<< HEAD
     if (state.switchU ? this.regexp_eatAtom(state) : this.regexp_eatExtendedAtom(state)) {
       this.regexp_eatQuantifier(state);
       return true
     }
+=======
+        var fn = functions[valueIndex];
+
+        return serializeFunc(fn);
+    });
+}
+
+},{}],119:[function(require,module,exports){
+module.exports = function( Gibber ) {
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     return false
   };
@@ -9356,9 +11812,27 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     )
   }
 
+<<<<<<< HEAD
   // https://www.ecma-international.org/ecma-262/8.0/#prod-RegExpUnicodeEscapeSequence
   pp$8.regexp_eatRegExpUnicodeEscapeSequence = function(state) {
     var start = state.pos;
+=======
+return Euclid
+}
+
+},{}],120:[function(require,module,exports){
+module.exports = function( Gibber ) {
+
+const Pattern = Gibber.Pattern
+
+const Hex = function( hexString, time = 1/16, rotation ) {
+  let count = 0,
+      onesAndZeros = ''
+
+  if( typeof hexString === 'string' ) {
+    for( let chr of hexString ) {
+      let num = Number( '0x'+chr )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     if (state.eat(0x75 /* u */)) {
       if (this.regexp_eatFixedHexDigits(state, 4)) {
@@ -9411,11 +11885,70 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
       return false
     }
 
+<<<<<<< HEAD
     var ch = state.current();
     if (ch !== 0x63 /* c */ && (!state.switchN || ch !== 0x6B /* k */)) {
       state.lastIntValue = ch;
       state.advance();
       return true
+=======
+    if( n === undefined ) n = 16
+    
+    out = createStartingArray( n,k )
+    let _onesAndZeros = Inner( n,k )
+    
+    pattern.set( _onesAndZeros )
+    pattern.time = 1 / n
+
+    // this.checkForUpdateFunction( 'reseed', pattern )
+
+    return pattern
+  }
+
+  //Gibber.addSequencingToMethod( pattern, 'reseed' )
+
+  if( typeof rotation === 'number' ) pattern.rotate( rotation )
+
+  return pattern
+}
+
+return Hex
+
+}
+
+},{}],121:[function(require,module,exports){
+const Gibber = {
+  initialized: false,
+  exportTarget: null,
+  plugins: [],
+  // needed so audio plugin can transfer pattern function string to worklet
+  __Pattern: require( './pattern.js' ),
+
+  /* 
+   * const promises = Gibber.init([
+   *   {
+   *     plugin:Audio, // Audio is required, imported, or grabbed via <script>
+   *     options: { workletPath:'../dist/gibberish_worklet.js' }
+   *   },
+   *   {
+   *     plugin:Graphics,
+   *     options:{ canvas:document.querySelector('canvas' ) }
+   *   }
+   * ])
+  */
+
+  init( plugins ) { 
+    this.createPubSub( this )
+    this.plugins = plugins
+
+    const promises = []
+
+    // init each plugin and collect promises
+    for( let plugin of plugins ) {
+      promises.push( 
+        plugin.plugin.init( plugin.options, this ) 
+      )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
 
     return false
@@ -9705,6 +12238,7 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     return ch - 0x30 /* 0 */
   }
 
+<<<<<<< HEAD
   // https://www.ecma-international.org/ecma-262/8.0/#prod-annexB-LegacyOctalEscapeSequence
   // Allows only 0-377(octal) i.e. 0-255(decimal).
   pp$8.regexp_eatLegacyOctalEscapeSequence = function(state) {
@@ -9724,6 +12258,11 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
     }
     return false
   };
+=======
+},{"./euclid.js":119,"./hex.js":120,"./pattern.js":122,"./seq.js":123,"./steps.js":124,"./tidal.js":125,"./triggers.js":126}],122:[function(require,module,exports){
+const patternWrapper = function( Gibber ) {
+  "use strict"
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   // https://www.ecma-international.org/ecma-262/8.0/#prod-OctalDigit
   pp$8.regexp_eatOctalDigit = function(state) {
@@ -10226,8 +12765,16 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
 
   // Read a string value, interpreting backslash-escapes.
 
+<<<<<<< HEAD
   pp$9.readCodePoint = function() {
     var ch = this.input.charCodeAt(this.pos), code;
+=======
+},{}],123:[function(require,module,exports){
+module.exports = function( Gibber ) {
+  const addValuesFilters = (seq,key,target) => {
+    const values = seq.values
+    const __values = seq.values
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     if (ch === 123) { // '{'
       if (this.options.ecmaVersion < 6) { this.unexpected(); }
@@ -10389,6 +12936,7 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
           octalStr = octalStr.slice(0, -1);
           octal = parseInt(octalStr, 8);
         }
+<<<<<<< HEAD
         this.pos += octalStr.length - 1;
         ch = this.input.charCodeAt(this.pos);
         if ((octalStr !== "0" || ch === 56 || ch === 57) && (this.strict || inTemplate)) {
@@ -10409,6 +12957,20 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
       return String.fromCharCode(ch)
     }
   };
+=======
+      : function() {
+          this.stop()
+          
+          if( this.values !== undefined && this.values.clear !== undefined  ) this.values.clear()
+          if( this.timings !== undefined && this.timings !== null && this.timings.clear !== undefined ) this.timings.clear()
+
+          const idx = Seq.sequencers.indexOf( seq )
+          const __seq = Seq.sequencers.splice( idx, 1 )[0]
+          if( __seq !== undefined ) {
+            __seq.stop()
+          }
+        }
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   // Used to read character escape sequences ('\x', '\u', '\U').
 
@@ -10456,12 +13018,35 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
   // Read an identifier or keyword token. Will check for reserved
   // words when necessary.
 
+<<<<<<< HEAD
   pp$9.readWord = function() {
     var word = this.readWord1();
     var type = types.name;
     if (this.keywords.test(word)) {
       if (this.containsEsc) { this.raiseRecoverable(this.start, "Escape sequence in keyword " + word); }
       type = keywords$1[word];
+=======
+    Seq.sequencers.push( seq )
+
+    // if x.y.seq() etc. 
+    // standalone === false is most common use case
+    if( props.standalone === false ) { 
+      // required ternary because pattern methods don't have __ prefix 
+      const targetProp = target[ '__' + key ] === undefined 
+        ? target[ key ] 
+        : target[ '__' + key ]
+      
+      const prevSeq = targetProp.sequencers[ props.number ] 
+      if( prevSeq !== undefined ) { 
+        prevSeq.clear();
+      }
+
+      // XXX you have to add a method that does all this shit on the worklet. crap.
+      targetProp.sequencers[ props.number ] = seq
+      targetProp[ props.number ] = seq 
+      //target.__sequencers.push( seq )
+      seq.start( Gibber.Audio.Clock.time( delay ) )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
     return this.finishToken(type, word)
   };
@@ -10499,9 +13084,21 @@ exports.WebGLProgramLoop = WebGLProgramLoop;
   //
   // [api]: https://developer.mozilla.org/en-US/docs/SpiderMonkey/Parser_API
 
+<<<<<<< HEAD
   function parse(input, options) {
     return Parser.parse(input, options)
   }
+=======
+},{}],124:[function(require,module,exports){
+module.exports = function( Gibber ) {
+ 
+const Steps = {
+  type:'Steps',
+  create( _steps, target ) {
+    const stepseq = Object.create( Steps )
+    
+    stepseq.seqs = {}
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   // This function tries to parse a single expression at a given
   // offset in a string. Useful for parsing mixed-language formats
@@ -10651,6 +13248,7 @@ function tripletToBase64 (num) {
     lookup[num & 0x3F]
 }
 
+<<<<<<< HEAD
 function encodeChunk (uint8, start, end) {
   var tmp
   var output = []
@@ -10663,6 +13261,10 @@ function encodeChunk (uint8, start, end) {
   }
   return output.join('')
 }
+=======
+},{}],125:[function(require,module,exports){
+module.exports = function( Gibber ) {
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 function fromByteArray (uint8) {
   var tmp
@@ -10793,6 +13395,7 @@ exports.nextPow2 = function(v) {
   return v + 1;
 }
 
+<<<<<<< HEAD
 //Rounds down to previous power of 2
 exports.prevPow2 = function(v) {
   v |= v >>> 1;
@@ -10802,6 +13405,10 @@ exports.prevPow2 = function(v) {
   v |= v >>> 16;
   return v - (v>>>1);
 }
+=======
+},{}],126:[function(require,module,exports){
+module.exports = function( Gibber ) {
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 //Computes parity of word
 exports.parity = function(v) {
@@ -10886,6 +13493,7 @@ exports.interleave3 = function(x, y, z) {
   return x | (z << 2);
 }
 
+<<<<<<< HEAD
 //Extracts nth interleaved component of a 3-tuple
 exports.deinterleave3 = function(v, n) {
   v = (v >>> n)       & 1227133513;
@@ -10902,6 +13510,224 @@ exports.nextCombination = function(v) {
   return (t + 1) | (((~t & -~t) - 1) >>> (countTrailingZeros(v) + 1));
 }
 
+=======
+},{}],127:[function(require,module,exports){
+const optional = true,
+      required = true
+
+module.exports = [
+  {
+    name: "Box",
+    prototype: "geometry",
+    doc: "A box.",
+    properties: {
+      size: {
+        type: "vec3",          
+        default: '(1,1,1)',
+        doc: "The size of the box in three dimensions."
+      }
+    }
+  },
+  {
+    name: "Capsule",
+    prototype: "geometry",
+    doc: "A capsule, which is cylinder with a half sphere on each end (like a pill).",
+    properties: {
+      start: {
+        type: "vec3",          
+        default: '(0,0,0)',
+        doc: "The posititon of one end of the capsule."
+      },
+      end: {
+        type: "vec3",          
+        default: '(1,1,1)',
+        doc: "The posititon of one end of the capsule."
+      },
+      radius: {
+        isa: "number(sequencable)",
+        type: "float",          
+        default: 1,
+        min:.01,
+        max:5,
+        doc: "The radius of the capsule."
+      }
+    }
+  },
+  {
+    name: "Cone",
+    prototype: "geometry",
+    doc: "A cone.",
+    properties: {
+      size: {
+        type: "vec3",          
+        default: '(1,1,1)',
+        doc: "The size of the box in three dimensions... kinda. Play with the values to get a sense for how they work."
+      }
+    }
+  },
+  {
+    name: "Cylinder",
+    prototype: "geometry",
+    doc: "A cylinder.",
+    properties: {
+      dimensions: {
+        type: "vec2",          
+        default: '(1,1)',
+        doc: "The radius and height of the cylinder."
+      }
+    }
+  },
+  {
+    name: "HexPrism",
+    prototype: "geometry",
+    doc: "A six-sided prism.",
+    properties: {
+      dimensions: {
+        type: "vec2",          
+        default: '(1,1)',
+        doc: "The radius and height of the prism."
+      }
+    }
+  },
+  {
+    name: "Julia",
+    prototype: "geometry",
+    doc: "A three-dimensional rendering of the Julia set of a quaternion function.",
+    properties: {
+      fold: {
+        isa: "number(sequencable)",
+        type: "float",          
+        default: 2,
+        min:.01,
+        max:5,
+        doc: "Controls a coefficient in the equation for the Julia set."
+      }
+    }
+  },
+  {
+    name: "Mandelbulb",
+    prototype: "geometry",
+    properties: {
+      c0: {
+        isa: "number(sequencable)",
+        type: "float",          
+        default: 8,
+        min:.5,
+        max:20,
+        doc: "A coefficient that affects variouus exponents in the Mandulbulb equation. Higher values yield the appearance of greater recursion / complexity."
+      }
+    }
+  },
+  {
+    name: "Mandelbox",
+    prototype: "geometry",
+    properties: {
+      fold: {
+        isa: "number(sequencable)",
+        type: "float",          
+        default: .1,
+        min:2,
+        max:.01,
+        doc: "A coefficient that controls the amount of spherical folding in the mandelbox."
+      },
+      scale: {
+        isa: "number(sequencable)",
+        type: "float",          
+        default: 3,
+        min:1,
+        max:20,
+        doc: "A coefficient that controls the scaling in the mandelbox."
+      },
+      iterations: {
+        isa: "number(sequencable)",
+        type: "int",          
+        default: 5,
+        min:1,
+        max:.10,
+        doc: "The number of times the mandelbox equation is run per frame. This number greatly influences the complexity of the final output, but higher values are computationally expensive."
+      }
+    }
+  },
+  {
+    name: "Plane",
+    prototype: "geometry",
+    doc: "A flat rectangle, facing any direction.",
+    properties: {
+      normal: {
+        type: "vec3",          
+        default: '(0,1,0)',
+        doc: "The direction the plane is facing. By default it faces upward along the y axis."
+      },
+      distance: {
+        type: "vec3",          
+        default: '(1,1,1)',
+        doc: "The distance of the plane from the origin."
+      }
+    }
+  }, 
+  {
+    name: "Sphere",
+    prototype: "geometry",
+    doc: "A sphere. All outer points are equidistant from the center.",
+    properties: {
+      radius: {
+        isa: "number(sequencable)",
+        type: "float",          
+        default: 1,
+        min:.01,
+        max:5,
+        doc: "The radius of the sphere."
+      }
+    }
+  },
+  {
+    name: "Torus",
+    prototype: "geometry",
+    doc: "A 3D ring.",
+    properties: {
+      radii: {
+        type: "vec2",          
+        default: '(.5,.1)',
+        doc: "This vector determines the outer and inner radius of the ring."
+      }
+    }
+  },
+  {
+    name: "Torus82",
+    prototype: "geometry",
+    doc: "A 3D ring that is flat on one axis.",
+    properties: {
+      radii: {
+        type: "vec2",          
+        default: '(.5,.1)',
+        doc: "This vector determines the outer and inner radius of the ring."
+      }
+    }
+  },
+  {
+    name: "Torus88",
+    prototype: "geometry",
+    doc: "A 3D ring that is squared and flattened on one axis.",
+    properties: {
+      radii: {
+        type: "vec2",          
+        default: '(.5,.1)',
+        doc: "This vector determines the outer and inner radius of the ring."
+      }
+    }
+  },
+]
+},{}],128:[function(require,module,exports){
+module.exports = {
+  prototypes:  require('./prototypes_defs.js'),
+  misc:        require('./misc_defs.js'),
+  geometries:  require('./geometries_defs.js')
+}
+
+},{"./geometries_defs.js":127,"./misc_defs.js":129,"./prototypes_defs.js":130}],129:[function(require,module,exports){
+const optional = true,
+      required = true
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 },{}],62:[function(require,module,exports){
 function bjorklund(slots, pulses){
@@ -10923,7 +13749,17 @@ function bjorklund(slots, pulses){
           }
         }
       }
+<<<<<<< HEAD
   ;
+=======
+    }
+  },
+]
+},{}],130:[function(require,module,exports){
+const optional = true,
+      required = true,
+      overloaded = '?'
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   while(remainder[level] > 1){
     count.push(Math.floor(divisor/remainder[level]));
@@ -10933,7 +13769,12 @@ function bjorklund(slots, pulses){
   }
   count.push(divisor);
 
+<<<<<<< HEAD
   build_pattern(level);
+=======
+},{}],131:[function(require,module,exports){
+const Marching = require( 'marching' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   return pattern.reverse();
 }
@@ -11741,9 +14582,20 @@ function arrayIndexOf (arr, val, byteOffset, encoding, dir) {
   return -1
 }
 
+<<<<<<< HEAD
 Buffer.prototype.includes = function includes (val, byteOffset, encoding) {
   return this.indexOf(val, byteOffset, encoding) !== -1
 }
+=======
+module.exports = Graphics
+
+},{"../defs/graphics.js":128,"marching":359}],132:[function(require,module,exports){
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('acorn')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'acorn'], factory) :
+  (global = global || self, factory((global.acorn = global.acorn || {}, global.acorn.loose = {}), global.acorn));
+}(this, function (exports, acorn) { 'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 Buffer.prototype.indexOf = function indexOf (val, byteOffset, encoding) {
   return bidirectionalIndexOf(this, val, byteOffset, encoding, true)
@@ -12541,9 +15393,18 @@ Buffer.prototype.fill = function fill (val, start, end, encoding) {
     throw new RangeError('Out of range index')
   }
 
+<<<<<<< HEAD
   if (end <= start) {
     return this
   }
+=======
+},{"acorn":134}],133:[function(require,module,exports){
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+  typeof define === 'function' && define.amd ? define(['exports'], factory) :
+  (global = global || self, factory((global.acorn = global.acorn || {}, global.acorn.walk = {})));
+}(this, function (exports) { 'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   start = start >>> 0
   end = end === undefined ? this.length : end >>> 0
@@ -12888,9 +15749,18 @@ function numberIsNaN (obj) {
     if (duration)
       doneTimer = setTimeout(close, duration);
 
+<<<<<<< HEAD
     return close;
   });
 });
+=======
+},{}],134:[function(require,module,exports){
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+  typeof define === 'function' && define.amd ? define(['exports'], factory) :
+  (global = global || self, factory(global.acorn = {}));
+}(this, function (exports) { 'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 },{"../../lib/codemirror":71}],66:[function(require,module,exports){
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
@@ -18219,6 +21089,7 @@ function numberIsNaN (obj) {
 
   // SCROLLBARS
 
+<<<<<<< HEAD
   // Prepare DOM reads needed to update the scrollbars. Done in one
   // shot to minimize update/measure roundtrips.
   function measureForScrollbars(cm) {
@@ -18236,6 +21107,10 @@ function numberIsNaN (obj) {
       gutterWidth: gutterW
     }
   }
+=======
+},{}],135:[function(require,module,exports){
+'use strict'
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   var NativeScrollbars = function(place, scroll, cm) {
     this.cm = cm;
@@ -18455,6 +21330,7 @@ function numberIsNaN (obj) {
       { endOperation_finish(ops[i$4]); }
   }
 
+<<<<<<< HEAD
   function endOperation_R1(op) {
     var cm = op.cm, display = cm.display;
     maybeClipScrollbars(cm);
@@ -18467,6 +21343,19 @@ function numberIsNaN (obj) {
     op.update = op.mustUpdate &&
       new DisplayUpdate(cm, op.mustUpdate && {top: op.scrollTop, ensure: op.scrollToPos}, op.forceUpdate);
   }
+=======
+},{}],136:[function(require,module,exports){
+
+},{}],137:[function(require,module,exports){
+(function (Buffer){
+/*!
+ * The buffer module from node.js, for the browser.
+ *
+ * @author   Feross Aboukhadijeh <https://feross.org>
+ * @license  MIT
+ */
+/* eslint-disable no-proto */
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   function endOperation_W1(op) {
     op.updatedDisplay = op.mustUpdate && updateDisplayIfNeeded(op.cm, op.update);
@@ -20452,6 +23341,7 @@ function numberIsNaN (obj) {
     this.id = ++nextMarkerId;
   };
 
+<<<<<<< HEAD
   // Clear the marker.
   TextMarker.prototype.clear = function () {
     if (this.explicitlyCleared) { return }
@@ -20482,6 +23372,12 @@ function numberIsNaN (obj) {
         cm.display.maxLineChanged = true;
       }
     } }
+=======
+}).call(this,require("buffer").Buffer)
+},{"base64-js":135,"buffer":137,"ieee754":148}],138:[function(require,module,exports){
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: https://codemirror.net/LICENSE
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     if (min != null && cm && this.collapsed) { regChange(cm, min, max + 1); }
     this.lines.length = 0;
@@ -20633,7 +23529,13 @@ function numberIsNaN (obj) {
     return marker
   }
 
+<<<<<<< HEAD
   // SHARED TEXTMARKERS
+=======
+},{"../../lib/codemirror":144}],139:[function(require,module,exports){
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: https://codemirror.net/LICENSE
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   // A shared marker spans multiple linked documents. It is
   // implemented as a meta-marker-object controlling multiple normal
@@ -20791,6 +23693,7 @@ function numberIsNaN (obj) {
 
     clipPos: function(pos) {return clipPos(this, pos)},
 
+<<<<<<< HEAD
     getCursor: function(start) {
       var range = this.sel.primary(), pos;
       if (start == null || start == "head") { pos = range.head; }
@@ -20801,6 +23704,11 @@ function numberIsNaN (obj) {
     },
     listSelections: function() { return this.sel.ranges },
     somethingSelected: function() {return this.sel.somethingSelected()},
+=======
+},{"../../lib/codemirror":144}],140:[function(require,module,exports){
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: https://codemirror.net/LICENSE
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     setCursor: docMethodOp(function(line, ch, options) {
       setSimpleSelection(this, clipPos(this, typeof line == "number" ? Pos(line, ch || 0) : line), null, options);
@@ -21101,8 +24009,14 @@ function numberIsNaN (obj) {
     },
     iterLinkedDocs: function(f) {linkedDocs(this, f);},
 
+<<<<<<< HEAD
     getMode: function() {return this.mode},
     getEditor: function() {return this.cm},
+=======
+},{"../../lib/codemirror":144}],141:[function(require,module,exports){
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: https://codemirror.net/LICENSE
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     splitLines: function(str) {
       if (this.lineSep) { return str.split(this.lineSep) }
@@ -21255,6 +24169,7 @@ function numberIsNaN (obj) {
     }); }
   }
 
+<<<<<<< HEAD
   var globalsRegistered = false;
   function ensureGlobalHandlers() {
     if (globalsRegistered) { return }
@@ -21281,6 +24196,11 @@ function numberIsNaN (obj) {
     d.scrollbarsClipped = false;
     cm.setSize();
   }
+=======
+},{"../../lib/codemirror":144}],142:[function(require,module,exports){
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: https://codemirror.net/LICENSE
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   var keyNames = {
     3: "Pause", 8: "Backspace", 9: "Tab", 13: "Enter", 16: "Shift", 17: "Ctrl", 18: "Alt",
@@ -21903,10 +24823,72 @@ function numberIsNaN (obj) {
     this.button = button;
   };
 
+<<<<<<< HEAD
   PastClick.prototype.compare = function (time, pos, button) {
     return this.time + DOUBLECLICK_DELAY > time &&
       cmp(pos, this.pos) == 0 && button == this.button
   };
+=======
+  CodeMirror.defineOption("hintOptions", null);
+});
+
+},{"../../lib/codemirror":144}],143:[function(require,module,exports){
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: https://codemirror.net/LICENSE
+
+// Glue code between CodeMirror and Tern.
+//
+// Create a CodeMirror.TernServer to wrap an actual Tern server,
+// register open documents (CodeMirror.Doc instances) with it, and
+// call its methods to activate the assisting functions that Tern
+// provides.
+//
+// Options supported (all optional):
+// * defs: An array of JSON definition data structures.
+// * plugins: An object mapping plugin names to configuration
+//   options.
+// * getFile: A function(name, c) that can be used to access files in
+//   the project that haven't been loaded yet. Simply do c(null) to
+//   indicate that a file is not available.
+// * fileFilter: A function(value, docName, doc) that will be applied
+//   to documents before passing them on to Tern.
+// * switchToDoc: A function(name, doc) that should, when providing a
+//   multi-file view, switch the view or focus to the named file.
+// * showError: A function(editor, message) that can be used to
+//   override the way errors are displayed.
+// * completionTip: Customize the content in tooltips for completions.
+//   Is passed a single argument—the completion's data as returned by
+//   Tern—and may return a string, DOM node, or null to indicate that
+//   no tip should be shown. By default the docstring is shown.
+// * typeTip: Like completionTip, but for the tooltips shown for type
+//   queries.
+// * responseFilter: A function(doc, query, request, error, data) that
+//   will be applied to the Tern responses before treating them
+//
+//
+// It is possible to run the Tern server in a web worker by specifying
+// these additional options:
+// * useWorker: Set to true to enable web worker mode. You'll probably
+//   want to feature detect the actual value you use here, for example
+//   !!window.Worker.
+// * workerScript: The main script of the worker. Point this to
+//   wherever you are hosting worker.js from this directory.
+// * workerDeps: An array of paths pointing (relative to workerScript)
+//   to the Acorn and Tern libraries and any Tern plugins you want to
+//   load. Or, if you minified those into a single script and included
+//   them in the workerScript, simply leave this undefined.
+
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function(CodeMirror) {
+  "use strict";
+  // declare global: tern
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   var lastClick, lastDoubleClick;
   function clickRepeat(pos, button) {
@@ -22732,10 +25714,16 @@ function numberIsNaN (obj) {
     }
   }
 
+<<<<<<< HEAD
   // This will be set to a {lineWise: bool, text: [string]} object, so
   // that, when pasting, we know what kind of selections the copied
   // text was made out of.
   var lastCopied = null;
+=======
+},{"../../lib/codemirror":144}],144:[function(require,module,exports){
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: https://codemirror.net/LICENSE
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   function setLastCopied(newLastCopied) {
     lastCopied = newLastCopied;
@@ -29637,11 +32625,17 @@ let gen = require('./gen.js')
 let proto = {
   name:'gte',
 
+<<<<<<< HEAD
   gen() {
     let out,
         inputs = gen.getInputs( this )
     
     out = `  var ${this.name} = `  
+=======
+},{}],145:[function(require,module,exports){
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: https://codemirror.net/LICENSE
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     if( isNaN( this.inputs[0] ) || isNaN( this.inputs[1] ) ) {
       out += `( ${inputs[0]} >= ${inputs[1]} | 0 )`
@@ -30370,8 +33364,33 @@ module.exports = ( x, props ) => {
   return ugen
 }
 
+<<<<<<< HEAD
 },{"./gen.js":112}],130:[function(require,module,exports){
 'use strict'
+=======
+},{"../../lib/codemirror":144}],146:[function(require,module,exports){
+(function (Buffer){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 const gen = require('./gen.js')
 
@@ -30489,8 +33508,33 @@ module.exports = x => {
   return noise
 }
 
+<<<<<<< HEAD
 },{"./gen.js":112}],133:[function(require,module,exports){
 'use strict'
+=======
+}).call(this,{"isBuffer":require("../../is-buffer/index.js")})
+},{"../../is-buffer/index.js":150}],147:[function(require,module,exports){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 let gen  = require('./gen.js')
 
@@ -30858,8 +33902,21 @@ module.exports = (x,y) => {
   return pow
 }
 
+<<<<<<< HEAD
 },{"./gen.js":112}],140:[function(require,module,exports){
 'use strict'
+=======
+},{}],148:[function(require,module,exports){
+exports.read = function (buffer, offset, isLE, mLen, nBytes) {
+  var e, m
+  var eLen = (nBytes * 8) - mLen - 1
+  var eMax = (1 << eLen) - 1
+  var eBias = eMax >> 1
+  var nBits = -7
+  var i = isLE ? (nBytes - 1) : 0
+  var d = isLE ? -1 : 1
+  var s = buffer[offset + i]
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 let gen  = require('./gen.js')
 const proto = {
@@ -30912,6 +33969,7 @@ module.exports = (...args) => {
   return process 
 }
 
+<<<<<<< HEAD
 },{"./gen.js":112}],141:[function(require,module,exports){
 'use strict'
 
@@ -30951,6 +34009,44 @@ let proto = {
 
 module.exports = ( in1, rate ) => {
   let ugen = Object.create( proto )
+=======
+},{}],149:[function(require,module,exports){
+if (typeof Object.create === 'function') {
+  // implementation from standard node.js 'util' module
+  module.exports = function inherits(ctor, superCtor) {
+    if (superCtor) {
+      ctor.super_ = superCtor
+      ctor.prototype = Object.create(superCtor.prototype, {
+        constructor: {
+          value: ctor,
+          enumerable: false,
+          writable: true,
+          configurable: true
+        }
+      })
+    }
+  };
+} else {
+  // old school shim for old browsers
+  module.exports = function inherits(ctor, superCtor) {
+    if (superCtor) {
+      ctor.super_ = superCtor
+      var TempCtor = function () {}
+      TempCtor.prototype = superCtor.prototype
+      ctor.prototype = new TempCtor()
+      ctor.prototype.constructor = ctor
+    }
+  }
+}
+
+},{}],150:[function(require,module,exports){
+/*!
+ * Determine if an object is a Buffer
+ *
+ * @author   Feross Aboukhadijeh <https://feross.org>
+ * @license  MIT
+ */
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   Object.assign( ugen, { 
     phase:      0,
@@ -30967,14 +34063,25 @@ module.exports = ( in1, rate ) => {
 },{"./add.js":85,"./delta.js":102,"./gen.js":112,"./history.js":116,"./memo.js":124,"./mul.js":130,"./sub.js":149,"./wrap.js":157}],142:[function(require,module,exports){
 'use strict'
 
+<<<<<<< HEAD
 let gen  = require('./gen.js')
+=======
+},{}],151:[function(require,module,exports){
+var toString = {}.toString;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 let proto = {
   name:'round',
 
+<<<<<<< HEAD
   gen() {
     let out,
         inputs = gen.getInputs( this )
+=======
+},{}],152:[function(require,module,exports){
+/* eslint-env browser */
+const perf = typeof performance === 'undefined' ? null : performance
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     
     const isWorklet = gen.mode === 'worklet'
@@ -30996,7 +34103,12 @@ let proto = {
 module.exports = x => {
   let round = Object.create( proto )
 
+<<<<<<< HEAD
   round.inputs = [ x ]
+=======
+},{}],153:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   return round
 }
@@ -31040,7 +34152,12 @@ module.exports = ( in1, control, threshold=0, properties ) => {
   let ugen = Object.create( proto ),
       defaults = { init:0 }
 
+<<<<<<< HEAD
   if( properties !== undefined ) Object.assign( defaults, properties )
+=======
+},{}],154:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   Object.assign( ugen, { 
     lastSample: 0,
@@ -31082,9 +34199,14 @@ let proto = {
 ` var ${this.name}_out = 0
   switch( ${inputs[0]} + 1 ) {\n`
 
+<<<<<<< HEAD
         for( let i = 1; i < inputs.length; i++ ){
           out +=`    case ${i}: ${this.name}_out = ${inputs[i]}; break;\n` 
         }
+=======
+},{"./array-5c116aa0.cjs":153}],155:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
         out += '  }\n\n'
         
@@ -31121,6 +34243,7 @@ let gen   = require( './gen.js' ),
     data  = require( './data.js' ),
     proto = { basename:'seq' }
 
+<<<<<<< HEAD
 module.exports = ( durations = 11025, values = [0,1], phaseIncrement = 1) => {
   let clock
   
@@ -31146,6 +34269,10 @@ module.exports = ( durations = 11025, values = [0,1], phaseIncrement = 1) => {
   const stepper = accum( clock.wrap, 0, { min:0, max:values.length })
    
   const ugen = peek( data( values ), stepper, { mode:'simple' })
+=======
+},{}],156:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   ugen.name = proto.basename + gen.getUID()
   ugen.trigger = clock.wrap
@@ -31165,9 +34292,14 @@ let proto = {
     let out,
         inputs = gen.getInputs( this )
 
+<<<<<<< HEAD
     
     const isWorklet = gen.mode === 'worklet'
     const ref = isWorklet? '' : 'gen.'
+=======
+},{"./binary-ac8e39e2.cjs":155}],157:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     if( isNaN( inputs[0] ) ) {
       gen.closures.add({ [ this.name ]: isWorklet ? 'Math.sign' : Math.sign })
@@ -31246,8 +34378,13 @@ module.exports = ( in1, slideUp = 1, slideDown = 1 ) => {
   let y1 = history(0),
       filter, slideAmount
 
+<<<<<<< HEAD
   //y (n) = y (n-1) + ((x (n) - y (n-1))/slide) 
   slideAmount = _switch( gt(in1,y1.out), slideUp, slideDown )
+=======
+},{"./buffer-69e778d4.cjs":159,"./map-28a001c9.cjs":180,"./storage.cjs":195}],158:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   filter = memo( add( y1.out, div( sub( in1, y1.out ), slideAmount ) ) )
 
@@ -31275,7 +34412,13 @@ const proto = {
         hasUgens = false,
         returnValue = 0
 
+<<<<<<< HEAD
     this.inputs.forEach( value => { if( isNaN( value ) ) hasUgens = true })
+=======
+},{"./binary-ac8e39e2.cjs":155,"./broadcastchannel-d9b332fb.cjs":157,"./buffer-69e778d4.cjs":159,"./conditions-fb475c70.cjs":161,"./environment-bf1f625d.cjs":167,"./map-28a001c9.cjs":180,"./math-08e068f9.cjs":182,"./number-ae8fba57.cjs":187,"./storage.cjs":195,"./string-f3c3d805.cjs":196}],159:[function(require,module,exports){
+(function (Buffer){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     out = '  var ' + this.name + ' = '
 
@@ -31823,8 +34966,14 @@ registerProcessor( '${name}', ${name}Processor)`
 
         workletNode.connect( utilities.ctx.destination )
 
+<<<<<<< HEAD
         resolve( workletNode )
       })
+=======
+}).call(this,require("buffer").Buffer)
+},{"./binary-ac8e39e2.cjs":155,"./environment-bf1f625d.cjs":167,"./math-08e068f9.cjs":182,"./number-ae8fba57.cjs":187,"./string-f3c3d805.cjs":196,"buffer":137}],160:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     })
 
@@ -31856,6 +35005,7 @@ registerProcessor( '${name}', ${name}Processor)`
         req.onload = function() {
           var audioData = req.response
 
+<<<<<<< HEAD
           utilities.ctx.decodeAudioData( audioData, (buffer) => {
             data.buffer = buffer.getChannelData(0)
             utilities.buffers[ soundFilePath ] = data.buffer
@@ -31866,6 +35016,10 @@ registerProcessor( '${name}', ${name}Processor)`
         setTimeout( ()=> resolve( utilities.buffers[ soundFilePath ] ), 0 )
       }
     })
+=======
+},{"./binary-ac8e39e2.cjs":155,"./buffer-69e778d4.cjs":159,"./conditions-fb475c70.cjs":161,"./environment-bf1f625d.cjs":167,"./map-28a001c9.cjs":180,"./math-08e068f9.cjs":182,"./number-ae8fba57.cjs":187,"./storage.cjs":195,"./string-f3c3d805.cjs":196}],161:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     if( !isLoaded ) req.send()
 
@@ -31878,8 +35032,13 @@ utilities.clear.callbacks = []
 
 module.exports = utilities
 
+<<<<<<< HEAD
 },{"./data.js":98,"./external/audioworklet-polyfill.js":107,"./gen.js":112}],156:[function(require,module,exports){
 'use strict'
+=======
+},{}],162:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 /*
  * many windows here adapted from https://github.com/corbanbrook/dsp.js/blob/master/dsp.js
@@ -31908,9 +35067,14 @@ const windows = module.exports = {
     return Math.cos(Math.PI * index / (length - 1) - Math.PI / 2)
   },
 
+<<<<<<< HEAD
   gauss( length, index, alpha ) {
     return Math.pow(Math.E, -0.5 * Math.pow((index - (length - 1) / 2) / (alpha * (length - 1) / 2), 2))
   },
+=======
+},{"./binary-ac8e39e2.cjs":155,"./buffer-69e778d4.cjs":159,"./conditions-fb475c70.cjs":161,"./environment-bf1f625d.cjs":167,"./map-28a001c9.cjs":180,"./math-08e068f9.cjs":182,"./number-ae8fba57.cjs":187,"./storage.cjs":195,"./string-f3c3d805.cjs":196}],163:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   hamming( length, index ) {
     return 0.54 - 0.46 * Math.cos( Math.PI * 2 * index / (length - 1))
@@ -31957,9 +35121,14 @@ const windows = module.exports = {
     }
   },
 
+<<<<<<< HEAD
   exponential( length, index, alpha ) {
     return Math.pow( index / length, alpha )
   },
+=======
+},{"./function-ee0175a7.cjs":172}],164:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   linear( length, index ) {
     return index / length
@@ -31995,10 +35164,15 @@ let proto = {
       diff = max - min
     }
 
+<<<<<<< HEAD
     out =
 ` var ${this.name} = ${inputs[0]}
   if( ${this.name} < ${this.min} ) ${this.name} += ${diff}
   else if( ${this.name} > ${this.max} ) ${this.name} -= ${diff}
+=======
+},{"./array-5c116aa0.cjs":153,"./diff-2ca86967.cjs":163,"./function-ee0175a7.cjs":172,"./object-dcdd6eed.cjs":188}],165:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 `
 
@@ -32343,8 +35517,13 @@ const Audio = {
         Gibberish.worklet.port.postMessage = function( dict ) {
           if( Audio.shouldDelay === true ) dict.delay = true
 
+<<<<<<< HEAD
           Gibberish.worklet.port.__postMessage( dict )
         }
+=======
+},{"./map-28a001c9.cjs":180,"./pair-ab022bc3.cjs":191}],166:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
         Audio.export( window )
 
@@ -32370,10 +35549,16 @@ const Audio = {
     return p
   },
 
+<<<<<<< HEAD
   // XXX stop clock from being cleared.
   clear() { 
     Gibberish.clear() 
     Audio.Clock.init( Audio.Gen, Audio )
+=======
+},{"./binary-ac8e39e2.cjs":155,"./buffer-69e778d4.cjs":159,"./conditions-fb475c70.cjs":161,"./environment-bf1f625d.cjs":167,"./map-28a001c9.cjs":180,"./math-08e068f9.cjs":182,"./number-ae8fba57.cjs":187,"./storage.cjs":195,"./string-f3c3d805.cjs":196}],167:[function(require,module,exports){
+(function (process){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     // the idea is that we only clear memory that was filled after
     // the initial Gibber initialization... this stops objects
@@ -32452,9 +35637,15 @@ const Audio = {
       }
     }
 
+<<<<<<< HEAD
     this.publish = function( key, data ) {
       if( typeof events[ key ] !== 'undefined' ) {
         const arr = events[ key ]
+=======
+}).call(this,require('_process'))
+},{"./conditions-fb475c70.cjs":161,"./map-28a001c9.cjs":180,"./storage.cjs":195,"./string-f3c3d805.cjs":196,"_process":203}],168:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
         arr.forEach( v => v( data ) )
       }
@@ -32491,7 +35682,12 @@ const Audio = {
     }
   },
 
+<<<<<<< HEAD
   createGetter( obj, name ) { return () => obj[ '__' + name ] },
+=======
+},{}],169:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   createSetter( obj, name, post, transform=null, isPoly=false ) {
     const setter = v => {
@@ -32522,6 +35718,7 @@ const Audio = {
         // in which case they will have no .render() function, and don't need to be rendered
         const gen = v.render !== undefined ? v.render() : from
 
+<<<<<<< HEAD
         obj['__'+ name ].value = gen
         value = { id: gen.id }
       }else{
@@ -32529,6 +35726,10 @@ const Audio = {
         value = v !== null ? { id:v.id } : v
       }
         //Audio.createMapping( v, obj, name, obj.__wrapped__ )
+=======
+},{"./error-55a9a8c8.cjs":168}],170:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
       if( Gibberish.mode === 'worklet' && shouldSend === true ) {
         Gibberish.worklet.port.postMessage({
@@ -32610,16 +35811,85 @@ const Audio = {
 
 module.exports = Audio
 
+<<<<<<< HEAD
 },{"./analysis.js":159,"./binops.js":161,"./busses.js":162,"./clock.js":163,"./drums.js":164,"./effects.js":165,"./ensemble.js":166,"./envelopes.js":167,"./external/audioworklet-polyfill.js":168,"./filters.js":171,"./freesound.js":172,"./gen.js":173,"./instruments.js":174,"./make.js":175,"./oscillators.js":176,"./presets.js":177,"./theory.js":189,"./ugen.js":190,"./utility.js":191,"./waveObjects.js":192,"./wavePattern.js":193,"gibber.core.lib":196,"gibberish-dsp":241}],161:[function(require,module,exports){
 const Gibberish = require( 'gibberish-dsp' )
 const Ugen      = require( './ugen.js' )
+=======
+/* istanbul ignore next */
+/**
+ * Note: this is experimental and is probably only useful in browsers.
+ *
+ * @param {function} cb
+ * @return {TimeoutObject}
+ */
+// @ts-ignore
+const idleCallback = cb => typeof requestIdleCallback !== 'undefined' ? new Idle(requestIdleCallback(cb)) : timeout(1000, cb);
+
+/**
+ * @param {number} timeout Timeout of the debounce action
+ * @return {function(function():void):void}
+ */
+const createDebouncer = timeout => {
+  let timer = -1;
+  return f => {
+    clearTimeout(timer);
+    if (f) {
+      timer = /** @type {any} */ (setTimeout(f, timeout));
+    }
+  }
+};
+
+var eventloop = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  enqueue: enqueue,
+  timeout: timeout,
+  interval: interval,
+  Animation: Animation,
+  animationFrame: animationFrame,
+  idleCallback: idleCallback,
+  createDebouncer: createDebouncer
+});
+
+exports.Animation = Animation;
+exports.animationFrame = animationFrame;
+exports.createDebouncer = createDebouncer;
+exports.enqueue = enqueue;
+exports.eventloop = eventloop;
+exports.idleCallback = idleCallback;
+exports.interval = interval;
+exports.timeout = timeout;
+
+
+},{}],171:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+var eventloop = require('./eventloop-c60b5658.cjs');
+
+
+
+exports.Animation = eventloop.Animation;
+exports.animationFrame = eventloop.animationFrame;
+exports.createDebouncer = eventloop.createDebouncer;
+exports.enqueue = eventloop.enqueue;
+exports.idleCallback = eventloop.idleCallback;
+exports.interval = eventloop.interval;
+exports.timeout = eventloop.timeout;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 const Binops = {
   create( Audio ) {
     const binops = {}
 
+<<<<<<< HEAD
     for( let binopName in Gibberish.binops ) {
       const gibberishConstructor = Gibberish.binops[ binopName ]
+=======
+},{"./eventloop-c60b5658.cjs":170}],172:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
       const methods = Binops.descriptions[ binopName ] === undefined ? null : Binops.descriptions[ binopName ].methods
       const description = { 
@@ -32702,9 +35972,14 @@ const Busses = {
 
 module.exports = Busses
 
+<<<<<<< HEAD
 },{"./ugen.js":190,"gibberish-dsp":241}],163:[function(require,module,exports){
 const Gibberish = require( 'gibberish-dsp' )
 const serialize = require( 'serialize-javascript' )
+=======
+},{"./array-5c116aa0.cjs":153,"./object-dcdd6eed.cjs":188}],173:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 const Clock = {
   __beatCount:0,
@@ -32752,10 +36027,15 @@ const Clock = {
       }
     }
 
+<<<<<<< HEAD
     if( Gibberish.mode === 'worklet' ) {
       this.id = Gibberish.utilities.getUID()
       this.audioClock = null
       this.__rate = null
+=======
+},{"./array-5c116aa0.cjs":153,"./function-ee0175a7.cjs":172,"./object-dcdd6eed.cjs":188}],174:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
       Gibberish.worklet.port.postMessage({
         address:'add',
@@ -32807,6 +36087,7 @@ const Clock = {
 
   },
 
+<<<<<<< HEAD
   connect: function() {
     if( this.audioClock !== undefined ) {
       Gibberish.analyzers.push( this.audioClock )
@@ -32814,6 +36095,10 @@ const Clock = {
       console.log( 'clock connected' )
     }
   },
+=======
+},{"isomorphic.js":152}],175:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   // time accepts an input value and converts it into samples. the input value
   // may be measured in milliseconds, beats or samples.
@@ -32875,7 +36160,12 @@ const Clock = {
   }
 }
 
+<<<<<<< HEAD
 module.exports = Clock
+=======
+},{}],176:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 },{"gibberish-dsp":241,"serialize-javascript":472}],164:[function(require,module,exports){
 const Ugen = require( './ugen.js' )
@@ -32911,7 +36201,12 @@ const addMethod = ( obj, name, __value = 1, propOverrideName ) => {
       })
       .start( Audio.Clock.time( delay ) )
 
+<<<<<<< HEAD
       obj.__sequencers.push( obj['__'+name][ number ] )
+=======
+},{"./iterator-fe01d209.cjs":175}],177:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
       // return object for method chaining
       return obj
@@ -32954,6 +36249,7 @@ module.exports = function( __Audio ) {
     const oh = Audio.instruments.Sampler({ filename:'./resources/audiofiles/openhat.wav' })
     Audio.autoConnect = temp
 
+<<<<<<< HEAD
     const drums = Audio.Ensemble({
       'kd': { target:k,  method:'trigger', args:[1], name:'kick' },
       [0]: { target:k,  method:'trigger', args:[1], name:'kick' },
@@ -32965,6 +36261,10 @@ module.exports = function( __Audio ) {
       'oh': { target:oh, method:'trigger', args:[1], name:'openHat' },
       [3]: { target:oh, method:'trigger', args:[1], name:'openHat' },
     })
+=======
+},{}],178:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     if( Audio.autoConnect === true ) drums.connect()
 
@@ -33185,9 +36485,14 @@ module.exports = function( Audio ) {
   return Ensemble
 }
 
+<<<<<<< HEAD
 },{}],167:[function(require,module,exports){
 const Gibberish = require( 'gibberish-dsp' )
 const Ugen      = require( './ugen.js' )
+=======
+},{"./dom-5f5e0240.cjs":165,"./environment-bf1f625d.cjs":167,"./eventloop-c60b5658.cjs":170,"./function-ee0175a7.cjs":172,"./json-092190a1.cjs":177,"./map-28a001c9.cjs":180,"./math-08e068f9.cjs":182,"./pair-ab022bc3.cjs":191,"./symbol-c5caa724.cjs":197,"./time-622d6a9f.cjs":198}],179:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 const Envelopes = {
   create( Audio ) {
@@ -33218,9 +36523,14 @@ const Envelopes = {
 
 module.exports = Envelopes
 
+<<<<<<< HEAD
 },{"./ugen.js":190,"gibberish-dsp":241}],168:[function(require,module,exports){
 arguments[4][107][0].apply(exports,arguments)
 },{"./realm.js":169,"dup":107}],169:[function(require,module,exports){
+=======
+},{"./array-5c116aa0.cjs":153,"./conditions-fb475c70.cjs":161,"./dom-5f5e0240.cjs":165,"./environment-bf1f625d.cjs":167,"./eventloop-c60b5658.cjs":170,"./function-ee0175a7.cjs":172,"./json-092190a1.cjs":177,"./logging-08ea5e20.cjs":178,"./map-28a001c9.cjs":180,"./math-08e068f9.cjs":182,"./metric.cjs":184,"./object-dcdd6eed.cjs":188,"./pair-ab022bc3.cjs":191,"./storage.cjs":195,"./string-f3c3d805.cjs":196,"./symbol-c5caa724.cjs":197,"./time-622d6a9f.cjs":198}],180:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 
 /**
@@ -33277,11 +36587,16 @@ const Tune = function(){
 	// the scale as ratios
 	this.scale = []
 
+<<<<<<< HEAD
 	// i/o modes
 	this.mode = {
 		output: "frequency",
 		input: "step"
 	}
+=======
+},{}],181:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 	// ET major, for reference
 	this.etmajor= [ 261.62558,
@@ -33309,7 +36624,12 @@ Tune.prototype.tonicize = function(newTonic) {
 	this.tonic = newTonic
 }
 
+<<<<<<< HEAD
 /* Return data in the mode you are in (freq, ratio, or midi) */
+=======
+},{"./map-28a001c9.cjs":180}],182:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 Tune.prototype.note = function(input,octave){
 
@@ -33364,7 +36684,12 @@ Tune.prototype.frequency = function(stepIn, octaveIn) {
 
 }
 
+<<<<<<< HEAD
 /* Force return ratio data */
+=======
+},{}],183:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 Tune.prototype.ratio = function(stepIn, octaveIn) {
 
@@ -33389,7 +36714,12 @@ Tune.prototype.ratio = function(stepIn, octaveIn) {
 
 	return ratio
 
+<<<<<<< HEAD
 }
+=======
+},{"./math-08e068f9.cjs":182}],184:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 /* Force return adjusted MIDI data */
 
@@ -33407,7 +36737,12 @@ Tune.prototype.MIDI = function(stepIn,octaveIn) {
 
 /* Load a new scale */
 
+<<<<<<< HEAD
 Tune.prototype.loadScale = function(name){
+=======
+},{"./math-08e068f9.cjs":182}],185:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 	/* load the scale */
 	var freqs = this.TuningList[name].frequencies
@@ -33484,6 +36819,11 @@ Tune.prototype.chord = function(midis) {
 	return output;
 }
 
+<<<<<<< HEAD
+=======
+},{}],186:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 /* Change the tonic frequency? */
 
@@ -33506,6 +36846,7 @@ const Filters = {
     for( let filterName in Gibberish.filters ) {
       const gibberishConstructor = Gibberish.filters[ filterName ]
 
+<<<<<<< HEAD
       const methods = Filters.descriptions[ filterName ] === undefined ? null : Filters.descriptions[ filterName ].methods
       const description = { 
         properties:gibberishConstructor.defaults || {}, 
@@ -33516,6 +36857,10 @@ const Filters = {
       description.__defaults__ = { isStereo : true }
       description.properties.isStereo = true
       description.properties.type = 'fx'
+=======
+},{"./mutex-63f09c81.cjs":185}],187:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
       filters[ filterName ] = Ugen( gibberishConstructor, description, Audio, false )
     }
@@ -33555,6 +36900,7 @@ module.exports = function( Audio ) {
 
   Freesound.loaded = {};
 
+<<<<<<< HEAD
   const queries = {
     number( id, sampler ) {
       if (typeof Freesound.loaded[ id ] === 'undefined') {
@@ -33562,6 +36908,10 @@ module.exports = function( Audio ) {
           .then( response => response.json() )
           .then( json => {
             const path = json.previews[ 'preview-hq-mp3' ]
+=======
+},{"./binary-ac8e39e2.cjs":155,"./math-08e068f9.cjs":182}],188:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
             sampler.path = path
 
@@ -33625,6 +36975,7 @@ module.exports = function( Audio ) {
       path += `&page=${page}`
       path += `&token=${token}`
 
+<<<<<<< HEAD
       if( typeof Freesound.loaded[ query ] === 'undefined') {
         fetch( encodeURI( path ) )
           .then( data => data.json() )
@@ -33632,6 +36983,10 @@ module.exports = function( Audio ) {
             const idx = pick === 'random'
               ? Math.floor( Math.random() * json.results.length )
               : 0
+=======
+},{}],189:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
             console.log( 'loading:', json.results[ idx ].name )
             queries.number( json.results[ idx ].id, sampler )
@@ -33672,8 +37027,13 @@ const Gen  = {
   names:[],
   connected: [],
 
+<<<<<<< HEAD
   isGen:true,
   debug:false,
+=======
+},{"./object-dcdd6eed.cjs":188}],190:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   init() {
     Gen.createBinopFunctions()
@@ -33732,8 +37092,13 @@ const Gen  = {
       obj.options = params[ Gen.functions[ name ].properties.length ]
     }
 
+<<<<<<< HEAD
     return obj
   },
+=======
+},{"./array-5c116aa0.cjs":153,"./map-28a001c9.cjs":180,"./set-7ae96d21.cjs":193}],191:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   createRate( name ) {
     let obj = Object.create( this ),
@@ -33800,6 +37165,7 @@ const Gen  = {
     Gen.connected.length = 0
   },
 
+<<<<<<< HEAD
   constants: {
     degtorad: Math.PI / 180,
     E :       Math.E,
@@ -33815,6 +37181,10 @@ const Gen  = {
     twopi :   Math.PI * 2,
     samplerate: 'samplerate'
   },
+=======
+},{}],192:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   functions: {
     phasor: { properties:[ '0','1' ],  str:'phasor' },
@@ -33859,6 +37229,7 @@ const Gen  = {
     return out
   },
 
+<<<<<<< HEAD
   genMax( paramArray ) {
     let def = Gen.functions[ this.name ],
         str = def.str + '(',
@@ -33867,6 +37238,10 @@ const Gen  = {
     // tell Gibber that this gen object is part of an active gen graph
     // so that changes to it are forwarded to m4l
     this.active = true
+=======
+},{"./isomorphic.cjs":174,"./math-08e068f9.cjs":182,"isomorphic.js":152}],193:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     if( this.name === 'rate' ) {
       str += 'in1, '
@@ -33934,11 +37309,16 @@ const Gen  = {
       if( count++ < def.properties.length - 1 ) str += ','
     }
 
+<<<<<<< HEAD
     if( this.options !== undefined ) {
       str += ',' + JSON.stringify( this.options )
     }
     
     str += ')'
+=======
+},{}],194:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     return str
   },
@@ -33980,6 +37360,7 @@ const Gen  = {
         }
       }
 
+<<<<<<< HEAD
       _add.amp = (v) => {
         if( v === undefined ) {
           return _mul[ 1 ]()
@@ -33987,6 +37368,54 @@ const Gen  = {
           _mul[1]( v )
         }
       }
+=======
+exports.create = set.create;
+exports.toArray = set.toArray;
+
+
+},{"./set-7ae96d21.cjs":193}],195:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+/* global localStorage */
+
+/**
+ * Isomorphic variable storage.
+ *
+ * Uses LocalStorage in the browser and falls back to in-memory storage.
+ *
+ * @module storage
+ */
+
+/* istanbul ignore next */
+class VarStoragePolyfill {
+  constructor () {
+    this.map = new Map();
+  }
+
+  /**
+   * @param {string} key
+   * @param {any} value
+   */
+  setItem (key, value) {
+    this.map.set(key, value);
+  }
+
+  /**
+   * @param {string} key
+   */
+  getItem (key) {
+    return this.map.get(key)
+  }
+}
+
+/* istanbul ignore next */
+/**
+ * @type {any}
+ */
+let _localStorage = new VarStoragePolyfill();
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
       _add.center = (v) => {
         if( v === undefined ) {
@@ -34010,6 +37439,7 @@ const Gen  = {
       if( from > to ) {
         amt = from - to
 
+<<<<<<< HEAD
         fade = g.gtp( g.sub( from, g.accum( g.div( amt, g.mul(beatsInSeconds, g.samplerate ) ), 0 ) ), to )
       }else{
         amt = to - from
@@ -34041,6 +37471,10 @@ const Gen  = {
         { min:0 } )
     }, 
   },
+=======
+},{}],196:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   ugens:{},
 
@@ -34142,6 +37576,7 @@ const Gen  = {
 
     params.id = Audio.Gibberish.utilities.getUID()
 
+<<<<<<< HEAD
     // pass a constructor to our worklet processor
     Audio.Gibberish.worklet.port.postMessage({ 
       address:'addMethod', 
@@ -34154,6 +37589,10 @@ const Gen  = {
         return mymod; 
       }`
     })
+=======
+},{}],197:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     // create a worklet-side Gibberish constructor
     const make = function() {
@@ -34192,8 +37631,13 @@ const Gen  = {
         Audio.Gibber.Environment.Annotations.waveform.updateWidget( out.widget, v, false )
       }
 
+<<<<<<< HEAD
       out.output.value = v
     }
+=======
+},{}],198:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     // optionally map user provided names to p values for better control / sequencing
     if( Array.isArray( propertyNames )) {
@@ -34231,8 +37675,13 @@ const Gen  = {
 
 Gen.init()
 
+<<<<<<< HEAD
 return Gen 
 }
+=======
+},{"./math-08e068f9.cjs":182,"./metric.cjs":184}],199:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 },{}],174:[function(require,module,exports){
 const Gibberish = require( 'gibberish-dsp' )
@@ -34330,7 +37779,12 @@ const Instruments = {
   
 }
 
+<<<<<<< HEAD
 module.exports = Instruments
+=======
+},{"./math-08e068f9.cjs":182,"./metric.cjs":184,"./time-622d6a9f.cjs":198}],200:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 },{"./ugen.js":190,"gibberish-dsp":241}],175:[function(require,module,exports){
 module.exports = function( Gibber ) {
@@ -34367,8 +37821,15 @@ module.exports = function( Gibber ) {
     return out
   }
 
+<<<<<<< HEAD
   return fnc
 }
+=======
+},{"./object-dcdd6eed.cjs":188}],201:[function(require,module,exports){
+(function (process){
+// .dirname, .basename, and .extname methods are extracted from Node.js v8.11.1,
+// backported and transplited with Babel, with backwards-compat fixes
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 /* example use:
 def = {
@@ -34724,11 +38185,18 @@ module.exports = {
     offset:.1
   },
 
+<<<<<<< HEAD
   extreme: {
     feedback:.85,
     offset:.05,
     frequency:4
   },
+=======
+}).call(this,require('_process'))
+},{"_process":203}],202:[function(require,module,exports){
+(function (process){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 }
 
@@ -34743,6 +38211,7 @@ module.exports = {
     octave:-2
   },
 
+<<<<<<< HEAD
   kick:{
     attack : 1/4096,
     index : 5,
@@ -34751,6 +38220,12 @@ module.exports = {
     octave : -3,
     shape:'exponential'
   },
+=======
+}).call(this,require('_process'))
+},{"_process":203}],203:[function(require,module,exports){
+// shim for using process in browser
+var process = module.exports = {};
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   'bass.electro' : {
     cmRatio:1,
@@ -34864,6 +38339,7 @@ module.exports = {
     filterMult:3
   },
 
+<<<<<<< HEAD
   arpy : {
     antialias:true,
     attack: audio => audio.Clock.ms(.5),
@@ -34900,6 +38376,32 @@ module.exports = {
     filterType:1,
     filterMode:1
   },
+=======
+},{}],204:[function(require,module,exports){
+module.exports = require('./lib/_stream_duplex.js');
+
+},{"./lib/_stream_duplex.js":205}],205:[function(require,module,exports){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   dirty: { 
     gain:.325,
@@ -35241,6 +38743,7 @@ module.exports = {
     }
   },
 
+<<<<<<< HEAD
   brass: {
     attack:1/6, decay:1.5, gain:.05,
     filterType:1, Q:.5575, cutoff:2,
@@ -35249,6 +38752,31 @@ module.exports = {
       this.chorus = this.fx[0]
     }
   },
+=======
+  pna.nextTick(cb, err);
+};
+},{"./_stream_readable":207,"./_stream_writable":209,"core-util-is":146,"inherits":149,"process-nextick-args":202}],206:[function(require,module,exports){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   'brass.short':{
     gain:.75,
@@ -35313,10 +38841,42 @@ module.exports = {
   }
 }
 
+<<<<<<< HEAD
 },{}],189:[function(require,module,exports){
 const Gibberish = require( 'gibberish-dsp' )
 const serialize = require( 'serialize-javascript' )
 const Tune      = require( './external/tune-api-only.js' )
+=======
+PassThrough.prototype._transform = function (chunk, encoding, cb) {
+  cb(null, chunk);
+};
+},{"./_stream_transform":208,"core-util-is":146,"inherits":149}],207:[function(require,module,exports){
+(function (process,global){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+'use strict';
+
+/*<replacement>*/
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 let Gibber = null
 
@@ -36274,8 +39834,39 @@ const Utility = {
     this.randomFlag = true
     this.randomArgs = Array.prototype.slice.call( arguments, 0 )
 
+<<<<<<< HEAD
     return this
   },
+=======
+function indexOf(xs, x) {
+  for (var i = 0, l = xs.length; i < l; i++) {
+    if (xs[i] === x) return i;
+  }
+  return -1;
+}
+}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./_stream_duplex":205,"./internal/streams/BufferList":210,"./internal/streams/destroy":211,"./internal/streams/stream":212,"_process":203,"core-util-is":146,"events":147,"inherits":149,"isarray":151,"process-nextick-args":202,"safe-buffer":213,"string_decoder/":214,"util":136}],208:[function(require,module,exports){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   elementArray: function( list ) {
     let out = []
@@ -36441,6 +40032,35 @@ module.exports = function( Gibber ) {
 
   return WavePatterns
 }
+<<<<<<< HEAD
+=======
+},{"./_stream_duplex":205,"core-util-is":146,"inherits":149}],209:[function(require,module,exports){
+(function (process,global,setImmediate){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+// A bit simpler than readable streams.
+// Implement an async ._write(chunk, encoding, cb), and it'll handle all
+// the drain event emission and buffering.
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 },{}],193:[function(require,module,exports){
 module.exports = function( Gibber ) {
@@ -37036,8 +40656,20 @@ const patternWrapper = function( Gibber ) {
       }
     },
 
+<<<<<<< HEAD
     // used when _onchange has not been assigned to individual patterns
     _onchange() {},
+=======
+Writable.prototype.destroy = destroyImpl.destroy;
+Writable.prototype._undestroy = destroyImpl.undestroy;
+Writable.prototype._destroy = function (err, cb) {
+  this.end();
+  cb(err);
+};
+}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("timers").setImmediate)
+},{"./_stream_duplex":205,"./internal/streams/destroy":211,"./internal/streams/stream":212,"_process":203,"core-util-is":146,"inherits":149,"process-nextick-args":202,"safe-buffer":213,"timers":227,"util-deprecate":228}],210:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     addFilter( filter ) {
       this.filters.push( filter )
@@ -37096,6 +40728,7 @@ const patternWrapper = function( Gibber ) {
       } else if( isGen === true ) {
         val = fnc.values[ 0 ].callback.out[0]
 
+<<<<<<< HEAD
         args = fnc.runFilters( val, idx )
         val = args[0]
       }else{
@@ -37103,6 +40736,16 @@ const patternWrapper = function( Gibber ) {
         args = fnc.runFilters( val, idx )
       
         fnc.phase += fnc.stepSize * args[ 1 ]
+=======
+if (util && util.inspect && util.inspect.custom) {
+  module.exports.prototype[util.inspect.custom] = function () {
+    var obj = util.inspect({ length: this.length });
+    return this.constructor.name + ' ' + obj;
+  };
+}
+},{"safe-buffer":213,"util":136}],211:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 
         val = args[ 0 ]
@@ -37184,6 +40827,7 @@ const patternWrapper = function( Gibber ) {
             fnc.end = start
           }
 
+<<<<<<< HEAD
           this.checkForUpdateFunction( 'range', fnc )
         }
 
@@ -37192,6 +40836,19 @@ const patternWrapper = function( Gibber ) {
       
       set() {
         if( !fnc.__frozen ) {
+=======
+module.exports = {
+  destroy: destroy,
+  undestroy: undestroy
+};
+},{"process-nextick-args":202}],212:[function(require,module,exports){
+module.exports = require('events').EventEmitter;
+
+},{"events":147}],213:[function(require,module,exports){
+/* eslint-disable node/no-deprecated-api */
+var buffer = require('buffer')
+var Buffer = buffer.Buffer
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
           let args = Array.isArray( arguments[ 0 ] ) ? arguments[ 0 ] : arguments
           
@@ -37449,6 +41106,7 @@ const patternWrapper = function( Gibber ) {
             fnc.__message( '_onchange', true ) 
           }
 
+<<<<<<< HEAD
           fnc._onchange()
         }
         
@@ -37482,6 +41140,29 @@ const patternWrapper = function( Gibber ) {
               amt++
             }
           }
+=======
+},{"buffer":137}],214:[function(require,module,exports){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
           if( Gibberish.mode === 'processor' ) {
             fnc.__message( 'values', fnc.values ) 
@@ -37710,6 +41391,7 @@ patternWrapper.transfer = function( Audio, constructorString ) {
 
 module.exports = patternWrapper
 
+<<<<<<< HEAD
 },{}],198:[function(require,module,exports){
 module.exports = function( Gibber ) {
 
@@ -37732,6 +41414,52 @@ module.exports = function( Gibber ) {
     const values = Array.isArray( __values ) 
       ? Gibber.Pattern( ...__values ).render()
       : Gibber.Pattern( __values    ).render()
+=======
+function simpleEnd(buf) {
+  return buf && buf.length ? this.write(buf) : '';
+}
+},{"safe-buffer":213}],215:[function(require,module,exports){
+module.exports = require('./readable').PassThrough
+
+},{"./readable":216}],216:[function(require,module,exports){
+exports = module.exports = require('./lib/_stream_readable.js');
+exports.Stream = exports;
+exports.Readable = exports;
+exports.Writable = require('./lib/_stream_writable.js');
+exports.Duplex = require('./lib/_stream_duplex.js');
+exports.Transform = require('./lib/_stream_transform.js');
+exports.PassThrough = require('./lib/_stream_passthrough.js');
+
+},{"./lib/_stream_duplex.js":205,"./lib/_stream_passthrough.js":206,"./lib/_stream_readable.js":207,"./lib/_stream_transform.js":208,"./lib/_stream_writable.js":209}],217:[function(require,module,exports){
+module.exports = require('./readable').Transform
+
+},{"./readable":216}],218:[function(require,module,exports){
+module.exports = require('./lib/_stream_writable.js');
+
+},{"./lib/_stream_writable.js":209}],219:[function(require,module,exports){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+module.exports = Stream;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     if( __values.randomFlag ) {
       values.addFilter( ( args,ptrn ) => {
@@ -37925,6 +41653,7 @@ module.exports = function( Gibber ) {
 
 }
 
+<<<<<<< HEAD
 },{}],199:[function(require,module,exports){
 module.exports = function( Gibber ) {
  
@@ -37934,6 +41663,14 @@ const Steps = {
     const stepseq = Object.create( Steps )
     
     stepseq.seqs = {}
+=======
+},{"events":147,"inherits":149,"readable-stream/duplex.js":204,"readable-stream/passthrough.js":215,"readable-stream/readable.js":216,"readable-stream/transform.js":217,"readable-stream/writable.js":218}],220:[function(require,module,exports){
+// Shims to fill in enough of ECMAScript 5 to make Tern run. Does not
+// supply standard-compliant methods, in that some functionality is
+// left out (such as second argument to Object.create, self args in
+// array methods, etc). WILL clash with other ECMA5 polyfills in a
+// probably disruptive way.
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     for ( let _key in _steps ) {
       let values = _steps[ _key ]
@@ -37990,6 +41727,7 @@ const Steps = {
     stepseq.start()
     stepseq.addPatternMethods()
 
+<<<<<<< HEAD
     return stepseq
   },
   
@@ -38004,6 +41742,19 @@ const Steps = {
       //Gibber.addSequencingToMethod( this, name, 1 )
     })
   },
+=======
+},{}],221:[function(require,module,exports){
+(function(mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    return mod(exports);
+  if (typeof define == "function" && define.amd) // AMD
+    return define(["exports"], mod);
+  mod(tern.comment || (tern.comment = {}));
+})(function(exports) {
+  function isSpace(ch) {
+    return (ch < 14 && ch > 8) || ch === 32 || ch === 160;
+  }
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   start() {
     for( let key in this.seqs ) { 
@@ -38026,11 +41777,24 @@ const Steps = {
   },
 
 
+<<<<<<< HEAD
   //rotate( amt ) {
   //  for( let key in this.seqs ) { 
   //    this.seqs[ key ].values.rotate( amt )
   //  }
   //},
+=======
+},{}],222:[function(require,module,exports){
+// Type description parser
+//
+// Type description JSON files (such as ecmascript.json and browser.json)
+// are used to
+//
+// A) describe types that come from native code
+//
+// B) to cheaply load the types for big libraries, or libraries that
+//    can't be inferred well
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 }
 
@@ -38443,6 +42207,7 @@ module.exports = [
         doc: "The number of times the mandelbox equation is run per frame. This number greatly influences the complexity of the final output, but higher values are computationally expensive."
       }
     }
+<<<<<<< HEAD
   },
   {
     name: "Plane",
@@ -38519,6 +42284,68 @@ module.exports = {
   misc:        require('./misc_defs.js'),
   geometries:  require('./geometries_defs.js')
 }
+=======
+  });
+
+  var WG_PROMISE_KEEP_VALUE = 50;
+
+  infer.registerFunction("Promise_then", function(self, args, argNodes) {
+    var fn = args.length && args[0].getFunctionType();
+    var defs = infer.cx().definitions.ecmascript;
+    if (!fn || !defs) return self;
+
+    var result = new infer.Obj(defs["Promise.prototype"]);
+    var value = result.defProp(":t", argNodes && argNodes[0]), ty;
+    if (fn.retval.isEmpty() && (ty = self.getType()) instanceof infer.Obj && ty.hasProp(":t"))
+      ty.getProp(":t").propagate(value, WG_PROMISE_KEEP_VALUE);
+    fn.retval.propagate(new PromiseResolvesTo(value));
+    return result;
+  });
+
+  infer.registerFunction("getOwnPropertySymbols", function(_self, args) {
+    if (!args.length) return infer.ANull;
+    var result = new infer.AVal;
+    args[0].forAllProps(function(prop, _val, local) {
+      if (local && prop.charAt(0) == ":") result.addType(infer.getSymbol(prop.slice(1)));
+    });
+    return result;
+  });
+
+  infer.registerFunction("getSymbol", function(_self, _args, argNodes) {
+    if (argNodes && argNodes.length && argNodes[0].type == "Literal" && typeof argNodes[0].value == "string")
+      return infer.getSymbol(argNodes[0].value);
+    else
+      return infer.ANull;
+  });
+
+  return exports;
+});
+
+},{}],223:[function(require,module,exports){
+// Main type inference engine
+
+// Walks an AST, building up a graph of abstract values and constraints
+// that cause types to flow from one node to another. Also defines a
+// number of utilities for accessing ASTs and scopes.
+
+// Analysis is done in a context, which is tracked by the dynamically
+// bound cx variable. Use withContext to set the current context.
+
+// For memory-saving reasons, individual types export an interface
+// similar to abstract values (which can hold multiple types), and can
+// thus be used in place abstract values that only ever contain a
+// single type.
+
+(function(root, mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    return mod(exports, require("acorn"), require("acorn-loose"), require("acorn-walk"),
+               require("./def"), require("./signal"));
+  if (typeof define == "function" && define.amd) // AMD
+    return define(["exports", "acorn/dist/acorn", "acorn-loose/dist/acorn-loose", "acorn-walk/dist/walk", "./def", "./signal"], mod);
+  mod(root.tern || (root.tern = {}), acorn, acorn.loose, acorn.walk, tern.def, tern.signal); // Plain browser env
+})(this, function(exports, acorn, acorn_loose, walk, def, signal) {
+  "use strict";
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 },{"./geometries_defs.js":202,"./misc_defs.js":204,"./prototypes_defs.js":205}],204:[function(require,module,exports){
 const optional = true,
@@ -39717,8 +43544,19 @@ const SSD = inputProps => {
   const historyL = g.history(0)
   const historyR = g.history(0)
 
+<<<<<<< HEAD
   ssd.out = Out( [historyL,historyR], props )
   ssd.in  =  In( [historyL,historyR], props )
+=======
+},{"./def":222,"./signal":224,"acorn":134,"acorn-loose":132,"acorn-walk":133}],224:[function(require,module,exports){
+(function(root, mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    return mod(exports);
+  if (typeof define == "function" && define.amd) // AMD
+    return define(["exports"], mod);
+  mod((root.tern || (root.tern = {})).signal = {}); // Plain browser env
+})(this, function(exports) {
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   ssd.listen = ssd.in.listen
 
@@ -39802,8 +43640,13 @@ const In = histories => {
   ssdin.type = 'analysis'
   Gibberish.analyzers.push( ssdin )
 
+<<<<<<< HEAD
   return ssdin
 }
+=======
+},{}],225:[function(require,module,exports){
+// The Tern server object
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 SSD.defaults = {
   input:0,
@@ -40688,7 +44531,14 @@ module.exports = function( Gibberish ) {
 
   return DiodeZDF
 
+<<<<<<< HEAD
 }
+=======
+},{"./infer":223,"./signal":224,"acorn":134,"acorn-walk":133}],226:[function(require,module,exports){
+// Parses comments above variable declarations, function declarations,
+// and object properties as docstrings and JSDoc-style type
+// annotations.
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 },{"./filter.js":223,"genish.js":119}],223:[function(require,module,exports){
 let ugen = require( '../ugen.js' )()
@@ -40899,9 +44749,19 @@ module.exports = function( Gibberish ) {
     return klp
   }
 
+<<<<<<< HEAD
   Gibberish.genish.zd24 = ( input, _Q, freq, isStereo=false ) => {
     const leftInput = isStereo === true ? input[0] : input
     const left = makeChannel( leftInput, _Q, freq )
+=======
+},{"../lib/comment":221,"../lib/infer":223,"../lib/tern":225,"acorn":134,"acorn-walk":133}],227:[function(require,module,exports){
+(function (setImmediate,clearImmediate){
+var nextTick = require('process/browser.js').nextTick;
+var apply = Function.prototype.apply;
+var slice = Array.prototype.slice;
+var immediateIds = {};
+var nextImmediateId = 0;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     let out
     if( isStereo === true ) {
@@ -40955,9 +44815,18 @@ module.exports = function( Gibberish ) {
 }
 
 
+<<<<<<< HEAD
 },{"./filter.js":223,"genish.js":119}],227:[function(require,module,exports){
 const g = require( 'genish.js' ),
       filter = require( './filter.js' )
+=======
+exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate : function(id) {
+  delete immediateIds[id];
+};
+}).call(this,require("timers").setImmediate,require("timers").clearImmediate)
+},{"process/browser.js":203,"timers":227}],228:[function(require,module,exports){
+(function (global){
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 module.exports = function( Gibberish ) {
   Gibberish.genish.svf = ( input, cutoff, Q, mode, isStereo=false, shouldConvertFreqQ=false ) => {
@@ -40994,17 +44863,75 @@ module.exports = function( Gibberish ) {
 
       let out2 = g.selector( mode, l2, h2, b2, n2 )
 
+<<<<<<< HEAD
       returnValue = [ out, out2 ]
     }else{
       returnValue = out
     }
 
     return returnValue
+=======
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],229:[function(require,module,exports){
+if (typeof Object.create === 'function') {
+  // implementation from standard node.js 'util' module
+  module.exports = function inherits(ctor, superCtor) {
+    ctor.super_ = superCtor
+    ctor.prototype = Object.create(superCtor.prototype, {
+      constructor: {
+        value: ctor,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+  };
+} else {
+  // old school shim for old browsers
+  module.exports = function inherits(ctor, superCtor) {
+    ctor.super_ = superCtor
+    var TempCtor = function () {}
+    TempCtor.prototype = superCtor.prototype
+    ctor.prototype = new TempCtor()
+    ctor.prototype.constructor = ctor
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
   }
 
+<<<<<<< HEAD
   let SVF = inputProps => {
     const svf = Object.create( filter )
     const props = Object.assign( {}, SVF.defaults, filter.defaults, inputProps ) 
+=======
+},{}],230:[function(require,module,exports){
+module.exports = function isBuffer(arg) {
+  return arg && typeof arg === 'object'
+    && typeof arg.copy === 'function'
+    && typeof arg.fill === 'function'
+    && typeof arg.readUInt8 === 'function';
+}
+},{}],231:[function(require,module,exports){
+(function (process,global){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     const isStereo = props.input.isStereo
     
@@ -41488,7 +45415,13 @@ module.exports = function( Gibberish ) {
     postgain:.5,
   }
 
+<<<<<<< HEAD
   return Distortion
+=======
+}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./support/isBuffer":230,"_process":203,"inherits":229}],232:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 }
 
@@ -41615,12 +45548,17 @@ let Flanger = inputProps => {
   return out 
 }
 
+<<<<<<< HEAD
 Flanger.defaults = {
   input:0,
   feedback:.81,
   offset:.125,
   frequency:1
 }
+=======
+},{"codemirror":144,"lib0/dist/diff.cjs":164,"lib0/dist/eventloop.cjs":171,"lib0/dist/function.cjs":173,"lib0/dist/math.cjs":183,"lib0/dist/mutex.cjs":186,"yjs":237}],233:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 return Flanger
 
@@ -41663,6 +45601,7 @@ const Freeverb = inputProps => {
 
     const combsL = [], combsR = []
 
+<<<<<<< HEAD
     const input = g.in( 'input' ),
           inputGain = g.in( 'inputGain' ),
           wet1 = g.in( 'wet1'),
@@ -41707,6 +45646,10 @@ const Freeverb = inputProps => {
     
     const outputL = g.add( g.mul( outL, wet1 ), g.mul( outR, wet2 ), g.mul( isStereo === true ? input[0] : input, dry ) ),
           outputR = g.add( g.mul( outR, wet1 ), g.mul( outL, wet2 ), g.mul( isStereo === true ? input[1] : input, dry ) )
+=======
+},{"lib0/dist/decoding.cjs":162,"lib0/dist/encoding.cjs":166,"yjs":237}],234:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     reverb.graph = [ outputL, outputR ]
   }
@@ -41745,6 +45688,7 @@ let RingMod = inputProps => {
       ringMod = Object.create( effect ),
       out
 
+<<<<<<< HEAD
   ringMod.__createGraph = function() {
     let isStereo = false
     if( out === undefined ) {
@@ -41753,6 +45697,10 @@ let RingMod = inputProps => {
       isStereo = out.input.isStereo
       out.isStereo = isStereo
     }    
+=======
+},{"lib0/dist/decoding.cjs":162,"lib0/dist/encoding.cjs":166,"lib0/dist/function.cjs":173,"lib0/dist/math.cjs":183,"lib0/dist/observable.cjs":190,"lib0/dist/time.cjs":199,"yjs":237}],235:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     const input = g.in( 'input' ),
           inputGain = g.in( 'inputGain' ),
@@ -41868,7 +45816,12 @@ Tremolo.defaults = {
   shape:'sine'
 }
 
+<<<<<<< HEAD
 return Tremolo
+=======
+},{"lib0/dist/decoding.cjs":162,"lib0/dist/encoding.cjs":166,"yjs":237}],236:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 }
 
@@ -42004,9 +45957,14 @@ const wavestage = in1 => {
 
   const Lambert_W = g.process( 'x','Ln1', body )
 
+<<<<<<< HEAD
   const Ln1 = g.history(0),
         Fn1 = g.history(0),
         xn1 = g.history(0)
+=======
+},{"lib0/dist/broadcastchannel.cjs":158,"lib0/dist/decoding.cjs":162,"lib0/dist/encoding.cjs":166,"lib0/dist/math.cjs":183,"lib0/dist/mutex.cjs":186,"lib0/dist/observable.cjs":190,"lib0/dist/time.cjs":199,"lib0/dist/url.cjs":200,"y-protocols/dist/auth.cjs":233,"y-protocols/dist/awareness.cjs":234,"y-protocols/dist/sync.cjs":235,"yjs":237}],237:[function(require,module,exports){
+'use strict';
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   {
     'use jsdsp'
@@ -46527,6 +50485,7 @@ function fromXRotation(out, rad) {
     var s = Math.sin(rad),
         c = Math.cos(rad)
 
+<<<<<<< HEAD
     // Perform axis-specific matrix multiplication
     out[0] = 1
     out[1] = 0
@@ -46548,6 +50507,11 @@ function fromXRotation(out, rad) {
 }
 },{}],289:[function(require,module,exports){
 module.exports = fromYRotation
+=======
+},{"lib0/dist/array.cjs":154,"lib0/dist/binary.cjs":156,"lib0/dist/buffer.cjs":160,"lib0/dist/decoding.cjs":162,"lib0/dist/encoding.cjs":166,"lib0/dist/error.cjs":169,"lib0/dist/function.cjs":173,"lib0/dist/iterator.cjs":176,"lib0/dist/logging.cjs":179,"lib0/dist/map.cjs":181,"lib0/dist/math.cjs":183,"lib0/dist/object.cjs":189,"lib0/dist/observable.cjs":190,"lib0/dist/random.cjs":192,"lib0/dist/set.cjs":194,"lib0/dist/time.cjs":199}],238:[function(require,module,exports){
+const Utility = require( '../utilities.js' )
+const $ = Utility.create
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 /**
  * Creates a matrix from the given angle around the Y axis
@@ -46829,6 +50793,28 @@ function lookAt(out, eye, center, up) {
         x1 *= len;
         x2 *= len;
     }
+<<<<<<< HEAD
+=======
+  }
+    
+  return ArrayExpression
+}
+
+
+},{"../utilities.js":252}],239:[function(require,module,exports){
+module.exports = function( Marker ) {
+  'use strict'
+
+  // 1/4, 1/8 etc.
+  const BinaryExpression = function( patternNode, state, seq, patternType,container=null, index=0 ) {
+    if( patternNode.processed === true ) return 
+    const cm = state.cm
+    const seqTarget = seq.target //XXX in gibberwocky this was seq.object
+    const patternObject = seq[ patternType ]
+    if( patternObject === null ) return 
+    const [ className, start, end ] = Marker._getNamesAndPosition( patternNode, state, patternType, index )
+    const cssName = className
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     y0 = z1 * x2 - z2 * x1;
     y1 = z2 * x0 - z0 * x2;
@@ -46911,6 +50897,7 @@ function multiply(out, a, b) {
 },{}],297:[function(require,module,exports){
 module.exports = ortho;
 
+<<<<<<< HEAD
 /**
  * Generates a orthogonal projection matrix with the given bounds
  *
@@ -46947,6 +50934,20 @@ function ortho(out, left, right, bottom, top, near, far) {
 };
 },{}],298:[function(require,module,exports){
 module.exports = perspective;
+=======
+}
+
+},{}],240:[function(require,module,exports){
+module.exports = function( Marker ) {
+  'use strict'
+
+  // CallExpression denotes an array (or other object) that calls a method, like .rnd()
+  // could also represent an anonymous function call, like Rndi(19,40)
+  const CallExpression = function( patternNode, state, seq, patternType, index=0 ) {
+    if( patternNode.processed === true ) return 
+
+    var args = Array.prototype.slice.call( arguments, 0 )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 /**
  * Generates a perspective projection matrix with the given bounds
@@ -47020,6 +51021,16 @@ function perspectiveFromFieldOfView(out, fov, near, far) {
     return out;
 }
 
+<<<<<<< HEAD
+=======
+},{}],241:[function(require,module,exports){
+const __Identifier = function( Marker ) {
+
+  const mark = function( node, state, patternType, seqNumber ) {
+    const [ className, start, end ] = Marker._getNamesAndPosition( node, state, patternType, seqNumber )
+    const cssName = className + '_' + seqNumber
+    const commentStart = end
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 },{}],300:[function(require,module,exports){
 module.exports = rotate;
@@ -47179,6 +51190,7 @@ function rotateY(out, a, rad) {
 },{}],303:[function(require,module,exports){
 module.exports = rotateZ;
 
+<<<<<<< HEAD
 /**
  * Rotates a matrix by the given angle around the Z axis
  *
@@ -47198,6 +51210,11 @@ function rotateZ(out, a, rad) {
         a11 = a[5],
         a12 = a[6],
         a13 = a[7];
+=======
+},{}],242:[function(require,module,exports){
+module.exports = function( Marker ) {
+  // Marker.patternMarkupFunctions[ valuesNode.type ]( valuesNode, state, seq, 'values', container, seqNumber )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     if (a !== out) { // If the source and destination differ, copy the unchanged last row
         out[8]  = a[8];
@@ -47310,6 +51327,7 @@ function translate(out, a, v) {
 },{}],307:[function(require,module,exports){
 module.exports = transpose;
 
+<<<<<<< HEAD
 /**
  * Transpose the values of a mat4
  *
@@ -47323,6 +51341,36 @@ function transpose(out, a) {
         var a01 = a[1], a02 = a[2], a03 = a[3],
             a12 = a[6], a13 = a[7],
             a23 = a[11];
+=======
+},{}],243:[function(require,module,exports){
+const Utility = require( '../utilities.js' )
+const $ = Utility.create
+
+module.exports = function( Marker ) {
+  // Marker.patternMarkupFunctions.tidal( tidalNode, state, tidalObj, container, seqNumber )
+
+  const trimmers = [ 'string' ]
+  const shouldTrim = type => trimmers.indexOf( type ) > -1
+
+  const Tidal = function( node, state, tidal, container=null, index=0 ) {
+    if( node.processed === true ) return 
+
+    const cm       = state.cm,
+          target   = tidal.target, // XXX seq.object for gibberwocky
+          pattern  = tidal.__pattern.__data,
+          markers  = {},
+          line     = node.loc.start.line - 1 + node.offset.vertical,
+          startCol = node.loc.start.column,
+          endCol   = node.loc.end.column,
+          startRow = line,
+          endRow   = line + (node.loc.end.line - node.loc.start.line)
+
+    const marker = cm.markText( 
+      { line:startRow, ch:startCol }, 
+      { line:endRow, ch:endCol }, 
+      { className: 'annotation tidalblock' }
+    )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
         out[1] = a[4];
         out[2] = a[8];
@@ -47634,9 +51682,44 @@ proto.bind = function(unit) {
   return gl.getParameter(gl.ACTIVE_TEXTURE) - gl.TEXTURE0
 }
 
+<<<<<<< HEAD
 proto.dispose = function() {
   this.gl.deleteTexture(this.handle)
 }
+=======
+},{"../utilities.js":252}],244:[function(require,module,exports){
+module.exports = function( Marker ) {
+  
+  // for negative literals e.g. -10
+  const UnaryExpression = function( patternNode, state, seq, patternType, container=null, index=0 ) {
+    if( patternNode.processed === true ) return 
+    const cm = state.cm
+    const seqTarget = seq.target
+    const patternObject = seq[ patternType ]
+    const [ className, start, end ] = Marker._getNamesAndPosition( patternNode, state, patternType, index )
+    const cssName = className
+
+    marker = cm.markText( start, end, { 
+      'className': cssName + ' annotation', 
+      //inclusiveLeft: true,
+      //inclusiveRight: true
+    })
+
+    if( seqTarget.markup === undefined ) Marker.prepareObject( seqTarget )
+    seqTarget.markup.textMarkers[ className ] = marker
+
+    if( seqTarget.markup.cssClasses[ className ] === undefined ) seqTarget.markup.cssClasses[ className ] = []
+
+    seqTarget.markup.cssClasses[ className ][ index ] = cssName    
+
+    let start2 = Object.assign( {}, start )
+    start2.ch += 1
+    let marker2 = cm.markText( start, start2, { 
+      'className': cssName + ' annotation-no-right-border', 
+      //inclusiveLeft: true,
+      //inclusiveRight: true
+    })
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 proto.generateMipmap = function() {
   this.bind()
@@ -47697,6 +51780,7 @@ function isPacked(shape, stride) {
           (stride[1] === shape[0])
 }
 
+<<<<<<< HEAD
 function texSubImageArray(gl, x_off, y_off, mip_level, cformat, ctype, mipLevels, array) {
   var dtype = array.dtype
   var shape = array.shape.slice()
@@ -47793,6 +51877,17 @@ function texSubImageArray(gl, x_off, y_off, mip_level, cformat, ctype, mipLevels
     }
   }
 }
+=======
+},{}],245:[function(require,module,exports){
+const Utility = require( '../utilities.js' )
+const $ = Utility.create
+const EuclidAnnotation = require( '../update/euclidAnnotation.js' )
+
+module.exports = function( node, cm, track, objectName, state, cb ) {
+  const Marker = Gibber.Environment.codeMarkup 
+  const steps = node.arguments[ 0 ].properties
+  const Identifier = Marker.patternMarkupFunctions.Identifier
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 function initTexture(gl) {
   var tex = gl.createTexture()
@@ -48072,8 +52167,12 @@ function distance(a, b) {
 },{}],318:[function(require,module,exports){
 module.exports = require('./divide')
 
+<<<<<<< HEAD
 },{"./divide":319}],319:[function(require,module,exports){
 module.exports = divide;
+=======
+},{"../update/euclidAnnotation.js":250,"../utilities.js":252}],246:[function(require,module,exports){
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 /**
  * Divides two vec3's
@@ -48143,8 +52242,20 @@ function exactEquals(a, b) {
   return a[0] === b[0] && a[1] === b[1] && a[2] === b[2]
 }
 
+<<<<<<< HEAD
 },{}],324:[function(require,module,exports){
 module.exports = floor
+=======
+},{"../utilities.js":252}],247:[function(require,module,exports){
+const Utility = require( '../utilities.js' )
+const $ = Utility.create
+const EuclidAnnotation = require( '../update/euclidAnnotation.js' )
+
+module.exports = function( node, cm, track, objectName, state, cb ) {
+  const Marker = Gibber.Environment.codeMarkup 
+  const steps = node.arguments[ 0 ].properties
+  const Identifier = Marker.patternMarkupFunctions.Identifier
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 /**
  * Math.floor the components of a vec3
@@ -48525,6 +52636,7 @@ function rotateZ(out, a, b, c){
     var sc = Math.sin(c)
     var cc = Math.cos(c)
 
+<<<<<<< HEAD
     // perform rotation and translate to correct position
     out[0] = bx + px * cc - py * sc
     out[1] = by + px * sc + py * cc
@@ -48532,6 +52644,12 @@ function rotateZ(out, a, b, c){
   
     return out
 }
+=======
+},{"../update/euclidAnnotation.js":250,"../utilities.js":252}],248:[function(require,module,exports){
+module.exports = ( patternObject, marker, className, cm ) => {
+  patternObject.commentMarker = marker
+  let update = () => {
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 },{}],342:[function(require,module,exports){
 module.exports = round
@@ -48643,8 +52761,14 @@ function squaredLength(a) {
 },{}],350:[function(require,module,exports){
 module.exports = require('./subtract')
 
+<<<<<<< HEAD
 },{"./subtract":351}],351:[function(require,module,exports){
 module.exports = subtract;
+=======
+},{}],249:[function(require,module,exports){
+const Utility = require( '../utilities.js' )
+const $ = Utility.create
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 /**
  * Subtracts vector b from vector a
@@ -48856,8 +52980,33 @@ if (typeof Object.create === 'function') {
   }
 }
 
+<<<<<<< HEAD
 },{}],358:[function(require,module,exports){
 "use strict"
+=======
+},{"../utilities.js":252}],250:[function(require,module,exports){
+const Utility = require( '../utilities.js' )
+const $ = Utility.create
+
+module.exports = ( patternObject, marker, className, cm, track, patternNode, Marker ) => {
+  let val ='/* ' + patternObject.values.join('')  + ' */',
+      pos = marker.find(),
+      end = Object.assign( {}, pos.to ),
+      annotationStartCh = pos.from.ch + 3,
+      annotationEndCh   = annotationStartCh + 1,
+      memberAnnotationStart   = Object.assign( {}, pos.from ),
+      memberAnnotationEnd     = Object.assign( {}, pos.to ),
+      initialized = false,
+      markStart = null,
+      commentMarker,
+      currentMarker, chEnd
+
+  patternObject.__delayAnnotations = false
+  end.ch = pos.from.ch + val.length
+
+  pos.to.ch -= 1
+  cm.replaceRange( val, pos.from, pos.to )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 function iota(n) {
   var result = new Array(n)
@@ -49045,6 +53194,12 @@ exports.from = from;
 exports.last = last;
 exports.some = some;
 
+<<<<<<< HEAD
+=======
+},{"../utilities.js":252}],251:[function(require,module,exports){
+module.exports = ( patternObject, marker, className, cm, track, patternNode, patternType, seqNumber ) => {
+  Gibber.Environment.codeMarkup.processGen( patternNode, cm, null, patternObject, null, -1 )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 },{}],363:[function(require,module,exports){
 'use strict';
@@ -49053,6 +53208,13 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 var array = require('./array-b2d24238.cjs');
 
+<<<<<<< HEAD
+=======
+},{}],252:[function(require,module,exports){
+const Utility = module.exports = {
+  elementArray: function( list ) {
+    let out = []
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 
 exports.appendTo = array.appendTo;
@@ -49071,11 +53233,16 @@ exports.some = array.some;
 
 /* eslint-env browser */
 
+<<<<<<< HEAD
 /**
  * Binary data constants.
  *
  * @module binary
  */
+=======
+},{}],253:[function(require,module,exports){
+module.exports = function( Marker ) {
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 /**
  * n-th bit activated.
@@ -49501,9 +53668,18 @@ exports.subscribe = broadcastchannel.subscribe;
 exports.unsubscribe = broadcastchannel.unsubscribe;
 
 
+<<<<<<< HEAD
 },{"./binary-ac8e39e2.cjs":364,"./broadcastchannel-49d2cc56.cjs":366,"./buffer-65d3ece5.cjs":368,"./conditions-fb475c70.cjs":370,"./environment-bf1f625d.cjs":376,"./map-28a001c9.cjs":389,"./math-08e068f9.cjs":391,"./number-ae8fba57.cjs":396,"./storage.cjs":404,"./string-f3c3d805.cjs":405}],368:[function(require,module,exports){
 (function (Buffer){(function (){
 'use strict';
+=======
+},{}],254:[function(require,module,exports){
+const COLORS = {
+  FILL:'var(--b_high)',//'rgba(46,50,53,1)',
+  STROKE:'var(--f_med)',//'#aaa',
+  DOT:'var(--f_high)'//'rgba(89, 151, 198, 1)'//'rgba(0,0,255,1)'
+}
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 var binary = require('./binary-ac8e39e2.cjs');
 var string = require('./string-f3c3d805.cjs');
@@ -50093,6 +54269,7 @@ class IntDiffEncoder extends Encoder {
   }
 }
 
+<<<<<<< HEAD
 /**
  * A combination of IntDiffEncoder and RleEncoder.
  *
@@ -50113,6 +54290,27 @@ class RleIntDiffEncoder extends Encoder {
     this.s = start;
     this.count = 0;
   }
+=======
+},{}],255:[function(require,module,exports){
+const acorn = require( 'acorn' )
+const walk  = require( 'acorn-walk' )
+//const Utility = require( '../js/utility.js' )
+
+module.exports = function( Gibber ) {
+
+const Marker = {
+  waveform: require( './annotations/waveform.js' )( Gibber ),
+  _patternTypes: [ 'values', 'timings', 'index' ],
+  globalIdentifiers:{},
+  Gibber,
+
+  acorn, walk,
+
+  // need ecmaVersion 7 for arrow functions to work correctly
+  parsingOptions: { locations:true, ecmaVersion:7 },
+
+  __visitors:require( './annotations/visitors.js' ),
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   /**
    * @param {number} v
@@ -50748,6 +54946,7 @@ const readFloat32 = decoder => readFromDataView(decoder, 4).getFloat32(0);
  */
 const readFloat64 = decoder => readFromDataView(decoder, 8).getFloat64(0);
 
+<<<<<<< HEAD
 /**
  * @param {Decoder} decoder
  */
@@ -50757,6 +54956,11 @@ const readBigInt64 = decoder => /** @type {any} */ (readFromDataView(decoder, 8)
  * @param {Decoder} decoder
  */
 const readBigUint64 = decoder => /** @type {any} */ (readFromDataView(decoder, 8)).getBigUint64(0);
+=======
+          patternObject.update()
+        }, wait ) 
+      }
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 /**
  * @type {Array<function(Decoder):any>}
@@ -51155,6 +55359,7 @@ const encodeAny = data => {
  */
 const decodeAny = buf => readAny(createDecoder(buf));
 
+<<<<<<< HEAD
 var buffer = /*#__PURE__*/Object.freeze({
   __proto__: null,
   createUint8ArrayFromLen: createUint8ArrayFromLen,
@@ -51166,6 +55371,18 @@ var buffer = /*#__PURE__*/Object.freeze({
   encodeAny: encodeAny,
   decodeAny: decodeAny
 });
+=======
+},{"./annotations/markup/arrayExpression.js":238,"./annotations/markup/binaryExpression.js":239,"./annotations/markup/callExpression.js":240,"./annotations/markup/identifier.js":241,"./annotations/markup/literal.js":242,"./annotations/markup/tidal.js":243,"./annotations/markup/unaryExpression.js":244,"./annotations/standalone/hexStepsAnnotations.js":245,"./annotations/standalone/scoreAnnotation.js":246,"./annotations/standalone/stepsAnnotation.js":247,"./annotations/update/anonymousAnnotation.js":248,"./annotations/update/createBorderCycle.js":249,"./annotations/update/euclidAnnotation.js":250,"./annotations/update/lookupAnnotation.js":251,"./annotations/visitors.js":253,"./annotations/waveform.js":254,"acorn":134,"acorn-walk":133}],256:[function(require,module,exports){
+const Gibber        = require( 'gibber.core.lib' ),
+      Audio         = require( 'gibber.audio.lib' ),
+      Graphics      = require( 'gibber.graphics.lib' ),
+      createProxies = require( './proxies.js' ),
+      codeMarkup    = require( './codeMarkup.js' ),
+      CodeMirror    = require( 'codemirror' ),
+      Theme         = require( './resources/js/theme.js' ),
+      Metronome     = require( './metronome.js' ),
+      {setupShare,makeMsg} = require( './share.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 exports.Decoder = Decoder;
 exports.Encoder = Encoder;
@@ -51263,6 +55480,7 @@ require('./number-ae8fba57.cjs');
 var encoding = require('./buffer-65d3ece5.cjs');
 
 
+<<<<<<< HEAD
 
 exports.copyUint8Array = encoding.copyUint8Array;
 exports.createUint8ArrayFromArrayBuffer = encoding.createUint8ArrayFromArrayBuffer;
@@ -51272,6 +55490,26 @@ exports.decodeAny = encoding.decodeAny;
 exports.encodeAny = encoding.encodeAny;
 exports.fromBase64 = encoding.fromBase64;
 exports.toBase64 = encoding.toBase64;
+=======
+  if( themename !== null ) {
+    document.querySelector('#themer').src = `./resources/themes/${themename}.png`
+  }else{
+    document.querySelector('#themer').src = `./resources/themes/noir.png`
+  }
+  
+  cm = CodeMirror( document.querySelector('#editor'), {
+    mode:   'javascript',
+    value:  '// click in the editor to begin!!!',
+    keyMap: 'playground',
+    autofocus: true,
+    //matchBrackets:true,
+    indentUnit:2,
+    autoCloseBrackets:true,
+    tabSize:2,
+    extraKeys:{ 'Ctrl-Space':'autocomplete' },
+    hintOptions:{ hint:CodeMirror.hint.javascript }
+  })
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 
 },{"./binary-ac8e39e2.cjs":364,"./buffer-65d3ece5.cjs":368,"./conditions-fb475c70.cjs":370,"./environment-bf1f625d.cjs":376,"./map-28a001c9.cjs":389,"./math-08e068f9.cjs":391,"./number-ae8fba57.cjs":396,"./storage.cjs":404,"./string-f3c3d805.cjs":405}],370:[function(require,module,exports){
@@ -51467,6 +55705,33 @@ exports.simpleDiff = simpleDiff;
 exports.simpleDiffArray = simpleDiffArray;
 exports.simpleDiffString = simpleDiffString;
 
+<<<<<<< HEAD
+=======
+      window.solo = function( ...soloed ) {
+        if( soloed.length > 0 ) {
+          Gibber.Seq.sequencers.forEach( s => {
+            let shouldStop = true
+            soloed.forEach( solo => {
+              if( s.target === solo.__wrapped__ ) shouldStop = false
+            })
+            if( shouldStop ) { 
+              s.stop()
+            }else{
+              if( s.__isRunning === false )
+                s.start( s.__delay || 0 )
+            }
+          })
+        }else{
+          Gibber.Seq.sequencers.forEach( s => {
+            if( s.__isRunning === false ) s.start( s.__delay || 0 ) 
+          })
+        }
+      }
+
+      window.Graphics = Gibber.Graphics
+      window.Audio    = Gibber.Audio
+      //setupFFT( Marching.FFT )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 },{"./function-f8acb5f5.cjs":381}],373:[function(require,module,exports){
 'use strict';
@@ -51493,11 +55758,21 @@ var pair = require('./pair-ab022bc3.cjs');
 
 /* eslint-env browser */
 
+<<<<<<< HEAD
 /* istanbul ignore next */
 /**
  * @type {Document}
  */
 const doc = /** @type {Document} */ (typeof document !== 'undefined' ? document : {});
+=======
+  const select = document.querySelector( 'select' ),
+        files = [
+          ['demo #1: intro', 'newintro.js'],
+          ['demo #2: pick your sample', 'picksomesamples.js'],
+          ['demo #2: acid', 'acid.js'],
+          ['demo #3: moody', 'intro.js'],
+          ['demo #4: geometry melds', 'meld.js'],
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 /**
  * @param {string} name
@@ -51506,11 +55781,22 @@ const doc = /** @type {Document} */ (typeof document !== 'undefined' ? document 
 /* istanbul ignore next */
 const createElement = name => doc.createElement(name);
 
+<<<<<<< HEAD
 /**
  * @return {DocumentFragment}
  */
 /* istanbul ignore next */
 const createDocumentFragment = () => doc.createDocumentFragment();
+=======
+          ['music tutorial #1: scales/tunings', 'scales.tunings.js'],
+          ['music tutorial #2: effects and busses', 'effects.js'],
+          ['music tutorial #3: arpeggios and signals', 'arp.js' ], 
+          ['music tutorial #4: polyphony', 'polyphony.js' ], 
+          ['music tutorial #5: freesound', 'freesound.js' ], 
+          ['music tutorial #6: samplers', 'sampler.js' ],
+          ['music tutorial #7: step sequencing', 'steps.js' ], 
+          ['music tutorial #8: creating synths', 'make.js' ], 
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 /**
  * @param {string} text
@@ -51651,12 +55937,26 @@ const canvas = (width, height) => {
   return c
 };
 
+<<<<<<< HEAD
 /**
  * @param {string} t
  * @return {Text}
  */
 /* istanbul ignore next */
 const text = createTextNode;
+=======
+// for highlighting "previewed code" across network
+environment.previewCode = function( cm, useBlock=false, useDelay=true, shouldRunNetworkCode=true, selectedCode=null ) {
+  environment.flash( cm, selectedCode.selection )
+}
+
+// shouldRunNetworkCode is used to prevent recursive ws sending of code
+// while isNetworked is used to test for acive ws connection
+// selectedCode can be set via ws messages
+environment.runCode = function( cm, useBlock=false, useDelay=true, shouldRunNetworkCode=true, selectedCode=null, preview=false ) {
+  try {
+    if( selectedCode === null ) selectedCode = environment.getSelectionCodeColumn( cm, useBlock )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 /**
  * @param {pair.Pair<string,string>} pair
@@ -51748,6 +56048,7 @@ const insertBefore = (parent, el, ref) => parent.insertBefore(el, ref);
 /* istanbul ignore next */
 const appendChild = (parent, child) => parent.appendChild(child);
 
+<<<<<<< HEAD
 const ELEMENT_NODE = doc.ELEMENT_NODE;
 const TEXT_NODE = doc.TEXT_NODE;
 const CDATA_SECTION_NODE = doc.CDATA_SECTION_NODE;
@@ -51755,6 +56056,13 @@ const COMMENT_NODE = doc.COMMENT_NODE;
 const DOCUMENT_NODE = doc.DOCUMENT_NODE;
 const DOCUMENT_TYPE_NODE = doc.DOCUMENT_TYPE_NODE;
 const DOCUMENT_FRAGMENT_NODE = doc.DOCUMENT_FRAGMENT_NODE;
+=======
+  'Cmd-Enter'( cm )   { environment.runCode( cm, false, true  ) },
+  'Ctrl-Enter'( cm )  { environment.runCode( cm, false, true  ) },
+  'Shift-Enter'( cm ) { environment.runCode( cm, false, false ) },
+  'Alt-Enter'( cm )   { environment.runCode( cm, true,  true  ) },
+  'Alt-Shift-Enter'( cm ) { environment.runCode( cm, true, true, true ) },
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 /**
  * @param {any} node
@@ -52125,8 +56433,80 @@ const _runQueue = () => {
   for (let i = 0; i < queue.length; i++) {
     queue[i]();
   }
+<<<<<<< HEAD
   queue = [];
 };
+=======
+  
+  return p
+}
+
+},{"../node_modules/acorn-loose/dist/acorn-loose.js":132,"../node_modules/acorn-walk/dist/walk.js":133,"../node_modules/acorn/dist/acorn.js":134,"../node_modules/codemirror/addon/dialog/dialog.js":138,"../node_modules/codemirror/addon/edit/closebrackets.js":139,"../node_modules/codemirror/addon/edit/matchbrackets.js":140,"../node_modules/codemirror/addon/hint/javascript-hint.js":141,"../node_modules/codemirror/addon/hint/show-hint.js":142,"../node_modules/codemirror/addon/tern/tern.js":143,"../node_modules/codemirror/mode/javascript/javascript.js":145,"../node_modules/tern/doc/demo/polyfill.js":220,"../node_modules/tern/lib/comment.js":221,"../node_modules/tern/lib/def.js":222,"../node_modules/tern/lib/infer.js":223,"../node_modules/tern/lib/signal.js":224,"../node_modules/tern/lib/tern.js":225,"../node_modules/tern/plugin/doc_comment.js":226,"./codeMarkup.js":255,"./metronome.js":257,"./proxies.js":258,"./resources/js/theme.js":259,"./share.js":260,"codemirror":144,"gibber.audio.lib":81,"gibber.core.lib":121,"gibber.graphics.lib":131}],257:[function(require,module,exports){
+let Gibber = null
+
+const Metronome = {
+  shouldDraw: true,
+  canvas: null,
+  ctx: null,
+  width: null,
+  height: null,
+  color: '#252525',
+  beat: 0,
+  widthMod:1,
+  
+  draw( beat, beatsPerMeasure ) {
+    if( this.shouldDraw && this.ctx !== null ) {
+      const beatWidth = this.width / beatsPerMeasure / this.widthMod,
+            beatPos = ( beat ) * beatWidth
+    
+      this.ctx.clearRect( 0, 0, this.width, this.height )
+      this.ctx.fillStyle = Gibber.Environment.theme.get('b_low')
+      this.ctx.fillRect(  beatPos, 0,  beatWidth, this.height )
+    }
+  },
+
+  clear() {
+    this.beat = 0
+    this.draw( 0, 4 )
+  },
+
+  tick( event ) {
+    //const __beat =  Math.floor( (phase / (44100 / (Gibber.Audio.Clock.bpm/60))) % 4 )
+    const __beat = event.data.value % 4 
+    if( __beat !== Metronome.beat ) {
+      Metronome.draw( __beat, 4 )
+      Metronome.beat = __beat
+    }
+  },
+  
+  init( __Gibber ) {
+    Gibber = __Gibber
+    //Gibber.Audio.Gibberish.onphaseupdate = this.tick 
+
+    Gibber.Audio.Gibberish.utilities.workletHandlers.beat = this.tick
+    this.canvas = document.querySelector( '#metronome' )
+    this.ctx = this.canvas.getContext( '2d' )
+  
+    const header = document.querySelector('header')
+    const h1 = document.querySelector('h1')
+    const w = parseFloat(getComputedStyle(h1).width) + parseFloat(getComputedStyle(h1).fontSize) * 3
+    this.width = this.canvas.width = w 
+    this.height = this.canvas.height = header.offsetHeight      
+  
+    Gibber.subscribe( 'clear', this.clear.bind( this ) )
+    
+    this.draw( 0, 4 )
+    window.Metronome = this
+  },
+  
+  off() {
+    this.ctx.clearRect( 0, 0, this.width, this.height )
+    this.shouldDraw = false
+  },
+  
+  on(){ this.shouldDraw = true },
+}
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 /**
  * @param {function():void} f
@@ -52138,10 +56518,16 @@ const enqueue = f => {
   }
 };
 
+<<<<<<< HEAD
 /**
  * @typedef {Object} TimeoutObject
  * @property {function} TimeoutObject.destroy
  */
+=======
+},{}],258:[function(require,module,exports){
+const createProxies = function( pre, post, proxiedObj, environment, Gibber ) {
+  const newProps = post.filter( prop => pre.indexOf( prop ) === -1 )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 /**
  * @param {function(number):void} clearFunction
@@ -52243,6 +56629,12 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 var eventloop = require('./eventloop-c60b5658.cjs');
 
+<<<<<<< HEAD
+=======
+},{}],259:[function(require,module,exports){
+// from https://github.com/hundredrabbits/Themes
+'use strict'
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 
 exports.Animation = eventloop.Animation;
@@ -52398,6 +56790,7 @@ const equalityDeep = (a, b) => {
   return true
 };
 
+<<<<<<< HEAD
 var _function = /*#__PURE__*/Object.freeze({
   __proto__: null,
   callAll: callAll,
@@ -52408,6 +56801,58 @@ var _function = /*#__PURE__*/Object.freeze({
   equalityFlat: equalityFlat,
   equalityDeep: equalityDeep
 });
+=======
+  function isValid (json) {
+    if (!json) { return false }
+    if (!json.background || !isColor(json.background)) { return false }
+    if (!json.f_high || !isColor(json.f_high)) { return false }
+    if (!json.f_med || !isColor(json.f_med)) { return false }
+    if (!json.f_low || !isColor(json.f_low)) { return false }
+    if (!json.f_inv || !isColor(json.f_inv)) { return false }
+    if (!json.b_high || !isColor(json.b_high)) { return false }
+    if (!json.b_med || !isColor(json.b_med)) { return false }
+    if (!json.b_low || !isColor(json.b_low)) { return false }
+    if (!json.b_inv || !isColor(json.b_inv)) { return false }
+    return true
+  }
+
+  function isColor (hex) {
+    return /^#([0-9A-F]{3}){1,2}$/i.test(hex)
+  }
+
+  function isJson (text) {
+    try { JSON.parse(text); return true } catch (error) { return false }
+  }
+
+  function isHtml (text) {
+    try { new DOMParser().parseFromString(text, 'text/xml'); return true } catch (error) { return false }
+  }
+}
+
+module.exports = Theme
+
+},{}],260:[function(require,module,exports){
+const Y = require( 'yjs' ),
+      WebsocketProvider = require( 'y-websocket'  ).WebsocketProvider,
+      CodemirrorBinding = require( 'y-codemirror' ).CodemirrorBinding
+
+const initShare = function( editor, username='anonymous', room='default' ) {
+  const protocol = window.location.hostname === '127.0.0.1' ? 'ws' : 'wss'
+  const ydoc = new Y.Doc(),
+        provider = new WebsocketProvider(
+          `${protocol}://${window.location.host}`,
+          room,
+          ydoc,
+          { connect:true }
+        ),
+        yText = ydoc.getText( 'codemirror' + room ),
+        chatData = ydoc.getArray('chat' + room ),
+        commands = ydoc.getArray('commands' + room ),
+        binding = new CodemirrorBinding( yText, editor, provider.awareness ),
+        socket = provider.ws
+
+  binding.awareness.setLocalStateField('user', { color: '#008833', name:username  })
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 exports._function = _function;
 exports.apply = apply;
@@ -52419,8 +56864,25 @@ exports.id = id;
 exports.nop = nop;
 
 
+<<<<<<< HEAD
 },{"./array-b2d24238.cjs":362,"./object-dcdd6eed.cjs":397}],382:[function(require,module,exports){
 'use strict';
+=======
+    switch( msg.cmd ) {
+      case 'msg':
+        console.log( msg.body )
+        break
+      case 'eval':
+        Environment.runCode( editor, false, true, false, msg.body, false ) 
+        break
+      case 'preview':
+        Environment.previewCode( editor, false, true, false, msg.body, true )
+        break
+      default:
+        console.log( 'error for networked message:', event.data )
+    }
+  })
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
@@ -52549,7 +57011,12 @@ exports.mapIterator = mapIterator;
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
+<<<<<<< HEAD
 var iterator = require('./iterator-fe01d209.cjs');
+=======
+},{"y-codemirror":232,"y-websocket":236,"yjs":237}],261:[function(require,module,exports){
+let ugen = require( '../ugen.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 
 
@@ -52558,6 +57025,12 @@ exports.iteratorFilter = iterator.iteratorFilter;
 exports.iteratorMap = iterator.iteratorMap;
 exports.mapIterator = iterator.mapIterator;
 
+<<<<<<< HEAD
+=======
+},{"../ugen.js":330}],262:[function(require,module,exports){
+module.exports = function( Gibberish ) {
+  const { In, Out, SSD } = require( './singlesampledelay.js'  )( Gibberish )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 },{"./iterator-fe01d209.cjs":384}],386:[function(require,module,exports){
 'use strict';
@@ -52576,6 +57049,7 @@ exports.mapIterator = iterator.mapIterator;
  */
 const stringify = JSON.stringify;
 
+<<<<<<< HEAD
 /**
  * Parse JSON object.
  *
@@ -52583,6 +57057,12 @@ const stringify = JSON.stringify;
  * @return {any}
  */
 const parse = JSON.parse;
+=======
+},{"./follow.dsp.js":263,"./singlesampledelay.js":264}],263:[function(require,module,exports){
+const g = require( 'genish.js' ),
+      analyzer = require( './analyzer.js' ),
+      ugen = require( '../ugen.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 var json = /*#__PURE__*/Object.freeze({
 	__proto__: null,
@@ -52590,9 +57070,13 @@ var json = /*#__PURE__*/Object.freeze({
 	parse: parse
 });
 
+<<<<<<< HEAD
 exports.json = json;
 exports.parse = parse;
 exports.stringify = stringify;
+=======
+module.exports = function( Gibberish ) {
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 
 },{}],387:[function(require,module,exports){
@@ -52776,6 +57260,7 @@ const printError = err => {
   vconsoles.forEach(vc => vc.printError(err));
 };
 
+<<<<<<< HEAD
 /* istanbul ignore next */
 /**
  * @param {string} url image location
@@ -52826,6 +57311,59 @@ const groupEnd = () => {
  */
 const printDom = createNode =>
   vconsoles.forEach(vc => vc.printDom(createNode()));
+=======
+      if( isStereo === true ) {
+        if( props.outputStereo === false ) {
+          { 
+            "use jsdsp"
+            // phase to write to follow buffer
+            const bufferPhaseOut = g.accum( 1,0,{ max:props.bufferSize, min:0 })
+
+            // hold running sum
+            const sum = g.data( 1, 1, { meta:true })
+
+            const mono = props.abs === true ? g.abs( input[0] + input[1] ) : input[0] + input[1]
+
+            sum[0] = sum[0] + mono - g.peek( buffer, bufferPhaseOut, { mode:'simple' })
+
+            g.poke( buffer, g.abs( mono ), bufferPhaseOut )
+
+            avg = (sum[0] / props.bufferSize) * multiplier + offset
+          }
+        }else{
+          const bufferL = buffer
+          const bufferR = g.data( props.bufferSize, 1 )
+
+          { 
+            "use jsdsp"
+            // phase to write to follow buffer
+            const bufferPhaseOut = g.accum( 1,0,{ max:props.bufferSize, min:0 })
+
+            // hold running sum
+            const sumL = g.data( 1, 1, { meta:true })
+            const sumR = g.data( 1, 1, { meta:true })
+
+            const left = props.abs === true  ? g.abs( input[0] ) : input[0]
+            const right = props.abs === true ? g.abs( input[1] ) : input[1]
+
+            sumL[0] = sumL[0] + left - g.peek( bufferL, bufferPhaseOut, { mode:'simple' })
+            sumR[0] = sumR[0] + right- g.peek( bufferR, bufferPhaseOut, { mode:'simple' })
+
+            g.poke( bufferL, g.abs( left  ), bufferPhaseOut )
+            g.poke( bufferR, g.abs( right ), bufferPhaseOut )
+
+            avg = [
+              (sumL[0] / props.bufferSize) * multiplier + offset,
+              (sumR[0] / props.bufferSize) * multiplier + offset,
+            ]
+          }
+        }
+      }else{
+        {
+          "use jsdsp"
+          // phase to write to follow buffer
+          const bufferPhaseOut = g.accum( 1,0,{ max:props.bufferSize, min:0 })
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 /* istanbul ignore next */
 /**
@@ -52834,7 +57372,15 @@ const printDom = createNode =>
  */
 const printCanvas = (canvas, height) => printImg(canvas.toDataURL(), height);
 
+<<<<<<< HEAD
 const vconsoles = new Set();
+=======
+          const __input = props.abs === true ? g.abs( input ) : input
+
+          sum[0] = sum[0] + __input - g.peek( buffer, bufferPhaseOut, { mode:'simple' })
+          
+          g.poke( buffer, g.abs( input ), bufferPhaseOut )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 /* istanbul ignore next */
 /**
@@ -52865,6 +57411,7 @@ const _computeLineSpans = args => {
       }
     }
   }
+<<<<<<< HEAD
   // append the rest
   for (; i < args.length; i++) {
     let content = args[i];
@@ -52874,11 +57421,55 @@ const _computeLineSpans = args => {
       }
       spans.push(dom.element('span', [], [dom.text(/** @type {string} */ (content))]));
     }
+=======
+ 
+  Follow.defaults = {
+    input:0,
+    bufferSize:1024,
+    multiplier:1,
+    abs: true,
+    outputStereo:false,
+    offset:0
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
   }
   return spans
 };
 
+<<<<<<< HEAD
 const lineStyle = 'font-family:monospace;border-bottom:1px solid #e2e2e2;padding:2px;';
+=======
+  return Follow
+
+}
+
+},{"../ugen.js":330,"./analyzer.js":261,"genish.js":39}],264:[function(require,module,exports){
+const g = require( 'genish.js' ),
+      analyzer = require( './analyzer.js' ),
+      proxy    = require( '../workletProxy.js' ),
+      ugen     = require( '../ugen.js' )
+
+module.exports = function( Gibberish ) {
+ 
+// an SSD ugen is in effect two-in-one,
+// one for input and one for output.  
+  
+const SSD = inputProps => {
+  const ssd = Object.create( analyzer )
+
+  const props = Object.assign({}, SSD.defaults, inputProps )
+  const isStereo = props.isStereo 
+  const input    = g.in( 'input' )
+  const historyL = g.history(0)
+  const historyR = g.history(0)
+
+  ssd.out = Out( [historyL,historyR], props )
+  ssd.in  =  In( [historyL,historyR], props )
+
+  ssd.listen = ssd.in.listen
+
+  return ssd 
+}
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 /* istanbul ignore next */
 class VConsole {
@@ -52983,9 +57574,15 @@ class VConsole {
  */
 const createVConsole = dom => new VConsole(dom);
 
+<<<<<<< HEAD
 const loggingColors = [GREEN, PURPLE, ORANGE, BLUE];
 let nextColor = 0;
 let lastLoggingTime = time.getUnixTime();
+=======
+},{"../ugen.js":330,"../workletProxy.js":332,"./analyzer.js":261,"genish.js":39}],265:[function(require,module,exports){
+const ugen = require( '../ugen.js' ),
+      g = require( 'genish.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 /**
  * @param {string} moduleName
@@ -52998,14 +57595,69 @@ const createModuleLogger = moduleName => {
   nextColor = (nextColor + 1) % loggingColors.length;
   moduleName += ': ';
 
+<<<<<<< HEAD
   return !doLogging ? _function.nop : (...args) => {
     const timeNow = time.getUnixTime();
     const timeDiff = timeNow - lastLoggingTime;
     lastLoggingTime = timeNow;
     print(color, moduleName, UNCOLOR, ...args.map(arg => (typeof arg === 'string' || typeof arg === 'symbol') ? arg : JSON.stringify(arg)), color, ' +' + timeDiff + 'ms');
+=======
+  const AD = function( argumentProps ) {
+    const ad = Object.create( ugen ),
+          attack  = g.in( 'attack' ),
+          decay   = g.in( 'decay' )
+
+    const props = Object.assign( {}, AD.defaults, argumentProps )
+
+    const graph = g.ad( attack, decay, { shape:props.shape, alpha:props.alpha })
+
+    ad.trigger = graph.trigger
+    
+    const __out = Gibberish.factory( ad, graph, ['envelopes','AD'], props )
+
+    return __out
+  }
+
+  AD.defaults = { attack:44100, decay:44100, shape:'exponential', alpha:5 } 
+
+  return AD
+
+}
+
+},{"../ugen.js":330,"genish.js":39}],266:[function(require,module,exports){
+const ugen = require( '../ugen.js' ),
+      g = require( 'genish.js' )
+
+module.exports = function( Gibberish ) {
+
+  const ADSR = function( argumentProps ) {
+    const adsr  = Object.create( ugen ),
+          attack  = g.in( 'attack' ),
+          decay   = g.in( 'decay' ),
+          sustain = g.in( 'sustain' ),
+          release = g.in( 'release' ),
+          sustainLevel = g.in( 'sustainLevel' )
+
+    const props = Object.assign( {}, ADSR.defaults, argumentProps )
+
+    Object.assign( adsr, props )
+
+    const graph = g.adsr( 
+      attack, decay, sustain, sustainLevel, release, 
+      { triggerRelease: props.triggerRelease, shape:props.shape, alpha:props.alpha } 
+    )
+
+    adsr.trigger = graph.trigger
+    adsr.advance = graph.release
+
+    const __out = Gibberish.factory( adsr, graph, ['envelopes','ADSR'], props )
+
+    return __out 
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
   }
 };
 
+<<<<<<< HEAD
 var logging = /*#__PURE__*/Object.freeze({
   __proto__: null,
   BOLD: BOLD,
@@ -53032,6 +57684,63 @@ var logging = /*#__PURE__*/Object.freeze({
   createVConsole: createVConsole,
   createModuleLogger: createModuleLogger
 });
+=======
+  ADSR.defaults = { 
+    attack:22050, 
+    decay:22050, 
+    sustain:44100, 
+    sustainLevel:.6, 
+    release: 44100, 
+    triggerRelease:false,
+    shape:'exponential',
+    alpha:5 
+  } 
+
+  return ADSR
+}
+
+},{"../ugen.js":330,"genish.js":39}],267:[function(require,module,exports){
+const g = require( 'genish.js' )
+
+module.exports = function( Gibberish ) {
+
+  const Envelopes = {
+    AD     : require( './ad.js' )( Gibberish ),
+    ADSR   : require( './adsr.js' )( Gibberish ),
+    Ramp   : require( './ramp.js' )( Gibberish ),
+
+    export : target => {
+      for( let key in Envelopes ) {
+        if( key !== 'export' && key !== 'factory' ) {
+          target[ key ] = Envelopes[ key ]
+        }
+      }
+    },
+
+    factory( useADSR, shape, attack, decay, sustain, sustainLevel, release, triggerRelease=false ) {
+      let env
+
+      // deliberate use of single = to accomodate both 1 and true
+      if( useADSR != true ) {
+        env = g.ad( attack, decay, { shape }) 
+      }else {
+        env = g.adsr( attack, decay, sustain, sustainLevel, release, { shape, triggerRelease })
+        env.advance = env.release
+      }
+
+      return env
+    }
+  } 
+
+  return Envelopes
+}
+
+},{"./ad.js":265,"./adsr.js":266,"./ramp.js":268,"genish.js":39}],268:[function(require,module,exports){
+const ugen = require( '../ugen.js' ),
+      g = require( 'genish.js' )
+
+module.exports = function( Gibberish ) {
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 exports.BLUE = BLUE;
 exports.BOLD = BOLD;
@@ -53112,8 +57821,48 @@ exports.warn = logging.warn;
 },{"./array-b2d24238.cjs":362,"./conditions-fb475c70.cjs":370,"./dom-5f5e0240.cjs":374,"./environment-bf1f625d.cjs":376,"./eventloop-c60b5658.cjs":379,"./function-f8acb5f5.cjs":381,"./json-092190a1.cjs":386,"./logging-dd7751ff.cjs":387,"./map-28a001c9.cjs":389,"./math-08e068f9.cjs":391,"./metric.cjs":393,"./object-dcdd6eed.cjs":397,"./pair-ab022bc3.cjs":400,"./storage.cjs":404,"./string-f3c3d805.cjs":405,"./symbol-c5caa724.cjs":406,"./time-622d6a9f.cjs":407}],389:[function(require,module,exports){
 'use strict';
 
+<<<<<<< HEAD
 /**
  * Utility module to work with key-value stores.
+=======
+},{"../ugen.js":330,"genish.js":39}],269:[function(require,module,exports){
+arguments[4][27][0].apply(exports,arguments)
+},{"./realm.js":271,"dup":27}],270:[function(require,module,exports){
+/*
+ * https://github.com/antimatter15/heapqueue.js/blob/master/heapqueue.js
+ *
+ * This implementation is very loosely based off js-priority-queue
+ * by Adam Hooper from https://github.com/adamhooper/js-priority-queue
+ *
+ * The js-priority-queue implementation seemed a teensy bit bloated
+ * with its require.js dependency and multiple storage strategies
+ * when all but one were strongly discouraged. So here is a kind of
+ * condensed version of the functionality with only the features that
+ * I particularly needed.
+ *
+ * Using it is pretty simple, you just create an instance of HeapQueue
+ * while optionally specifying a comparator as the argument:
+ *
+ * var heapq = new HeapQueue();
+ *
+ * //IF NEGATIVE, RETURN A
+ *
+ * var customq = new HeapQueue(function(a, b){
+ *   // if b > a, return negative
+ *   // means that it spits out the smallest item first
+ *   return a - b;
+ * });
+ *
+ * Note that in this case, the default comparator is identical to
+ * the comparator which is used explicitly in the second queue.
+ *
+ * Once you've initialized the heapqueue, you can plop some new
+ * elements into the queue with the push method (vaguely reminiscent
+ * of typical javascript arays)
+ *
+ * heapq.push(42);
+ * heapq.push("kitten");
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
  *
  * @module map
  */
@@ -53205,6 +57954,13 @@ const any = (m, f) => {
   return false
 };
 
+<<<<<<< HEAD
+=======
+module.exports = HeapQueue
+
+},{}],271:[function(require,module,exports){
+
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 /**
  * Tests whether all key-value pairs pass the test implemented by `f(value, key)`.
  *
@@ -53224,6 +57980,7 @@ const all = (m, f) => {
   return true
 };
 
+<<<<<<< HEAD
 var map$1 = /*#__PURE__*/Object.freeze({
   __proto__: null,
   create: create,
@@ -53233,6 +57990,11 @@ var map$1 = /*#__PURE__*/Object.freeze({
   any: any,
   all: all
 });
+=======
+},{}],272:[function(require,module,exports){
+const __proxy = require( './workletProxy.js' )
+const effectProto = require( './fx/effect.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 exports.all = all;
 exports.any = any;
@@ -53363,12 +58125,35 @@ exports.sign = sign;
 exports.sqrt = sqrt;
 
 
+<<<<<<< HEAD
 },{}],392:[function(require,module,exports){
 'use strict';
+=======
+},{"./fx/effect.js":287,"./workletProxy.js":332}],273:[function(require,module,exports){
+let g = require( 'genish.js' )
+ 
+// constructor for schroeder allpass filters
+let allPass = function( _input, length=500, feedback=.5 ) {
+  let index  = g.counter( 1,0,length ),
+      buffer = g.data( length ),
+      bufferSample = g.peek( buffer, index, { interp:'none', mode:'samples' }),
+      out = g.memo( g.add( g.mul( -1, _input), bufferSample ) )
+                
+  g.poke( buffer, g.add( _input, g.mul( bufferSample, feedback ) ), index )
+ 
+  return out
+}
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
+<<<<<<< HEAD
 var math = require('./math-08e068f9.cjs');
+=======
+},{"genish.js":39}],274:[function(require,module,exports){
+let g = require( 'genish.js' ),
+    filter = require( './filter.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 
 
@@ -53573,6 +58358,7 @@ const HIGHEST_INT32 = binary.BITS31;
 const isInteger = Number.isInteger || (num => typeof num === 'number' && isFinite(num) && math.floor(num) === num);
 const isNaN = Number.isNaN;
 
+<<<<<<< HEAD
 var number = /*#__PURE__*/Object.freeze({
 	__proto__: null,
 	MAX_SAFE_INTEGER: MAX_SAFE_INTEGER,
@@ -53590,6 +58376,30 @@ exports.MIN_SAFE_INTEGER = MIN_SAFE_INTEGER;
 exports.isInteger = isInteger;
 exports.isNaN = isNaN;
 exports.number = number;
+=======
+},{"./filter.js":277,"genish.js":39}],275:[function(require,module,exports){
+let g = require( 'genish.js' )
+
+let combFilter = function( _input, combLength, damping=.5*.4, feedbackCoeff=.84 ) {
+  let lastSample   = g.history(),
+  	  readWriteIdx = g.counter( 1,0,combLength ),
+      combBuffer   = g.data( combLength ),
+	    out          = g.peek( combBuffer, readWriteIdx, { interp:'none', mode:'samples' }),
+      storeInput   = g.memo( g.add( g.mul( out, g.sub( 1, damping)), g.mul( lastSample.out, damping ) ) )
+      
+  lastSample.in( storeInput )
+ 
+  g.poke( combBuffer, g.add( _input, g.mul( storeInput, feedbackCoeff ) ), readWriteIdx )
+ 
+  return out
+}
+
+module.exports = combFilter
+
+},{"genish.js":39}],276:[function(require,module,exports){
+const g = require( 'genish.js' ),
+      filter = require( './filter.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 
 },{"./binary-ac8e39e2.cjs":364,"./math-08e068f9.cjs":391}],397:[function(require,module,exports){
@@ -53849,6 +58659,7 @@ class Pair {
   }
 }
 
+<<<<<<< HEAD
 /**
  * @template L,R
  * @param {L} left
@@ -53856,6 +58667,10 @@ class Pair {
  * @return {Pair<L,R>}
  */
 const create = (left, right) => new Pair(left, right);
+=======
+},{"./filter.js":277,"genish.js":39}],277:[function(require,module,exports){
+let ugen = require( '../ugen.js' )()
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 /**
  * @template L,R
@@ -53880,6 +58695,7 @@ const forEach = (arr, f) => arr.forEach(p => f(p.left, p.right));
  */
 const map = (arr, f) => arr.map(p => f(p.left, p.right));
 
+<<<<<<< HEAD
 var pair = /*#__PURE__*/Object.freeze({
   __proto__: null,
   Pair: Pair,
@@ -53888,6 +58704,11 @@ var pair = /*#__PURE__*/Object.freeze({
   forEach: forEach,
   map: map
 });
+=======
+},{"../ugen.js":330}],278:[function(require,module,exports){
+let g = require( 'genish.js' ),
+    filter = require( './filter.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 exports.Pair = Pair;
 exports.create = create;
@@ -53954,9 +58775,14 @@ var set = /*#__PURE__*/Object.freeze({
 	toArray: toArray
 });
 
+<<<<<<< HEAD
 exports.create = create;
 exports.set = set;
 exports.toArray = toArray;
+=======
+},{"./filter.js":277,"genish.js":39}],279:[function(require,module,exports){
+module.exports = function( Gibberish ) {
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 
 },{}],403:[function(require,module,exports){
@@ -53977,7 +58803,13 @@ exports.toArray = set.toArray;
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
+<<<<<<< HEAD
 /* global localStorage */
+=======
+},{"./allpass.js":273,"./biquad.dsp.js":274,"./combfilter.js":275,"./diodeFilterZDF.js":276,"./filter24.js":278,"./ladder.dsp.js":280,"./svf.js":281}],280:[function(require,module,exports){
+const genish = require( 'genish.js' ),
+      filterProto = require( './filter.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 /**
  * Isomorphic variable storage.
@@ -54181,6 +59013,12 @@ exports.trimLeft = trimLeft;
 exports.utf8ByteLength = utf8ByteLength;
 exports.utf8TextEncoder = utf8TextEncoder;
 
+<<<<<<< HEAD
+=======
+},{"./filter.js":277,"genish.js":39}],281:[function(require,module,exports){
+const g = require( 'genish.js' ),
+      filter = require( './filter.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 },{}],406:[function(require,module,exports){
 'use strict';
@@ -54285,9 +59123,15 @@ exports.time = time;
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
+<<<<<<< HEAD
 require('./math-08e068f9.cjs');
 require('./metric.cjs');
 var time = require('./time-622d6a9f.cjs');
+=======
+},{"./filter.js":277,"genish.js":39}],282:[function(require,module,exports){
+let g = require( 'genish.js' ),
+    effect = require( './effect.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 
 
@@ -54389,8 +59233,14 @@ float opHalve( in float sdf, vec4 p, in int dir ){
   return _out;
 }
 
+<<<<<<< HEAD
 vec2 opHalve( vec2 sdf, vec4 p, int dir ) {
   float x = 0.;
+=======
+},{"./effect.js":287,"genish.js":39}],283:[function(require,module,exports){
+let g = require( 'genish.js' ),
+    effect = require( './effect.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   x = opHalve( sdf.x, p, dir );
 
@@ -54516,10 +59366,24 @@ for( let name in ops ) {
   }
 }
 
+<<<<<<< HEAD
 Alterations.Halve.UP = 0
 Alterations.Halve.DOWN = 1
 Alterations.Halve.LEFT = 3
 Alterations.Halve.RIGHT = 2
+=======
+},{"./effect.js":287,"genish.js":39}],284:[function(require,module,exports){
+const g = require( 'genish.js' ),
+      effect = require( './effect.js' )
+  
+module.exports = function( Gibberish ) {
+ 
+let __Chorus = inputProps => {
+  const props = Object.assign({}, __Chorus.defaults, effect.defaults, inputProps )
+  let out
+  
+  const chorus = Object.create( effect )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 module.exports = Alterations
 
@@ -54642,7 +59506,13 @@ const SceneNode = require( './sceneNode.js' ),
       { param_wrap, MaterialID } = require( './utils.js' ),
       { Var, float_var_gen, vec2_var_gen, vec3_var_gen, vec4_var_gen } = require( './var.js' )
 
+<<<<<<< HEAD
 const { Vec2, Vec3, Vec4 } = require( './vec.js' )
+=======
+},{"./effect.js":287,"genish.js":39}],285:[function(require,module,exports){
+let g = require( 'genish.js' ),
+    effect = require( './effect.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 const BG = function( Scene, SDF ) {
 
@@ -54721,6 +59591,7 @@ FirstPersonCamera.prototype.view = function(out) {
   return out
 }
 
+<<<<<<< HEAD
 FirstPersonCamera.prototype.control = function(dt, move, mouse, prevMouse) {
   var speed = (this.positionSpeed / 1000) * dt
   var dir = [0,0,0]
@@ -54734,6 +59605,11 @@ FirstPersonCamera.prototype.control = function(dt, move, mouse, prevMouse) {
   // just use arrow keys instead of mouse
   // this.pointer(mouse, prevMouse)
 }
+=======
+},{"./effect.js":287,"genish.js":39}],286:[function(require,module,exports){
+const g = require( 'genish.js' ),
+      effect = require( './effect.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 FirstPersonCamera.prototype.move = function(dir) {
   if (dir[0] !== 0 || dir[1] !== 0 || dir[2] !== 0) {
@@ -54860,6 +59736,7 @@ const Camera = {
       return amt
     }
 
+<<<<<<< HEAD
     let prvx = 0, prvy = 0, x = 0, y = 0
     Camera.__mousemovefnc = e => {
       prvx = x
@@ -54867,6 +59744,10 @@ const Camera = {
       x = e.pageX
       y = e.pageY
     }
+=======
+},{"./effect.js":287,"genish.js":39}],287:[function(require,module,exports){
+let ugen = require( '../ugen.js' )()
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     let prevTime = 0
     let k  = Marching.keys
@@ -54903,6 +59784,7 @@ const Camera = {
     handler( ()=> {
       if( this.pos.dirty === true ) {
 
+<<<<<<< HEAD
         //camera.position = [this.pos.x, this.pos.y, this.pos.z ]
  
         //camera.position = [this.pos.x, this.pos.y, this.pos.z ]
@@ -54911,6 +59793,10 @@ const Camera = {
         gl.uniform3f( camera_pos, pos[0], pos[1], pos[2] )
         gl.uniformMatrix4fv( ucamera, false, camera.view() )
         this.pos.dirty = false
+=======
+},{"../ugen.js":330}],288:[function(require,module,exports){
+module.exports = function( Gibberish ) {
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 
       }
@@ -54933,7 +59819,13 @@ const Camera = {
   }
 }
 
+<<<<<<< HEAD
 module.exports = Camera
+=======
+},{"./bitCrusher.js":282,"./bufferShuffler.js":283,"./chorus.js":284,"./delay.js":285,"./distortion.dsp.js":286,"./flanger.js":289,"./freeverb.js":290,"./ringMod.js":291,"./tremolo.js":292,"./vibrato.js":293,"./wavefolder.dsp.js":294}],289:[function(require,module,exports){
+let g = require( 'genish.js' ),
+    proto = require( './effect.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 },{"gl-mat4":293,"gl-vec3":327}],414:[function(require,module,exports){
 const SceneNode = require( './sceneNode.js' )
@@ -55005,11 +59897,17 @@ const ops = {
 
     Marching.textures.addTexture( this.amount.value )
 
+<<<<<<< HEAD
     let preface=`  vec3 tex${this.id} = getTexture( ${this.amount.value.id}, ${pointString}.xyz ) * ${this.size.emit()};\n
         //vec4 displaceBump${this.id} = vec4((${pointString} - tex${this.id}), 1.);
     `
         //${sdf.out}.x = (tex${this.id}.x + tex${this.id}.y + tex${this.id}.z ) / 3. * .5 + ${sdf.out}.x;\n`
         //vec4 ${'p'+this.id} = vec4(${pointString} + tex${this.id}, 1.);\n`
+=======
+},{"./effect.js":287,"genish.js":39}],290:[function(require,module,exports){
+const g = require( 'genish.js' ),
+      effect = require( './effect.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     //sdf.preface += `\n        
     //    ${sdf.out}.x -= min(tex${this.id}.x, min(tex${this.id}.y, tex${this.id}.z));\n` 
@@ -55053,8 +59951,14 @@ const DistanceOps = {}
 
 for( let name in ops ) {
 
+<<<<<<< HEAD
   // get codegen function
   let __op = ops[ name ]
+=======
+},{"./effect.js":287,"genish.js":39}],291:[function(require,module,exports){
+let g = require( 'genish.js' ),
+    effect = require( './effect.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   // create constructor
   DistanceOps[ name ] = function( a,b,c ) {
@@ -55136,8 +60040,14 @@ for( let name in ops ) {
     str += this.transform.emit_decl()
     if( this.name === 'Displace' || this.name === 'Bump' ) str += this.size.emit_decl()  
 
+<<<<<<< HEAD
     return str
   };
+=======
+},{"./effect.js":287,"genish.js":39}],292:[function(require,module,exports){
+const g = require( 'genish.js' ),
+      effect = require( './effect.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   DistanceOps[name].prototype.update_location = function(gl, program) {
     this.sdf.update_location( gl, program )
@@ -55228,6 +60138,12 @@ const DistanceOps = {
   __clear() { this.__glsl.length = 0 }
 }
 
+<<<<<<< HEAD
+=======
+},{"./effect.js":287,"genish.js":39}],293:[function(require,module,exports){
+const g = require( 'genish.js' ),
+      effect = require( './effect.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 for( let name in ops ) {
 
@@ -55343,10 +60259,16 @@ for( let name in ops ) {
 
   DistanceOps[ name ].prototype = SceneNode()
 
+<<<<<<< HEAD
   DistanceOps[ name ].prototype.texture = function( ...args ) {
     this.__setTexture( ...args )
     this.a.texture( this.__textureObj )
     this.b.texture( this.__textureObj )
+=======
+},{"./effect.js":287,"genish.js":39}],294:[function(require,module,exports){
+const g = require( 'genish.js' ),
+      effect = require( './effect.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     return this
   }
@@ -55597,11 +60519,30 @@ module.exports = {
         vec2 o = vec2( 0., d1.y ); 
         o.x = -fOpUnionStairs( -d1.x, d2.x, r, n );
 
+<<<<<<< HEAD
         if( -d1.x <= d2.x ) {
           o.y = d1.y;
         }else{
           o.y = d2.y;
         }
+=======
+},{"./effect.js":287,"genish.js":39}],295:[function(require,module,exports){
+let MemoryHelper = require( 'memory-helper' ),
+    genish       = require( 'genish.js' )
+    
+let Gibberish = {
+  blockCallbacks: [], // called every block
+  dirtyUgens: [],
+  callbackUgens: [],
+  callbackNames: [],
+  analyzers: [],
+  graphIsDirty: false,
+  ugens: {},
+  debug: false,
+  id: -1,
+  preventProxy:false,
+  proxyEnabled: true,
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
         return o;
       }
@@ -56088,6 +61029,7 @@ const getDomainOps = function( SDF ) {
       return this
     }
 
+<<<<<<< HEAD
     ops[ key ].prototype.emit_decl = function( shouldEmitSDF=true ) {
       let decl = ''
       decl += this.transform.emit_decl()
@@ -56102,6 +61044,11 @@ const getDomainOps = function( SDF ) {
         decl += opDesc.glsl
         SDF.memo[ key ] = true
       }
+=======
+},{"./analysis/analyzer.js":261,"./analysis/analyzers.js":262,"./envelopes/envelopes.js":267,"./factory.js":272,"./filters/filters.js":279,"./fx/effect.js":287,"./fx/effects.js":288,"./instruments/instrument.js":302,"./instruments/instruments.js":303,"./instruments/polyMixin.js":308,"./instruments/polytemplate.js":309,"./misc/binops.js":314,"./misc/bus.js":315,"./misc/bus2.js":316,"./misc/monops.js":317,"./misc/panner.js":318,"./misc/time.js":319,"./oscillators/oscillators.js":322,"./scheduling/scheduler.js":326,"./scheduling/seq2.js":327,"./scheduling/sequencer.js":328,"./scheduling/tidal.js":329,"./ugen.js":330,"./utilities.js":331,"./workletProxy.js":332,"genish.js":39,"memory-helper":335}],296:[function(require,module,exports){
+const g = require( 'genish.js' ),
+      instrument = require( './instrument.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
       return decl
     }
@@ -56154,6 +61101,7 @@ function Matrix() {
   this.m = hasFloat32Array ? new Float32Array(m) : m;
 }
 
+<<<<<<< HEAD
 Matrix.prototype = {
   // ### .inverse()
   //
@@ -56162,6 +61110,12 @@ Matrix.prototype = {
   inverse: function() {
     return Matrix.inverse(this, new Matrix());
   },
+=======
+},{"./instrument.js":302,"genish.js":39}],297:[function(require,module,exports){
+const g = require( 'genish.js' ),
+      instrument = require( './instrument.js' ),
+      __wavefold   = require( '../fx/wavefolder.dsp.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   // ### .transpose()
   //
@@ -56313,6 +61267,7 @@ Matrix.perspective = function(fov, aspect, near, far, result) {
   return Matrix.frustum(-x, x, -y, y, near, far, result);
 };
 
+<<<<<<< HEAD
 // ### GL.Matrix.frustum(left, right, bottom, top, near, far[, result])
 //
 // Sets up a viewing frustum, which is shaped like a truncated pyramid with the
@@ -56322,6 +61277,11 @@ Matrix.perspective = function(fov, aspect, near, far, result) {
 Matrix.frustum = function(l, r, b, t, n, f, result) {
   result = result || new Matrix();
   var m = result.m;
+=======
+},{"../fx/wavefolder.dsp.js":294,"./instrument.js":302,"genish.js":39}],298:[function(require,module,exports){
+let g = require( 'genish.js' ),
+    instrument = require( './instrument.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   m[0] = 2 * n / (r - l);
   m[1] = 0;
@@ -56356,10 +61316,16 @@ Matrix.ortho = function(l, r, b, t, n, f, result) {
   result = result || new Matrix();
   var m = result.m;
 
+<<<<<<< HEAD
   m[0] = 2 / (r - l);
   m[1] = 0;
   m[2] = 0;
   m[3] = -(r + l) / (r - l);
+=======
+},{"./instrument.js":302,"genish.js":39}],299:[function(require,module,exports){
+let g = require( 'genish.js' ),
+    instrument = require( './instrument.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   m[4] = 0;
   m[5] = 2 / (t - b);
@@ -56407,8 +61373,14 @@ Matrix.scale = function(x, y, z, result) {
   m[14] = 0;
   m[15] = 1;
 
+<<<<<<< HEAD
   return result;
 };
+=======
+},{"./instrument.js":302,"genish.js":39}],300:[function(require,module,exports){
+const g = require( 'genish.js' ),
+      instrument = require( './instrument.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 // ### GL.Matrix.translate(x, y, z[, result])
 //
@@ -56531,11 +61503,46 @@ const emit_float = function( a ) {
 		return a
 }
 
+<<<<<<< HEAD
 const FloatPrototype = {
   type: 'float',
 	emit() { return emit_float( this.x ) },
 	emit_decl() { return "" }
 }
+=======
+},{"./instrument.js":302,"genish.js":39}],301:[function(require,module,exports){
+let g = require( 'genish.js' ),
+    instrument = require( './instrument.js' )
+
+module.exports = function( Gibberish ) {
+
+  let Hat = argumentProps => {
+    let hat = Object.create( instrument ),
+        tune  = g.in( 'tune' ),
+        scaledTune = g.memo( g.add( .4, tune ) ),
+        decay  = g.in( 'decay' ),
+        gain  = g.in( 'gain' ),
+        loudness = g.in( 'loudness' ),
+        triggerLoudness = g.in( '__triggerLoudness' )
+
+    let props = Object.assign( {}, Hat.defaults, argumentProps )
+
+    let baseFreq = g.mul( 325, scaledTune ), // range of 162.5 - 487.5
+        bpfCutoff = g.mul( g.param( 'bpfc', 7000 ), scaledTune ),
+        hpfCutoff = g.mul( g.param( 'hpfc', 11000 ), scaledTune ),  
+        s1 = Gibberish.oscillators.factory( 'square', baseFreq, false ),
+        s2 = Gibberish.oscillators.factory( 'square', g.mul( baseFreq,1.4471 ) ),
+        s3 = Gibberish.oscillators.factory( 'square', g.mul( baseFreq,1.6170 ) ),
+        s4 = Gibberish.oscillators.factory( 'square', g.mul( baseFreq,1.9265 ) ),
+        s5 = Gibberish.oscillators.factory( 'square', g.mul( baseFreq,2.5028 ) ),
+        s6 = Gibberish.oscillators.factory( 'square', g.mul( baseFreq,2.6637 ) ),
+        sum = g.add( s1,s2,s3,s4,s5,s6 ),
+        eg = g.decay( g.mul( decay, g.gen.samplerate * 2 ), { initValue:0 }), 
+        bpf = g.svf( sum, bpfCutoff, .5, 2, false ),
+        envBpf = g.mul( bpf, eg ),
+        hpf = g.filter24( envBpf, 0, hpfCutoff, 0 ),
+        out = g.mul( hpf, g.mul( gain, g.mul( loudness, triggerLoudness ) ) )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 
 const Float = function( x=0 ) {
@@ -56553,7 +61560,12 @@ const SceneNode = require( './sceneNode.js' ),
 
 const { Vec2, Vec3, Vec4 } = require( './vec.js' )
 
+<<<<<<< HEAD
 const Fogger = function( Scene, SDF ) {
+=======
+},{"./instrument.js":302,"genish.js":39}],302:[function(require,module,exports){
+const ugen = require( '../ugen.js' )()
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   const Fog = function( amount=0.055, color ) {
     const fog = Object.create( Fog.prototype )
@@ -56622,6 +61634,7 @@ const Fogger = function( Scene, SDF ) {
 
 module.exports = Fogger
 
+<<<<<<< HEAD
 },{"./sceneNode.js":432,"./utils.js":437,"./var.js":438,"./vec.js":439}],421:[function(require,module,exports){
 'use strict'
 
@@ -56631,6 +61644,20 @@ Marching.__export = Marching.export
 Marching.export = obj => {
   obj.march = Marching.createScene.bind( Marching )
   Marching.__export( obj )
+=======
+},{"../ugen.js":330}],303:[function(require,module,exports){
+module.exports = function( Gibberish ) {
+
+const instruments = {
+  Kick        : require( './kick.js' )( Gibberish ),
+  Clave       : require( './conga.js' )( Gibberish )[0], // clave is same as conga with different defaults, see below
+  Hat         : require( './hat.js' )( Gibberish ),
+  Snare       : require( './snare.js' )( Gibberish ),
+  Cowbell     : require( './cowbell.js' )( Gibberish ),
+  Tom         : require( './tom.js' )( Gibberish ),
+  Clap        : require( './clap.dsp.js' )( Gibberish ),
+  Multisampler: require( './multisampler.dsp.js' )( Gibberish )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 }
 
 window.Marching = Marching
@@ -56651,6 +61678,12 @@ const IntPrototype = {
 	emit_decl() { return "" }
 }
 
+<<<<<<< HEAD
+=======
+},{"./clap.dsp.js":296,"./complex.dsp.js":297,"./conga.js":298,"./cowbell.js":299,"./fm.dsp.js":300,"./hat.js":301,"./karplusstrong.js":304,"./kick.js":305,"./monosynth.dsp.js":306,"./multisampler.dsp.js":307,"./sampler.js":310,"./snare.js":311,"./synth.dsp.js":312,"./tom.js":313}],304:[function(require,module,exports){
+const g = require( 'genish.js' ),
+      instrument = require( './instrument.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 const Int = function( x=0 ) {
   const f = Object.create( IntPrototype )
@@ -56743,8 +61776,14 @@ const Lights = function( SDF ) {
         }
       })
 
+<<<<<<< HEAD
       return light
     },
+=======
+},{"./instrument.js":302,"genish.js":39}],305:[function(require,module,exports){
+let g = require( 'genish.js' ),
+    instrument = require( './instrument.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     emit_lights() {
       if( this.lights.length === 0 ) return this.defaultLights
@@ -56770,7 +61809,14 @@ const Lights = function( SDF ) {
       const modeConstants = SDF.materials.modeConstants
       this.modesEmployed.length = 0
 
+<<<<<<< HEAD
       let lightingFunctions = []
+=======
+},{"./instrument.js":302,"genish.js":39}],306:[function(require,module,exports){
+const g = require( 'genish.js' ),
+      instrument = require( './instrument.js' ),
+      feedbackOsc = require( '../oscillators/fmfeedbackosc.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
       // loop through all materials used and add corresponding lighting functions as needed
       for( let mat of SDF.materials.materials ) {
@@ -56859,8 +61905,286 @@ const Lights = function( SDF ) {
       ${sdfs}
       SDF sdf = sdfs[ int( sdfID ) ];
 
+<<<<<<< HEAD
       ${materials}
       Material mat = materials[ sdf.materialID ];
+=======
+},{"../oscillators/fmfeedbackosc.js":321,"./instrument.js":302,"genish.js":39}],307:[function(require,module,exports){
+const g = require( 'genish.js' ),
+      instrument = require( './instrument.js' )
+
+const genish = g
+
+module.exports = function( Gibberish ) {
+  const proto = Object.create( instrument )
+  const memo = {}
+  
+  Object.assign( proto, {
+    pickFile( sample ) {
+      this.currentSample = sample
+    },
+    pick( __idx ) {
+      const idx = Math.floor( __idx )
+      const keys = Object.keys( this.samplers )
+      const key = keys[ idx ]
+      this.currentSample = key
+    },
+    pickplay( __idx ) {
+      const idx = Math.floor( __idx )
+      const keys = Object.keys( this.samplers )
+      const key = keys[ idx ]
+      this.currentSample = key
+      this.trigger()
+    },
+    note( rate ) {
+      'no jsdsp'
+      this.rate = rate
+      if( rate > 0 ) {
+        this.trigger( null, rate )
+      }else{
+        //this.__phase__.value = this.end * (this.data.buffer.length - 1)
+        this.trigger( null, rate )
+      }
+    },
+    trigger( volume, rate=1 ) {
+      'no jsdsp'
+      if( volume !== undefined && volume !== null ) this.__triggerLoudness = volume
+
+      if( Gibberish.mode === 'processor' ) {
+        const sampler = this.samplers[ this.currentSample ]
+
+        // if sample isn't loaded...
+        if( sampler === undefined ) return
+
+        const voice = this.__getVoice__()
+
+        // set voice buffer length
+        g.gen.memory.heap.set( [ sampler.dataLength ], voice.bufferLength.memory.values.idx )
+
+        // set voice data index
+     
+        g.gen.memory.heap.set( [ sampler.dataIdx ], voice.bufferLoc.memory.values.idx )
+
+        if( rate < 0 ) {
+          const phase = sampler.dataIdx + sampler.dataLength - 1
+          voice.phase.value = phase
+        }else{
+          // will reset phase to 0
+          voice.trigger()
+        }
+      }
+    },
+    __getVoice__() {
+      return this.voices[ this.voiceCount++ % this.voices.length ]
+    },
+  })
+
+  const Sampler = inputProps => {
+    const syn = Object.create( proto )
+
+    const props = Object.assign( { onload:null, voiceCount:0, files:[] }, Sampler.defaults, inputProps )
+
+    syn.isStereo = props.isStereo !== undefined ? props.isStereo : false
+
+    const start = g.in( 'start' ), end = g.in( 'end' ), 
+          rate = g.in( 'rate' ), shouldLoop = g.in( 'loops' ),
+          loudness = g.in( 'loudness' ),
+          triggerLoudness = g.in( '__triggerLoudness' ),
+          // rate storage is used to determine whether we're playing
+          // the sample forward or in reverse, for use in the 'trigger' method.
+          rateStorage = g.data([0], 1, { meta:true })
+
+    Object.assign( syn, props )
+
+    if( Gibberish.mode === 'worklet' ) {
+      syn.__meta__ = {
+        address:'add',
+        name: ['instruments', 'Multisampler'],
+        properties: JSON.stringify(props), 
+        id: syn.id
+      }
+
+      Gibberish.worklet.ugens.set( syn.id, syn )
+
+      Gibberish.worklet.port.postMessage( syn.__meta__ )
+    }
+
+    // create all our vocecs
+    const voices = []
+    for( let i = 0; i < syn.maxVoices; i++ ) {
+      'use jsdsp'
+
+      const voice = {
+        bufferLength: g.data( [1], 1, { meta:true }),
+        bufferLoc:    g.data( [1], 1, { meta:true }),
+        bang: g.bang(),
+      }
+
+      voice.phase = g.counter( 
+        rate, 
+        start * voice.bufferLength[0],
+        end * voice.bufferLength[0], 
+        voice.bang, 
+        shouldLoop, 
+        { shouldWrap:false, initialValue:9999999 }
+      )
+
+      voice.trigger = voice.bang.trigger
+
+      voice.graph = g.ifelse(
+        // if phase is greater than start and less than end... 
+        g.and( 
+          g.gte( voice.phase, start * voice.bufferLength[0] ), 
+          g.lt(  voice.phase, end   * voice.bufferLength[0] ) 
+        ),
+        // ...read data
+        voice.peek = g.peekDyn( 
+          voice.bufferLoc[0], 
+          voice.bufferLength[0],
+          voice.phase,
+          { mode:'samples' }
+        ),
+        // ...else return 0
+        0
+      ) 
+      * loudness 
+      * triggerLoudness 
+
+      voices.push( voice )
+    }
+
+    // load in sample data
+    const samplers = {}
+
+    // bound to individual sampler objects in loadSample function
+    syn.loadBuffer = function( buffer, onload ) {
+      // main thread: when sample is loaded, copy it over message port
+      // processor thread: onload is called via messageport handler, and
+      // passed in the new buffer to be copied.
+      if( Gibberish.mode === 'worklet' ) {
+        const memIdx = Gibberish.memory.alloc( this.data.buffer.length, true )
+
+        Gibberish.worklet.port.postMessage({
+          address:'copy_multi',
+          id:     syn.id,
+          buffer: this.data.buffer,
+          filename: this.filename
+        })
+
+        if( typeof onload === 'function' ) onload( this, buffer )
+
+      }else if( Gibberish.mode === 'processor' ) {
+        this.data.buffer = buffer 
+
+        // set data memory spec before issuing memory request
+        this.dataLength = this.data.memory.values.length = this.data.dim = this.data.buffer.length
+
+        // request memory to copy the bufer over
+        g.gen.requestMemory( this.data.memory, false )
+        g.gen.memory.heap.set( this.data.buffer, this.data.memory.values.idx )
+
+        // set location of buffer (does not work)
+        this.dataIdx = this.data.memory.values.idx
+
+        syn.currentSample = this.filename
+      }
+    }
+
+    syn.loadSample = function( filename, __onload, buffer=null ) {
+      'use jsdsp'
+
+      const sampler = samplers[ filename ] = {
+        dataLength: null,
+        dataIdx: null,
+        buffer: null,
+        filename
+      }
+
+      const onload = syn.loadBuffer.bind( sampler ) 
+      // passing a filename to data will cause it to be loaded in the main thread
+      // onload will then be called to pass the buffer over the messageport. In the
+      // processor thread, make a placeholder until data is available.
+      if( Gibberish.mode === 'worklet' ) {
+        sampler.data = g.data( buffer !== null ? buffer : filename, 1, { onload })
+
+        // check to see if a promise is returned; a valid
+        // data object is only return if the file has been
+        // previously loaded and the corresponding buffer has
+        // been cached.
+        if( sampler.data instanceof Promise ) {
+          sampler.data.then( d => {
+            sampler.data = d
+            memo[ filename ] = sampler.data 
+            onload( sampler, __onload )
+          })
+        }else{
+          // using a cached data buffer, no need
+          // for asynchronous loading.
+          memo[ filename ] = sampler
+          onload( sampler, __onload )
+        }     
+      }else{
+        sampler.data = g.data( new Float32Array(), 1, { onload, filename })
+        sampler.data.onload = onload
+      } 
+    }
+
+    props.files.forEach( filename => syn.loadSample( filename ) )
+
+    syn.__createGraph = function() {
+      'use jsdsp'
+      
+      const graphs = voices.map( voice => voice.graph )
+      syn.graph = g.add( ...graphs ) * g.in( 'gain' )
+
+      if( syn.panVoices === true ) { 
+        const panner = g.pan( syn.graph, syn.graph, g.in( 'pan' ) ) 
+        syn.graph = [ panner.left, panner.right ]
+      }
+    }
+
+    syn.__createGraph()
+
+    const out = Gibberish.factory( 
+      syn,
+      syn.graph,
+      ['instruments','multisampler'], 
+      props 
+    ) 
+
+    Gibberish.preventProxy = true
+    Gibberish.proxyEnabled = false
+
+    out.voices = voices
+    out.samplers = samplers
+
+    Gibberish.proxyEnabled = true
+    Gibberish.preventProxy = false
+
+    return out
+  }
+
+  Sampler.defaults = {
+    gain: 1,
+    pan: .5,
+    rate: 1,
+    panVoices:false,
+    loops: 0,
+    start:0,
+    end:1,
+    bufferLength:-999999999,
+    loudness:1,
+    maxVoices:5, 
+    __triggerLoudness:1
+  }
+
+  return Sampler
+}
+   
+
+},{"./instrument.js":302,"genish.js":39}],308:[function(require,module,exports){
+// XXX TOO MANY GLOBAL GIBBERISH VALUES
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
       int MAX_LIGHTS = ${numlights};     
 
@@ -56902,10 +62226,17 @@ const Lights = function( SDF ) {
 
         const str = glsl(["#define GLSLIFY 1\n  \n        \n        vec3 directional( vec3 surfacePosition, vec3 normal, vec3 rayOrigin, vec3 rayDirection, Material mat, Light lights[MAX_LIGHTS], vec3 textureColor ) {\n          vec3  outputColor   = textureColor;//vec3( 0. );\n   \n          // applies to all lights\n          float occlusion = ao( surfacePosition, normal );\n\n          for( int i = 0; i < 20000; i++ ) {\n            if( i >= MAX_LIGHTS ) break;\n\n            Light light = lights[ i ];\n\n            vec3 surfaceToLightDirection = normalize( light.position - surfacePosition );\n            \n            // get similarity between normal and direction to light\n            float diffuseCoefficient = dot( normal, surfaceToLightDirection ); \n\n            // get reflection angle for light striking surface\n            vec3 angleOfReflection = reflect( -surfaceToLightDirection, normal );\n\n            // see if reflected light travels to camera and generate coefficient accordingly\n            float specularAngle = clamp( dot( angleOfReflection, -rayDirection ), 0., 1. );\n            float specularCoefficient = pow( specularAngle, mat.shininess );\n\n            // lights should have an attenuation factor\n            float attenuation = 1. / ( light.attenuation * pow( length( light.position - surfacePosition ), 2. ) ); \n\n            // bias, scale, power\n            float fresnel = mat.fresnel.x + mat.fresnel.y * pow( 1.0 + dot( rayDirection, normal ), mat.fresnel.z ); \n\n            ","\n\n            vec3 color = vec3( 0. );\n            color += 1.2 * diffuseCoefficient * mat.diffuse * light.color;\n            color += 2.2 * specularCoefficient * mat.specular * light.color;\n            color += 0.3 * (mat.ambient * light.color) * occlusion;\n            color += (fresnel * light.color);\n\n            // texture\n            //color *= textureColor.xyz;\n\n            // gamma correction must occur before light attenuation\n            // which means it must be applied on a per-light basis unfortunately\n            vec3 gammaCorrectedColor = pow( color, vec3( 1./2.2 ) );\n            vec3 attenuatedColor = 2. * gammaCorrectedColor * attenuation; \n\n            outputColor += attenuatedColor;\n          }\n\n          return outputColor;\n        }\n        ",""],__shadow)
 
+<<<<<<< HEAD
         return str
       }, 
       phongT( numlights, lights, materials ) {
         const shadow = SDF.__scene.__shadow
+=======
+},{"../index.js":295}],309:[function(require,module,exports){
+/*
+ * This files creates a factory generating polysynth constructors.
+ */
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
         const __shadow = shadow > 0
           ? `diffuseCoefficient *= softshadow( surfacePosition, normalize( light.position ), 0.02, 2.5, ${shadow.toFixed(1)} );` 
@@ -57041,8 +62372,14 @@ const SDF = {
     return scene
   },
 
+<<<<<<< HEAD
   start( fs, width, height, shouldAnimate ) {
     if( this.render !== null ) this.render.running = false
+=======
+},{"../workletProxy.js":332,"genish.js":39}],310:[function(require,module,exports){
+const g = require( 'genish.js' ),
+      instrument = require( './instrument.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     this.fs = fs
     this.callbacks.length = 0
@@ -57180,7 +62517,15 @@ const SDF = {
     // remove post-processing fx
     this.fx.clear()
 
+<<<<<<< HEAD
     this.geometries.length = 0
+=======
+},{"./instrument.js":302,"genish.js":39}],311:[function(require,module,exports){
+const g = require( 'genish.js' ),
+      instrument = require( './instrument.js' )
+  
+module.exports = function( Gibberish ) {
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     const gl = this.gl
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT )
@@ -57213,10 +62558,16 @@ const SDF = {
     gl.bindBuffer( gl.ARRAY_BUFFER, vbo )
     gl.bufferData( gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW )
 
+<<<<<<< HEAD
     gl.drawBuffers([
       gl.COLOR_ATTACHMENT0,
       gl.COLOR_ATTACHMENT1 
     ])
+=======
+},{"./instrument.js":302,"genish.js":39}],312:[function(require,module,exports){
+const g = require( 'genish.js' ),
+      instrument = require( './instrument.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     return { vbo, vertices, framebuffer }
   },
@@ -57345,8 +62696,14 @@ const SDF = {
         if( typeof window.onframe === 'function' ) window.onframe( total_time )
       }
 
+<<<<<<< HEAD
       // transfer all data associated with uniforms in marching.js
       this.uploadData( gl )
+=======
+},{"./instrument.js":302,"genish.js":39}],313:[function(require,module,exports){
+const g = require( 'genish.js' ),
+      instrument = require( './instrument.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
       // draw to color and depth texturese
       gl.bindBuffer( gl.ARRAY_BUFFER, vbo )
@@ -57391,7 +62748,14 @@ const SDF = {
   }
 }
 
+<<<<<<< HEAD
 module.exports = SDF
+=======
+},{"./instrument.js":302,"genish.js":39}],314:[function(require,module,exports){
+const ugenproto = require( '../ugen.js' )(),
+     __proxy     = require( '../workletProxy.js' ),
+     g = require( 'genish.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 },{"./alterations.js":410,"./audio.js":411,"./camera.js":413,"./distanceDeformations.js":414,"./distanceOperations.js":415,"./domainOperations.js":417,"./lighting.js":423,"./material.js":425,"./mergepass.js":426,"./noise.js":427,"./primitives.js":429,"./renderFragmentShader.js":430,"./scene.js":431,"./texture.js":433,"./var.js":438,"./vec.js":439}],425:[function(require,module,exports){
 const SceneNode = require( './sceneNode.js' ),
@@ -57450,6 +62814,7 @@ const __Materials = function( SDF ) {
         modeIdx = Materials.modeConstants.indexOf( mode )
       }
 
+<<<<<<< HEAD
       if( typeof __ambient === 'number' ) __ambient = Vec3( __ambient )
       const ambient = param_wrap( __ambient, vec3_var_gen(.1,.1,.1) )
       if( typeof __diffuse=== 'number' ) __diffuse= Vec3( __diffuse )
@@ -57459,6 +62824,12 @@ const __Materials = function( SDF ) {
       const shininess = param_wrap( __shininess, float_var_gen(8) )
       if( typeof __fresnel === 'number' ) __fresnel = Vec3( __fresnel )
       const fresnel = param_wrap( __fresnel, vec3_var_gen(0,1,2) )
+=======
+},{"../ugen.js":330,"../workletProxy.js":332,"genish.js":39}],315:[function(require,module,exports){
+let g = require( 'genish.js' ),
+    ugen = require( '../ugen.js' )(),
+    __proxy= require( '../workletProxy.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
       const mat = { shininess, mode, texture:__texture, type:'material' }
 
@@ -57625,8 +62996,15 @@ const __Materials = function( SDF ) {
 
 module.exports = __Materials
 
+<<<<<<< HEAD
 },{"./sceneNode.js":432,"./utils.js":437,"./var.js":438,"./vec.js":439,"glslify":355}],426:[function(require,module,exports){
 const MP   = require( '@bandaloo/merge-pass' )
+=======
+},{"../ugen.js":330,"../workletProxy.js":332,"genish.js":39}],316:[function(require,module,exports){
+const g = require( 'genish.js' ),
+      ugen = require( '../ugen.js' )(),
+      __proxy = require( '../workletProxy.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 const FX = {
   merger:null,
@@ -57773,6 +63151,12 @@ const FX = {
     return fx
   },
 
+<<<<<<< HEAD
+=======
+},{"../ugen.js":330,"../workletProxy.js":332,"genish.js":39}],317:[function(require,module,exports){
+const  g    = require( 'genish.js'  ),
+       ugen = require( '../ugen.js' )()
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   Godrays( __decay=1, __weight=.01, __density=1, __threshold=.9, __newColor=[.5,.15,0,1] ) {
     const fx = {},
@@ -57822,8 +63206,13 @@ const FX = {
       )
     )
 
+<<<<<<< HEAD
     return fx
   },
+=======
+},{"../ugen.js":330,"genish.js":39}],318:[function(require,module,exports){
+const g = require( 'genish.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   Invert( __threshold = .99 )  {
     const fx = {},
@@ -57853,7 +63242,15 @@ const FX = {
 
 }
 
+<<<<<<< HEAD
 module.exports = FX
+=======
+},{"../ugen.js":330,"genish.js":39}],319:[function(require,module,exports){
+module.exports = function( Gibberish ) {
+
+  const Time = {
+    bpm: 120,
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 },{"@bandaloo/merge-pass":52}],427:[function(require,module,exports){
 const glsl = require( 'glslify' )
@@ -57874,6 +63271,7 @@ Noise = function( strength=.25, bias=1, timeMod=1 ) {
   const __strength = param_wrap( strength, float_var_gen( strength ) )
   const __timeMod  = param_wrap( timeMod, float_var_gen( timeMod ) )
 
+<<<<<<< HEAD
   Object.defineProperty( op, 'strength', {
     get() { return __strength },
     set(v) {
@@ -57887,6 +63285,12 @@ Noise = function( strength=.25, bias=1, timeMod=1 ) {
     }
   })
   const __bias  = param_wrap( bias, float_var_gen( bias ) )
+=======
+},{}],320:[function(require,module,exports){
+const genish = require( 'genish.js' ),
+      ssd = genish.history,
+      noise = genish.noise
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   Object.defineProperty( op, 'bias', {
     get() { return __bias},
@@ -57913,8 +63317,46 @@ Noise.prototype.emit = function ( __name ) {
 }
 Noise.prototype.glsl = glsl(["#define GLSLIFY 1\n    //\n// Description : Array and textureless GLSL 2D/3D/4D simplex\n//               noise functions.\n//      Author : Ian McEwan, Ashima Arts.\n//  Maintainer : ijm\n//     Lastmod : 20110822 (ijm)\n//     License : Copyright (C) 2011 Ashima Arts. All rights reserved.\n//               Distributed under the MIT License. See LICENSE file.\n//               https://github.com/ashima/webgl-noise\n//\n\nvec4 mod289(vec4 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0; }\n\nfloat mod289(float x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0; }\n\nvec4 permute(vec4 x) {\n     return mod289(((x*34.0)+1.0)*x);\n}\n\nfloat permute(float x) {\n     return mod289(((x*34.0)+1.0)*x);\n}\n\nvec4 taylorInvSqrt(vec4 r)\n{\n  return 1.79284291400159 - 0.85373472095314 * r;\n}\n\nfloat taylorInvSqrt(float r)\n{\n  return 1.79284291400159 - 0.85373472095314 * r;\n}\n\nvec4 grad4(float j, vec4 ip)\n  {\n  const vec4 ones = vec4(1.0, 1.0, 1.0, -1.0);\n  vec4 p,s;\n\n  p.xyz = floor( fract (vec3(j) * ip.xyz) * 7.0) * ip.z - 1.0;\n  p.w = 1.5 - dot(abs(p.xyz), ones.xyz);\n  s = vec4(lessThan(p, vec4(0.0)));\n  p.xyz = p.xyz + (s.xyz*2.0 - 1.0) * s.www;\n\n  return p;\n  }\n\n// (sqrt(5) - 1)/4 = F4, used once below\n#define F4 0.309016994374947451\n\nfloat snoise(vec4 v)\n  {\n  const vec4  C = vec4( 0.138196601125011,  // (5 - sqrt(5))/20  G4\n                        0.276393202250021,  // 2 * G4\n                        0.414589803375032,  // 3 * G4\n                       -0.447213595499958); // -1 + 4 * G4\n\n// First corner\n  vec4 i  = floor(v + dot(v, vec4(F4)) );\n  vec4 x0 = v -   i + dot(i, C.xxxx);\n\n// Other corners\n\n// Rank sorting originally contributed by Bill Licea-Kane, AMD (formerly ATI)\n  vec4 i0;\n  vec3 isX = step( x0.yzw, x0.xxx );\n  vec3 isYZ = step( x0.zww, x0.yyz );\n//  i0.x = dot( isX, vec3( 1.0 ) );\n  i0.x = isX.x + isX.y + isX.z;\n  i0.yzw = 1.0 - isX;\n//  i0.y += dot( isYZ.xy, vec2( 1.0 ) );\n  i0.y += isYZ.x + isYZ.y;\n  i0.zw += 1.0 - isYZ.xy;\n  i0.z += isYZ.z;\n  i0.w += 1.0 - isYZ.z;\n\n  // i0 now contains the unique values 0,1,2,3 in each channel\n  vec4 i3 = clamp( i0, 0.0, 1.0 );\n  vec4 i2 = clamp( i0-1.0, 0.0, 1.0 );\n  vec4 i1 = clamp( i0-2.0, 0.0, 1.0 );\n\n  //  x0 = x0 - 0.0 + 0.0 * C.xxxx\n  //  x1 = x0 - i1  + 1.0 * C.xxxx\n  //  x2 = x0 - i2  + 2.0 * C.xxxx\n  //  x3 = x0 - i3  + 3.0 * C.xxxx\n  //  x4 = x0 - 1.0 + 4.0 * C.xxxx\n  vec4 x1 = x0 - i1 + C.xxxx;\n  vec4 x2 = x0 - i2 + C.yyyy;\n  vec4 x3 = x0 - i3 + C.zzzz;\n  vec4 x4 = x0 + C.wwww;\n\n// Permutations\n  i = mod289(i);\n  float j0 = permute( permute( permute( permute(i.w) + i.z) + i.y) + i.x);\n  vec4 j1 = permute( permute( permute( permute (\n             i.w + vec4(i1.w, i2.w, i3.w, 1.0 ))\n           + i.z + vec4(i1.z, i2.z, i3.z, 1.0 ))\n           + i.y + vec4(i1.y, i2.y, i3.y, 1.0 ))\n           + i.x + vec4(i1.x, i2.x, i3.x, 1.0 ));\n\n// Gradients: 7x7x6 points over a cube, mapped onto a 4-cross polytope\n// 7*7*6 = 294, which is close to the ring size 17*17 = 289.\n  vec4 ip = vec4(1.0/294.0, 1.0/49.0, 1.0/7.0, 0.0) ;\n\n  vec4 p0 = grad4(j0,   ip);\n  vec4 p1 = grad4(j1.x, ip);\n  vec4 p2 = grad4(j1.y, ip);\n  vec4 p3 = grad4(j1.z, ip);\n  vec4 p4 = grad4(j1.w, ip);\n\n// Normalise gradients\n  vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));\n  p0 *= norm.x;\n  p1 *= norm.y;\n  p2 *= norm.z;\n  p3 *= norm.w;\n  p4 *= taylorInvSqrt(dot(p4,p4));\n\n// Mix contributions from the five corners\n  vec3 m0 = max(0.6 - vec3(dot(x0,x0), dot(x1,x1), dot(x2,x2)), 0.0);\n  vec2 m1 = max(0.6 - vec2(dot(x3,x3), dot(x4,x4)            ), 0.0);\n  m0 = m0 * m0;\n  m1 = m1 * m1;\n  return 49.0 * ( dot(m0*m0, vec3( dot( p0, x0 ), dot( p1, x1 ), dot( p2, x2 )))\n               + dot(m1*m1, vec2( dot( p3, x3 ), dot( p4, x4 ) ) ) ) ;\n\n  }\n\n"])
 
+<<<<<<< HEAD
 Noise.prototype.emit_decl = function () {
   let str = this.strength.emit_decl() + this.timeMod.emit_decl() + this.bias.emit_decl()
+=======
+},{"genish.js":39}],321:[function(require,module,exports){
+let g = require( 'genish.js' )
+
+let feedbackOsc = function( frequency, filter, pulsewidth=.5, argumentProps ) {
+  if( argumentProps === undefined ) argumentProps = { type: 0 }
+
+  let lastSample = g.history(),
+      // determine phase increment and memoize result
+      w = g.memo( g.div( frequency, g.gen.samplerate ) ),
+      // create scaling factor
+      n = g.sub( -.5, w ),
+      scaling = g.mul( g.mul( 13, filter ), g.pow( n, 5 ) ),
+      // calculate dc offset and normalization factors
+      DC = g.sub( .376, g.mul( w, .752 ) ),
+      norm = g.sub( 1, g.mul( 2, w ) ),
+      // determine phase
+      osc1Phase = g.accum( w, 0, { min:-1 }),
+      osc1, out
+
+  // create current sample... from the paper:
+  // osc = (osc + sin(2*pi*(phase + osc*scaling)))*0.5f;
+  osc1 = g.memo( 
+    g.mul(
+      g.add(
+        lastSample.out,
+        g.sin(
+          g.mul(
+            Math.PI * 2,
+            g.memo( g.add( osc1Phase, g.mul( lastSample.out, scaling ) ) )
+          )
+        )
+      ),
+      .5
+    )
+  )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   if( SDF.memo.noise === undefined ) {
     str = Noise.prototype.glsl + str
@@ -57942,8 +63384,16 @@ return Noise
 
 module.exports = getNoise 
 
+<<<<<<< HEAD
 },{"./sceneNode.js":432,"./utils.js":437,"./var.js":438,"glslify":355}],428:[function(require,module,exports){
 const glsl = require( 'glslify' )
+=======
+},{"genish.js":39}],322:[function(require,module,exports){
+const g = require( 'genish.js' ),
+      ugen = require( '../ugen.js' )(),
+      feedbackOsc = require( './fmfeedbackosc.js' ),
+      polyBlep = require( './polyblep.dsp.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 module.exports = {
   Box: {
@@ -58041,6 +63491,7 @@ module.exports = {
     glslify:glsl(["#define GLSLIFY 1\n      float box( vec3 p, vec3 b ){\n      vec3 d = abs(p) - b;\n      return min(max(d.x,max(d.y,d.z)),0.0) +\n             length(max(d,0.0));\n    }\n    vec2 fold(vec2 p, float ang){    \n        vec2 n=vec2(cos(-ang),sin(-ang));\n        p-=2.*min(0.,dot(p,n))*n;\n        return p;\n    }\n    #define KPI 3.14159\n    vec3 tri_fold(vec3 pt, float foldamt) {\n        pt.xy = fold(pt.xy,KPI/3. + foldamt );\n        pt.xy = fold(pt.xy,-KPI/3. + foldamt );\n        pt.yz = fold(pt.yz,KPI/6.+.7 + foldamt );\n        pt.yz = fold(pt.yz,-KPI/6. + foldamt );\n        return pt;\n    }\n    vec3 tri_curve(vec3 pt, float iter, float fold, float scale ) {\n        int count = int(iter);\n        for(int i=0;i<count;i++){\n            pt*=scale;\n            pt.x-=2.6;\n            pt=tri_fold(pt,fold);\n        }\n        return pt;\n    }\n    float kifs(in vec3 p, float a, float fold, float radius, float thresh, float scale ){\n        p.x+=1.5;\n        p=tri_curve(p,a,fold,scale);\n        // uncomment below line to use spheres instead of boxes\n        return (length( p*thresh ) - radius );\n        //return box( p*thresh, vec3(radius) );\n    }\n",""]),
   },
 
+<<<<<<< HEAD
   Mandalay: {
     parameters:[
       { name:'size', type:'float', default:5, min:1, max:10 },
@@ -58075,6 +63526,47 @@ module.exports = {
     p.z=DBFold(p1.zxy,fo.z,g.z,w.z);
     return p;
   }
+=======
+      switch( type ) {
+        case 'pwm':
+          let pulsewidth = g.in('pulsewidth')
+          if( antialias == true ) {
+            osc = feedbackOsc( frequency, 1, pulsewidth, { type:1 })
+          }else{
+            let phase = g.phasor( frequency, 0, { min:0 } )
+            osc = g.lt( phase, pulsewidth )
+          }
+          break;
+        case 'saw':
+          if( antialias == false ) {
+            osc = g.phasor( frequency )
+          }else{
+            osc = polyBlep( frequency, { type })
+          }
+          break;
+        case 'sine':
+          osc = g.cycle( frequency )
+          break;
+        case 'square':
+          if( antialias == true ) {
+            //osc = feedbackOsc( frequency, 1, .5, { type:1 })
+            osc = polyBlep( frequency, { type })
+          }else{
+            osc = g.wavetable( frequency, { buffer:Oscillators.Square.buffer, name:'square' } )
+          }
+          break;
+        case 'triangle':
+          if( antialias == true ) {
+            osc = polyBlep( frequency, { type })
+          }else{
+            osc = g.wavetable( frequency, { buffer:Oscillators.Triangle.buffer, name:'triangle' } )
+          }
+          break;
+        case 'noise':
+          osc = g.noise()
+          break;
+      }
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   vec3 DBFoldSerial(vec3 p, vec3 fo, vec3 g,vec3 w){
     p.x=DBFold(p,fo.x,g.x,w.x);
@@ -58160,10 +63652,18 @@ module.exports = {
     }
   },
 
+<<<<<<< HEAD
 	Octahedron: {
     parameters:[
       { name:'radius', type:'float', default:1, min:0, max:4 },
     ],
+=======
+},{"../ugen.js":330,"./brownnoise.dsp.js":320,"./fmfeedbackosc.js":321,"./pinknoise.dsp.js":323,"./polyblep.dsp.js":324,"./wavetable.js":325,"genish.js":39}],323:[function(require,module,exports){
+const genish = require( 'genish.js' ),
+      ssd = genish.history,
+      data = genish.data,
+      noise = genish.noise
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     primitiveString( pName ) { 
       return `sdOctahedron( ${pName}, ${this.radius.emit()} )`
@@ -58209,6 +63709,7 @@ module.exports = {
       { name:'radius', type:'float', default:1, min:0, max:3 },
     ],
 
+<<<<<<< HEAD
     primitiveString( pName ) { 
       return `udRoundBox( ${pName}, ${this.size.emit()},  ${this.radius.emit()} )`
     }, 
@@ -58218,6 +63719,11 @@ module.exports = {
     parameters:[
       { name:'radius', type:'float', default:1, min:0, max:3 },
     ],
+=======
+},{"genish.js":39}],324:[function(require,module,exports){
+const genish = require( 'genish.js' )
+const g = genish
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     primitiveString( pName ) { 
       return `(length(${pName}) - ${this.radius.emit()})`
@@ -58256,11 +63762,17 @@ module.exports = {
     },
     glslify:glsl(["#define GLSLIFY 1\n    float sdTorus( vec3 p, vec2 t )\n{\n  vec2 q = vec2(length(p.xz)-t.x,p.y);\n  return length(q)-t.y;\n}\n\n"])
 
+<<<<<<< HEAD
   },  
   Torus88:{
     parameters:[
       { name:'radii',  type:'vec2', default:[.5,.1], min:0, max:3 },
     ],
+=======
+},{"genish.js":39}],325:[function(require,module,exports){
+let g = require( 'genish.js' ),
+    ugen = require( '../ugen.js' )()
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     primitiveString( pname ) { 
       return `sdTorus88( ${pname}, ${this.radii.emit()} )`
@@ -58333,8 +63845,13 @@ const createPrimitives = function( SDF ) {
     vec4: Vec4
   }
 
+<<<<<<< HEAD
   // load descriptions of all primtives
   const descriptions = require( './primitiveDescriptions.js' )
+=======
+},{"../ugen.js":330,"genish.js":39}],326:[function(require,module,exports){
+const Queue = require( '../external/priorityqueue.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   const Primitives = { 
     descriptions,
@@ -58397,10 +63914,17 @@ const createPrimitives = function( SDF ) {
       p.name = name
       p.repeat = null//Var( vars.vec3( 0 ), null, 'vec3' )
 
+<<<<<<< HEAD
       p.__material = null
       p.__textureID  = 500000
       
       let count = 0
+=======
+},{"../external/priorityqueue.js":270}],327:[function(require,module,exports){
+const g = require( 'genish.js' ),
+      __proxy = require( '../workletProxy.js' ),
+      ugen = require( '../ugen.js' )()
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
       // wrap each param in a Var object for codegen
       for( let param of params ) {
@@ -58684,11 +64208,16 @@ const getMainContinuous = function( steps, minDistance, maxDistance, postprocess
     // everything is flipped using perspective-camera
     pos.x *= ( resolution.x / -resolution.y );
 
+<<<<<<< HEAD
     vec3 color = bg; 
     vec3 ro = camera_pos;
     vec3 rd = normalize( mat3(camera) * vec3( pos, 2. ) ); 
     
     vec2 t = calcRayIntersection( ro, rd, ${maxDistance}, ${minDistance} );
+=======
+},{"../ugen.js":330,"../workletProxy.js":332,"genish.js":39}],328:[function(require,module,exports){
+const __proxy = require( '../workletProxy.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     vec3 samplePos = vec3(100.f);
     //float zdist = 100000.;//vec3(100000.f);
@@ -58708,8 +64237,16 @@ const getMainContinuous = function( steps, minDistance, maxDistance, postprocess
     depth = abs(samplePos.z - ro.z ) < ${maxDistance} ? vec4( vec3( 1.-normalizedDepth ), 1. ) : vec4(0.);
   }`
 
+<<<<<<< HEAD
   return out
 }
+=======
+        timing = typeof seq.timings === 'function' 
+          ? seq.timings 
+          : seq.timings !== null
+            ? seq.timings[ seq.__timingsPhase++ % seq.timings.length ]
+            : null,
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 const getMainVoxels = function( steps, postprocessing, voxelSize = .1 ) {
   const out = `
@@ -58732,9 +64269,91 @@ const getMainVoxels = function( steps, postprocessing, voxelSize = .1 ) {
     vec3 rayStep = vec3(sign(rayDir));
     vec3 sideDist = (sign(rayDir) * diff + (sign(rayDir) * 0.5) + 0.5) * deltaDist; 
 
+<<<<<<< HEAD
     bvec3 mask;
     vec3 d = vec3(-100000.);
     float fogCoeff = 0.;
+=======
+      if( shouldRun ) {
+        if( seq.mainthreadonly !== undefined ) {
+          if( typeof value === 'function' ) {
+            value = value()
+          }
+          //console.log( 'main thread only' )
+          Gibberish.processor.messages.push( seq.mainthreadonly, seq.key, value )
+        }else if( typeof value === 'function' && seq.target === undefined ) {
+          value()
+        }else if( typeof seq.target[ seq.key ] === 'function' ) {
+          //console.log( seq.key, seq.target )
+          if( typeof value === 'function' ) value = value()
+          if( value !== seq.DNR )
+            seq.target[ seq.key ]( value )
+        }else{
+          if( typeof value === 'function' ) value = value()
+          if( value !== seq.DNR )
+            seq.target[ seq.key ] = value
+        }
+
+        if( seq.reportOutput === true ) {
+          Gibberish.processor.port.postMessage({
+            address:'__sequencer',
+            id: seq.id,
+            name:'output',
+            value,
+            phase: seq.__valuesPhase,
+            length: seq.values.length
+          })
+        }
+      }
+      
+      if( Gibberish.mode === 'processor' ) {
+        if( seq.__isRunning === true && !isNaN( timing ) && seq.autotrig === false ) {
+          Gibberish.scheduler.add( timing, seq.tick, seq.priority )
+        }
+      }
+    },
+    fire(){
+      let value  = typeof this.values  === 'function' ? this.values  : this.values[ this.__valuesPhase++  % this.values.length  ]
+      if( typeof value === 'function' && this.target === undefined ) {
+        value()
+      }else if( typeof this.target[ this.key ] === 'function' ) {
+        if( typeof value === 'function' ) {
+          value = value()
+        }
+        if( value !== this.DNR ) {
+          this.target[ this.key ]( value )
+        }
+      }else{
+        if( typeof value === 'function' ) value = value()
+        if( value !== this.DNR )
+          this.target[ this.key ] = value
+      }
+    },
+
+    start( delay = 0 ) {
+      if( Gibberish.mode === 'processor' && seq.__isRunning === false ) {
+        Gibberish.scheduler.add( 
+          delay, 
+          priority => {
+            seq.tick( priority )
+            Gibberish.processor.port.postMessage({
+              address:'__sequencer',
+              id: seq.id,
+              name:'start'
+            })
+          }, 
+          seq.priority 
+        )
+      }
+      seq.__isRunning = true
+      seq.__delay = delay
+      return __seq
+    },
+
+    stop( delay = null ) {
+      if( delay === null ) {
+        seq.__isRunning = false
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     for (int i = 0; i < ${Math.round(steps*1/voxelSize)} ; i++) {
       result = scene(mapPos*m);
@@ -58815,7 +64434,13 @@ module.exports = function( variables, scene, preface, geometries, lighting, post
     const fs_source = `     #version 300 es
       precision mediump float;
 
+<<<<<<< HEAD
       float PI = 3.141592653589793;
+=======
+},{"../workletProxy.js":332}],329:[function(require,module,exports){
+const __proxy = require( '../workletProxy.js' )
+const Pattern = require( 'tidal.pegjs' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 
 
@@ -58957,8 +64582,13 @@ const getScene = function( SDF ) {
     //  .farPlane( maxDistance )
     //  .resolution( 1 )
 
+<<<<<<< HEAD
     scene.useQuality = true
     scene.useVoxels  = false
+=======
+},{"../workletProxy.js":332,"tidal.pegjs":346}],330:[function(require,module,exports){
+let Gibberish = null
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     SDF.__scene = scene
 
@@ -59154,10 +64784,16 @@ const getScene = function( SDF ) {
 
       let [ variablesDeclaration, sceneRendering, postprocessing ] = SDF.generateSDF( this )
 
+<<<<<<< HEAD
       const lighting = SDF.lighting.gen( this.__shadow, geometries )
       variablesDeclaration += SDF.materials.emit_decl() 
       variablesDeclaration += SDF.textures.emit_decl() 
       variablesDeclaration += SDF.lighting.emit_decl() 
+=======
+},{}],331:[function(require,module,exports){
+const genish = require( 'genish.js' ),
+      AWPF = require( './external/audioworklet-polyfill.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
       this.fs = SDF.renderFragmentShader( 
         variablesDeclaration, 
@@ -59229,6 +64865,7 @@ SceneNode.prototype = {
     return this.translate( ...args )
   },
 
+<<<<<<< HEAD
   rotate( angle, x,y,z ) {
     this.transform.rotation.angle = angle
     if( x !== undefined ) this.transform.rotation.axis.x = x
@@ -59236,6 +64873,101 @@ SceneNode.prototype = {
     if( z !== undefined ) this.transform.rotation.axis.z = z
   
     return this
+=======
+  workletHandlers: {
+    phase( event ) {
+      Gibberish.phase = event.data.value
+      if( typeof Gibberish.onphaseupdate === 'function' ) {
+        Gibberish.onphaseupdate( Gibberish.phase )
+      }
+    },
+    __sequencer( event ) {
+      const message = event.data
+      const id = message.id
+      const eventName = message.name
+      const obj = Gibberish.worklet.ugens.get( id )
+      if( obj !== undefined && obj.publish !== undefined )
+        obj.publish( eventName, message )
+    },
+    callback( event ) {
+      if( typeof Gibberish.oncallback === 'function' ) {
+        Gibberish.oncallback( event.data.code )
+      }
+    },
+    get( event ) {
+      let name = event.data.name
+      let value
+      if( name[0] === 'Gibberish' ) {
+        value = Gibberish
+        name.shift()
+      }
+      for( let segment of name ) {
+        value = value[ segment ]
+      }
+
+      Gibberish.worklet.port.postMessage({
+        address:'set',
+        name:'Gibberish.' + name.join('.'),
+        value
+      })
+    },
+    state( event ){
+      const messages = event.data.messages
+      if( messages.length === 0 ) return
+
+      // XXX is preventProxy actually used?
+      Gibberish.preventProxy = true
+      Gibberish.proxyEnabled = false
+
+      let i = 0
+      while( i < messages.length ) {
+        const id = messages[ i ] 
+        const propName = messages[ i + 1 ]
+        const valueL = messages[ i + 2 ]
+        const valueR = messages[ i + 3 ]
+        const value = valueL
+        const obj = Gibberish.worklet.ugens.get( id )
+
+        if( Gibberish.worklet.debug === true ) {
+          if( propName !== 'output' ) console.log( propName, value, id )
+        }
+
+        if( typeof propName !== 'string' ) continue
+        
+        if( obj !== undefined && propName.indexOf('.') === -1 && propName !== 'id' ) { 
+          if( obj[ propName ] !== undefined ) {
+            if( typeof obj[ propName ] !== 'function' ) {
+              if( propName === 'output' ) {
+                obj[ propName ] = [ valueL, valueR ]
+              }else{
+                obj[ propName ] = value
+              }
+            }else{
+              obj[ propName ]( value )
+            }
+          }else{
+            obj[ propName ] = value
+          }
+        }else if( obj !== undefined ) {
+          const propSplit = propName.split('.')
+          if( obj[ propSplit[ 0 ] ] !== undefined ) {
+            if( typeof obj[ propSplit[ 0 ] ][ propSplit[ 1 ] ] !== 'function' ) {
+              obj[ propSplit[ 0 ] ][ propSplit[ 1 ] ] = value
+            }else{
+              obj[ propSplit[ 0 ] ][ propSplit[ 1 ] ]( value )
+            }
+          }else{
+            //console.log( 'undefined split property!', id, propSplit[0], propSplit[1], value, obj )
+          }
+        }
+        // XXX double check and make sure this isn't getting sent back to processornode...
+        // console.log( propName, value, obj )
+        i += propName === 'output' ? 4 : 3
+      }
+      Gibberish.preventProxy = false
+      Gibberish.proxyEnabled = true
+    }
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
   },
 
   rotateBy( angle,x,y,z ) {
@@ -59286,7 +65018,12 @@ ops.forEach( op => {
   }
 })
 
+<<<<<<< HEAD
 module.exports = SceneNode
+=======
+},{"./external/audioworklet-polyfill.js":269,"genish.js":39}],332:[function(require,module,exports){
+const serialize = require('serialize-javascript')
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 },{"./external/matrix.js":418}],433:[function(require,module,exports){
 const SceneNode = require( './sceneNode.js' ),
@@ -59384,6 +65121,7 @@ const __Textures = function( SDF ) {
         return tex;
       }
 
+<<<<<<< HEAD
       vec3 getTexture( int id, vec3 pos, vec3 nor, SDF sdf, bool useTransform ) {
         vec3 tex;
         vec2 pos2;
@@ -59394,6 +65132,29 @@ const __Textures = function( SDF ) {
             tpos = ( vec4(tpos, 1.) * sdf.transform).xyz;
           }else{
             tpos = (vec4(tpos,1.) * sdf.transform).xyz;
+=======
+return __proxy
+
+}
+
+},{"serialize-javascript":344}],333:[function(require,module,exports){
+function bjorklund(slots, pulses){
+  var pattern = [],
+      count = [],
+      remainder = [pulses],
+      divisor = slots - pulses,
+      level = 0,
+      build_pattern = function(lv){
+        if( lv == -1 ){ pattern.push(0); }
+        else if( lv == -2 ){ pattern.push(1); }
+        else{
+          for(var x=0; x<count[lv]; x++){
+            build_pattern(lv-1);
+          }
+
+          if(remainder[lv]){
+            build_pattern(lv-2);
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
           }
         }
 
@@ -59428,8 +65189,19 @@ const __Textures = function( SDF ) {
         Textures.textures.push( tex )
       //}
 
+<<<<<<< HEAD
       return tex
     },
+=======
+},{}],334:[function(require,module,exports){
+/**
+ * @license Fraction.js v4.0.12 09/09/2015
+ * http://www.xarg.org/2014/03/rational-numbers-in-javascript/
+ *
+ * Copyright (c) 2015, Robert Eisele (robert@xarg.org)
+ * Dual licensed under the MIT or GPL Version 2 licenses.
+ **/
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     texture( presetName='noise', props={}, target=null ){
       //const isPreset = filenameOrPreset.indexOf( '.' ) === -1
@@ -60570,7 +66342,146 @@ Vec3.prototype = {
     return Vec3( this.x, this.y, this.z )
   }
 
+<<<<<<< HEAD
 }
+=======
+})(this);
+
+},{}],335:[function(require,module,exports){
+'use strict';
+
+var MemoryHelper = {
+  create: function create() {
+    var size = arguments.length <= 0 || arguments[0] === undefined ? 4096 : arguments[0];
+    var memtype = arguments.length <= 1 || arguments[1] === undefined ? Float32Array : arguments[1];
+
+    var helper = Object.create(this);
+
+    Object.assign(helper, {
+      heap: new memtype(size),
+      list: {},
+      freeList: {}
+    });
+
+    return helper;
+  },
+  alloc: function alloc(amount) {
+    var idx = -1;
+
+    if (amount > this.heap.length) {
+      throw Error('Allocation request is larger than heap size of ' + this.heap.length);
+    }
+
+    for (var key in this.freeList) {
+      var candidateSize = this.freeList[key];
+
+      if (candidateSize >= amount) {
+        idx = key;
+
+        this.list[idx] = amount;
+
+        if (candidateSize !== amount) {
+          var newIndex = idx + amount,
+              newFreeSize = void 0;
+
+          for (var _key in this.list) {
+            if (_key > newIndex) {
+              newFreeSize = _key - newIndex;
+              this.freeList[newIndex] = newFreeSize;
+            }
+          }
+        }
+        
+        break;
+      }
+    }
+    
+    if( idx !== -1 ) delete this.freeList[ idx ]
+
+    if (idx === -1) {
+      var keys = Object.keys(this.list),
+          lastIndex = void 0;
+
+      if (keys.length) {
+        // if not first allocation...
+        lastIndex = parseInt(keys[keys.length - 1]);
+
+        idx = lastIndex + this.list[lastIndex];
+      } else {
+        idx = 0;
+      }
+
+      this.list[idx] = amount;
+    }
+
+    if (idx + amount >= this.heap.length) {
+      throw Error('No available blocks remain sufficient for allocation request.');
+    }
+    return idx;
+  },
+  free: function free(index) {
+    if (typeof this.list[index] !== 'number') {
+      throw Error('Calling free() on non-existing block.');
+    }
+
+    this.list[index] = 0;
+
+    var size = 0;
+    for (var key in this.list) {
+      if (key > index) {
+        size = key - index;
+        break;
+      }
+    }
+
+    this.freeList[index] = size;
+  }
+};
+
+module.exports = MemoryHelper;
+
+},{}],336:[function(require,module,exports){
+// A library of seedable RNGs implemented in Javascript.
+//
+// Usage:
+//
+// var seedrandom = require('seedrandom');
+// var random = seedrandom(1); // or any seed.
+// var x = random();       // 0 <= x < 1.  Every bit is random.
+// var x = random.quick(); // 0 <= x < 1.  32 bits of randomness.
+
+// alea, a 53-bit multiply-with-carry generator by Johannes Baagøe.
+// Period: ~2^116
+// Reported to pass all BigCrush tests.
+var alea = require('./lib/alea');
+
+// xor128, a pure xor-shift generator by George Marsaglia.
+// Period: 2^128-1.
+// Reported to fail: MatrixRank and LinearComp.
+var xor128 = require('./lib/xor128');
+
+// xorwow, George Marsaglia's 160-bit xor-shift combined plus weyl.
+// Period: 2^192-2^32
+// Reported to fail: CollisionOver, SimpPoker, and LinearComp.
+var xorwow = require('./lib/xorwow');
+
+// xorshift7, by François Panneton and Pierre L'ecuyer, takes
+// a different approach: it adds robustness by allowing more shifts
+// than Marsaglia's original three.  It is a 7-shift generator
+// with 256 bits, that passes BigCrush with no systmatic failures.
+// Period 2^256-1.
+// No systematic BigCrush failures reported.
+var xorshift7 = require('./lib/xorshift7');
+
+// xor4096, by Richard Brent, is a 4096-bit xor-shift with a
+// very long period that also adds a Weyl generator. It also passes
+// BigCrush with no systematic failures.  Its long period may
+// be useful if you have many generators and need to avoid
+// collisions.
+// Period: 2^4128-2^32.
+// No systematic BigCrush failures reported.
+var xor4096 = require('./lib/xor4096');
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 const Vec4 = function (x=0, y, z, w) {
   if( x.type === 'vec4' ) return x
@@ -60589,11 +66500,19 @@ const Vec4 = function (x=0, y, z, w) {
   return v
 };
 
+<<<<<<< HEAD
 Vec4.prototype = {
   type: 'vec4',
   emit() { 
     let out = `vec4(`
     let preface = ''
+=======
+},{"./lib/alea":337,"./lib/tychei":338,"./lib/xor128":339,"./lib/xor4096":340,"./lib/xorshift7":341,"./lib/xorwow":342,"./seedrandom":343}],337:[function(require,module,exports){
+// A port of an algorithm by Johannes Baagøe <baagoe@baagoe.com>, 2010
+// http://baagoe.com/en/RandomMusings/javascript/
+// https://github.com/nquinlan/better-random-numbers-for-javascript-mirror
+// Original work is under MIT license -
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     if( this.x.type === 'string' ) {
       const xout = this.x.emit()
@@ -60710,6 +66629,7 @@ const SceneNode = require( './sceneNode.js' ),
 
 const Vignette = function( Scene, SDF ) {
 
+<<<<<<< HEAD
   const Vgn = function( radius=0.1, smoothness=.1 ) {
     const vgn = Object.create( Vgn.prototype )
     const __radius = param_wrap( radius, float_var_gen( radius ) )  
@@ -60720,6 +66640,12 @@ const Vignette = function( Scene, SDF ) {
         __radius.set( v )
       }
     })
+=======
+},{}],338:[function(require,module,exports){
+// A Javascript implementaion of the "Tyche-i" prng algorithm by
+// Samuel Neves and Filipe Araujo.
+// See https://eden.dei.uc.pt/~sneves/pubs/2011-snfa2.pdf
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     const __smoothness = param_wrap( smoothness, float_var_gen( smoothness ) )  
     
@@ -60775,7 +66701,31 @@ const Vignette = function( Scene, SDF ) {
   return Vgn
 }
 
+<<<<<<< HEAD
 module.exports = Vignette 
+=======
+})(
+  this,
+  (typeof module) == 'object' && module,    // present in node.js
+  (typeof define) == 'function' && define   // present with an AMD loader
+);
+
+
+
+},{}],339:[function(require,module,exports){
+// A Javascript implementaion of the "xor128" prng algorithm by
+// George Marsaglia.  See http://www.jstatsoft.org/v08/i14/paper
+
+(function(global, module, define) {
+
+function XorGen(seed) {
+  var me = this, strseed = '';
+
+  me.x = 0;
+  me.y = 0;
+  me.z = 0;
+  me.w = 0;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 },{"./sceneNode.js":432,"./utils.js":437,"./var.js":438}],441:[function(require,module,exports){
 'use strict';
@@ -60810,9 +66760,37 @@ var MemoryHelper = {
 
         this.list[idx] = amount;
 
+<<<<<<< HEAD
         if (candidateSize !== amount) {
           var newIndex = idx + amount,
               newFreeSize = void 0;
+=======
+},{}],340:[function(require,module,exports){
+// A Javascript implementaion of Richard Brent's Xorgens xor4096 algorithm.
+//
+// This fast non-cryptographic random number generator is designed for
+// use in Monte-Carlo algorithms. It combines a long-period xorshift
+// generator with a Weyl generator, and it passes all common batteries
+// of stasticial tests for randomness while consuming only a few nanoseconds
+// for each prng generated.  For background on the generator, see Brent's
+// paper: "Some long-period random number generators using shifts and xors."
+// http://arxiv.org/pdf/1004.3115v1.pdf
+//
+// Usage:
+//
+// var xor4096 = require('xor4096');
+// random = xor4096(1);                        // Seed with int32 or string.
+// assert.equal(random(), 0.1520436450538547); // (0, 1) range, 53 bits.
+// assert.equal(random.int32(), 1806534897);   // signed int32, 32 bits.
+//
+// For nonzero numeric keys, this impelementation provides a sequence
+// identical to that by Brent's xorgens 3 implementaion in C.  This
+// implementation also provides for initalizing the generator with
+// string seeds, or for saving and restoring the state of the generator.
+//
+// On Chrome, this prng benchmarks about 2.1 times slower than
+// Javascript's built-in Math.random().
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
           for (var _key in this.list) {
             if (_key > newIndex) {
@@ -60866,7 +66844,32 @@ var MemoryHelper = {
 
     this.freeList[index] = size;
   }
+<<<<<<< HEAD
 };
+=======
+  return prng;
+}
+
+if (module && module.exports) {
+  module.exports = impl;
+} else if (define && define.amd) {
+  define(function() { return impl; });
+} else {
+  this.xor4096 = impl;
+}
+
+})(
+  this,                                     // window object or global
+  (typeof module) == 'object' && module,    // present in node.js
+  (typeof define) == 'function' && define   // present with an AMD loader
+);
+
+},{}],341:[function(require,module,exports){
+// A Javascript implementaion of the "xorshift7" algorithm by
+// François Panneton and Pierre L'ecuyer:
+// "On the Xorgshift Random Number Generators"
+// http://saluc.engr.uconn.edu/refs/crypto/rng/panneton05onthexorshift.pdf
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 module.exports = MemoryHelper;
 
@@ -61039,6 +67042,7 @@ var binary_ops = {
   }
 })();
 
+<<<<<<< HEAD
 var math_unary = [
   "abs",
   "acos",
@@ -61073,6 +67077,11 @@ var math_unary = [
                     })
   }
 })();
+=======
+},{}],342:[function(require,module,exports){
+// A Javascript implementaion of the "xorwow" prng algorithm by
+// George Marsaglia.  See http://www.jstatsoft.org/v08/i14/paper
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 var math_comm = [
   "max",
@@ -61276,6 +67285,7 @@ exports.argmin = compile({
     localVars:[]}
 })
 
+<<<<<<< HEAD
 exports.argmax = compile({
   args:["index","array","shape"],
   pre:{
@@ -61300,6 +67310,11 @@ exports.argmax = compile({
     thisVars:["this_i"],
     localVars:[]}
 })  
+=======
+},{}],343:[function(require,module,exports){
+/*
+Copyright 2019 David Bau.
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 exports.random = makeOp({
   args: ["array"],
@@ -61369,6 +67384,7 @@ function compare1st(a, b) {
   return a[0] - b[0]
 }
 
+<<<<<<< HEAD
 function order() {
   var stride = this.stride
   var terms = new Array(stride.length)
@@ -61382,6 +67398,33 @@ function order() {
     result[i] = terms[i][1]
   }
   return result
+=======
+
+// End anonymous scope, and pass initial values.
+})(
+  // global: `self` in browsers (including strict mode and web workers),
+  // otherwise `this` in Node and other environments
+  (typeof self !== 'undefined') ? self : this,
+  [],     // pool: entropy pool starts empty
+  Math    // math: package containing random, pow, and seedrandom
+);
+
+},{"crypto":136}],344:[function(require,module,exports){
+arguments[4][118][0].apply(exports,arguments)
+},{"dup":118}],345:[function(require,module,exports){
+/*
+ * Generated by PEG.js 0.10.0.
+ *
+ * http://pegjs.org/
+ */
+
+"use strict";
+
+function peg$subclass(child, parent) {
+  function ctor() { this.constructor = child; }
+  ctor.prototype = parent.prototype;
+  child.prototype = new ctor();
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 }
 
 function compileConstructor(dtype, dimension) {
@@ -63555,6 +69598,7 @@ function chunkInvalid(state, chunk) {
   return er;
 }
 
+<<<<<<< HEAD
 // if it's past the high water mark, we can push in some more.
 // Also, if we have no data yet, we can stand some
 // more bytes.  This is to work around cases where hwm=0,
@@ -63565,6 +69609,12 @@ function chunkInvalid(state, chunk) {
 function needMoreData(state) {
   return !state.ended && (state.needReadable || state.length < state.highWaterMark || state.length === 0);
 }
+=======
+},{}],346:[function(require,module,exports){
+const parse = require('../dist/tidal.js').parse
+const query = require('./queryArc.js' ).queryArc
+const Fraction = require( 'fraction.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 Readable.prototype.isPaused = function () {
   return this._readableState.flowing === false;
@@ -63669,11 +69719,20 @@ Readable.prototype.read = function (n) {
   var doRead = state.needReadable;
   debug('need readable', doRead);
 
+<<<<<<< HEAD
   // if we currently have less than the highWaterMark, then also read some
   if (state.length === 0 || state.length - n < state.highWaterMark) {
     doRead = true;
     debug('length less than watermark', doRead);
   }
+=======
+},{"../dist/tidal.js":345,"./queryArc.js":347,"fraction.js":334}],347:[function(require,module,exports){
+const Fraction = require( 'fraction.js' )
+const util     = require( 'util' )
+const bjork    = require( 'bjork' ) 
+const log      = util.inspect
+const srand    = require( 'seedrandom' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   // however, if we've ended, then there's no point, and if we're already
   // reading, then it's unnecessary.
@@ -64239,9 +70298,16 @@ function copyFromBuffer(n, list) {
 function endReadable(stream) {
   var state = stream._readableState;
 
+<<<<<<< HEAD
   // If we get here before consuming all the bytes, then that is a
   // bug in node.  Should never happen.
   if (state.length > 0) throw new Error('"endReadable()" called on non-empty stream');
+=======
+},{"bjork":333,"fraction.js":334,"seedrandom":336,"util":231}],348:[function(require,module,exports){
+const SceneNode = require( './sceneNode.js' )
+const { param_wrap, MaterialID } = require( './utils.js' )
+const { Var, float_var_gen, vec2_var_gen, vec3_var_gen, vec4_var_gen, int_var_gen } = require( './var.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   if (!state.endEmitted) {
     state.ended = true;
@@ -64416,6 +70482,7 @@ Transform.prototype.push = function (chunk, encoding) {
   return Duplex.prototype.push.call(this, chunk, encoding);
 };
 
+<<<<<<< HEAD
 // This is the part where you do stuff!
 // override this function in implementation classes.
 // 'chunk' is an input chunk.
@@ -64429,6 +70496,13 @@ Transform.prototype.push = function (chunk, encoding) {
 Transform.prototype._transform = function (chunk, encoding, cb) {
   throw new Error('_transform() is not implemented');
 };
+=======
+},{"./sceneNode.js":370,"./utils.js":375,"./var.js":376}],349:[function(require,module,exports){
+const Audio = {
+  __hasInput: false,
+  ctx: null,
+  bins:null,
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 Transform.prototype._write = function (chunk, encoding, cb) {
   var ts = this._transformState;
@@ -64516,6 +70590,7 @@ var pna = require('process-nextick-args');
 
 module.exports = Writable;
 
+<<<<<<< HEAD
 /* <replacement> */
 function WriteReq(chunk, encoding, cb) {
   this.chunk = chunk;
@@ -64523,6 +70598,12 @@ function WriteReq(chunk, encoding, cb) {
   this.callback = cb;
   this.next = null;
 }
+=======
+},{}],350:[function(require,module,exports){
+const SceneNode = require( './sceneNode.js' ),
+      { param_wrap, MaterialID } = require( './utils.js' ),
+      { Var, float_var_gen, vec2_var_gen, vec3_var_gen, vec4_var_gen } = require( './var.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 // It seems a linked list but it is not
 // there will be only 2 of these for each stream
@@ -64569,8 +70650,26 @@ var OurUint8Array = global.Uint8Array || function () {};
 function _uint8ArrayToBuffer(chunk) {
   return Buffer.from(chunk);
 }
+<<<<<<< HEAD
 function _isUint8Array(obj) {
   return Buffer.isBuffer(obj) || obj instanceof OurUint8Array;
+=======
+
+module.exports = BG 
+
+},{"./sceneNode.js":370,"./utils.js":375,"./var.js":376,"./vec.js":377}],351:[function(require,module,exports){
+const vec3 = require('gl-vec3')
+const mat4 = require('gl-mat4')
+
+// camera adapted from https://github.com/shama/first-person-camera
+function FirstPersonCamera(opts) {
+  if (!(this instanceof FirstPersonCamera)) return new FirstPersonCamera(opts)
+  opts = opts || {}
+  this.position = opts.position || vec3.create()
+  this.rotation = opts.rotation || vec3.create()
+  this.positionSpeed = opts.positionSpeed || -.5
+  this.rotationSpeed = opts.rotationSpeed || .01
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 }
 
 /*</replacement>*/
@@ -64687,10 +70786,18 @@ function WritableState(options, stream) {
   // count buffered requests
   this.bufferedRequestCount = 0;
 
+<<<<<<< HEAD
   // allocate the first CorkedRequest, there is always
   // one allocated and free to use, and we maintain at most two
   this.corkedRequestsFree = new CorkedRequest(this);
 }
+=======
+},{"gl-mat4":457,"gl-vec3":491}],352:[function(require,module,exports){
+const SceneNode = require( './sceneNode.js' )
+const { param_wrap, MaterialID } = require( './utils.js' )
+const { Var, float_var_gen, vec2_var_gen, vec3_var_gen, vec4_var_gen, int_var_gen, VarAlloc } = require( './var.js' )
+const Transform = require( './transform.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 WritableState.prototype.getBuffer = function getBuffer() {
   var current = this.bufferedRequest;
@@ -65029,6 +71136,7 @@ function clearBuffer(stream, state) {
       var cb = entry.callback;
       var len = state.objectMode ? 1 : chunk.length;
 
+<<<<<<< HEAD
       doWrite(stream, state, false, len, chunk, encoding, cb);
       entry = entry.next;
       state.bufferedRequestCount--;
@@ -65040,6 +71148,14 @@ function clearBuffer(stream, state) {
         break;
       }
     }
+=======
+},{"./sceneNode.js":370,"./transform.js":374,"./utils.js":375,"./var.js":376}],353:[function(require,module,exports){
+const SceneNode = require( './sceneNode.js' )
+const { param_wrap, MaterialID } = require( './utils.js' )
+const { Var, float_var_gen, vec2_var_gen, vec3_var_gen, vec4_var_gen, int_var_gen, VarAlloc } = require( './var.js' )
+const Transform = require( './transform.js' )
+const glslops = require( './distanceOperationsGLSL.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     if (entry === null) state.lastBufferedRequest = null;
   }
@@ -65321,6 +71437,10 @@ function emitErrorNT(self, err) {
   self.emit('error', err);
 }
 
+<<<<<<< HEAD
+=======
+},{"./distanceOperationsGLSL.js":354,"./sceneNode.js":370,"./transform.js":374,"./utils.js":375,"./var.js":376}],354:[function(require,module,exports){
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 module.exports = {
   destroy: destroy,
   undestroy: undestroy
@@ -65627,10 +71747,19 @@ function XorGen(seed) {
   }
   */
 
+<<<<<<< HEAD
   me.a = 0;
   me.b = 0;
   me.c = 2654435769 | 0;
   me.d = 1367130551;
+=======
+},{}],355:[function(require,module,exports){
+const { Var, float_var_gen, vec2_var_gen, vec3_var_gen, vec4_var_gen, int_var_gen, VarAlloc } = require( './var.js' )
+const SceneNode = require( './sceneNode.js' )
+const { param_wrap, MaterialID } = require( './utils.js' )
+const { Vec2, Vec3, Vec4 } = require( './vec.js' )
+const Transform = require( './transform.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   if (seed === Math.floor(seed)) {
     // Integer seed.
@@ -66022,6 +72151,11 @@ if (module && module.exports) {
   (typeof define) == 'function' && define   // present with an AMD loader
 );
 
+<<<<<<< HEAD
+=======
+},{"./sceneNode.js":370,"./transform.js":374,"./utils.js":375,"./var.js":376,"./vec.js":377}],356:[function(require,module,exports){
+// matrix.js - taken from https://github.com/evanw/lightgl.js/
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 },{}],470:[function(require,module,exports){
 // A Javascript implementaion of the "xorwow" prng algorithm by
@@ -66396,8 +72530,19 @@ var ESCAPED_CHARS = {
     '\u2029': '\\u2029'
 };
 
+<<<<<<< HEAD
 function escapeUnsafeChars(unsafeChar) {
     return ESCAPED_CHARS[unsafeChar];
+=======
+module.exports = Matrix
+
+},{}],357:[function(require,module,exports){
+const emit_float = function( a ) {
+	if (a % 1 === 0)
+		return a.toFixed( 1 )
+	else
+		return a
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 }
 
 module.exports = function serialize(obj, options) {
@@ -66421,10 +72566,17 @@ module.exports = function serialize(obj, options) {
             return value;
         }
 
+<<<<<<< HEAD
         // If the value is an object w/ a toJSON method, toJSON is called before
         // the replacer runs, so we use this[key] to get the non-toJSONed value.
         var origValue = this[key];
         var type = typeof origValue;
+=======
+},{}],358:[function(require,module,exports){
+const SceneNode = require( './sceneNode.js' ),
+      { param_wrap, MaterialID } = require( './utils.js' ),
+      { Var, float_var_gen, vec2_var_gen, vec3_var_gen, vec4_var_gen, int_var_gen, VarAlloc } = require( './var.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
         if (type === 'object') {
             if(origValue instanceof RegExp) {
@@ -66498,11 +72650,16 @@ module.exports = function serialize(obj, options) {
         str = JSON.stringify(obj, options.isJSON ? null : replacer, options.space);
     }
 
+<<<<<<< HEAD
     // Protects against `JSON.stringify()` returning `undefined`, by serializing
     // to the literal string: "undefined".
     if (typeof str !== 'string') {
         return String(str);
     }
+=======
+},{"./sceneNode.js":370,"./utils.js":375,"./var.js":376,"./vec.js":377}],359:[function(require,module,exports){
+'use strict'
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     // Replace unsafe HTML and invalid JavaScript line terminator chars with
     // their safe Unicode char counterpart. This _must_ happen before the
@@ -66527,9 +72684,19 @@ module.exports = function serialize(obj, options) {
             return regexps[valueIndex].toString();
         }
 
+<<<<<<< HEAD
         if (type === 'M') {
             return "new Map(" + serialize(Array.from(maps[valueIndex].entries()), options) + ")";
         }
+=======
+},{"./main.js":362}],360:[function(require,module,exports){
+const emit_int = function( a ) {
+	if( a % 1 !== 0 )
+		return Math.round( a )
+	else
+		return a
+}
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
         if (type === 'S') {
             return "new Set(" + serialize(Array.from(sets[valueIndex].values()), options) + ")";
@@ -66563,7 +72730,15 @@ module.exports = function serialize(obj, options) {
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+<<<<<<< HEAD
 module.exports = Stream;
+=======
+},{}],361:[function(require,module,exports){
+const SceneNode = require( './sceneNode.js' ),
+      { param_wrap, MaterialID } = require( './utils.js' ),
+      { Var, float_var_gen, vec2_var_gen, vec3_var_gen, vec4_var_gen } = require( './var.js' ),
+      { Vec2, Vec3, Vec4 } = require( './vec.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 var EE = require('events').EventEmitter;
 var inherits = require('inherits');
@@ -66964,6 +73139,7 @@ function simpleWrite(buf) {
   return buf.toString(this.encoding);
 }
 
+<<<<<<< HEAD
 function simpleEnd(buf) {
   return buf && buf.length ? this.write(buf) : '';
 }
@@ -66973,6 +73149,471 @@ function simpleEnd(buf) {
 // left out (such as second argument to Object.create, self args in
 // array methods, etc). WILL clash with other ECMA5 polyfills in a
 // probably disruptive way.
+=======
+},{"./sceneNode.js":370,"./utils.js":375,"./var.js":376,"./vec.js":377,"glslify":519}],362:[function(require,module,exports){
+const SDF = {
+  camera:           require( './camera.js' ),
+  __primitives:     require( './primitives.js' ),
+  vectors:          require( './vec.js' ),
+  distanceOps:      require( './distanceOperations.js' ),
+  alterations:      require( './alterations.js' ),
+  distanceDeforms:  require( './distanceDeformations.js' ),
+  __domainOps:      require( './domainOperations.js' ),
+  __noise:          require( './noise.js' ),
+  __scene:          require( './scene.js' ),
+  __lighting:       require( './lighting.js' ),
+  __materials:      require( './material.js' ),
+  __textures:       require( './texture.js' ),
+  Var:              require( './var.js' ).Var,
+  //Color:            require( './color.js' ),
+  FFT:              require( './audio.js' ),
+  fx:               require( './mergepass.js' ),
+
+  // a function that generates the fragment shader
+  renderFragmentShader: require( './renderFragmentShader.js' ),
+
+  // additional callbacks that are run once per frame
+  callbacks: [],
+  // callbacks that are run *after* all rendering has occurred
+  postrendercallbacks: [],
+  geometries: [],
+
+  // the main drawing callback
+  render: null,
+
+  // the scene is a chain of Unions combining all elements together
+  scene:  null,
+
+  // a speed of 1 corresponds to 60 fps.
+  delay: 0,
+  __isPaused:false,
+
+  defaultVertexSource:`    #version 300 es
+    in vec2 a_pos;
+
+		void main() {
+			gl_Position = vec4( a_pos, 0., 1. );
+    }`
+  ,
+
+  export( obj ) {
+    Object.assign( 
+      obj, 
+      this.primitives,
+      this.vectors,
+      this.distanceOps,
+      this.domainOps,
+      this.distanceDeforms,
+      //this.alterations
+    )
+
+    this.fx.export( obj )
+
+    obj.Light = this.Light
+    obj.Material = this.Material
+    obj.Texture  = this.Texture
+    obj.camera = this.camera
+    obj.callbacks = this.callbacks // XXX remove once API stops using callbacks
+    obj.FFT = this.FFT
+  },
+
+  init( canvas, shouldInit = false ) {
+    this.primitives = this.__primitives( this )
+    this.Scene      = this.__scene( this )
+    this.domainOps  = this.__domainOps( this )
+    this.noise     = this.__noise( this )
+    this.export( this )
+
+    this.canvas = canvas//document.createElement('canvas')
+
+    this.lighting   = this.__lighting( this )
+    this.Light = this.lighting.light
+    this.materials  = this.__materials( this )
+    this.Material = this.materials.material
+    this.textures = this.__textures( this )
+    this.Texture = this.textures.texture
+
+    this.gl = this.canvas.getContext( 'webgl2', { antialias:true, alpha:true })
+
+  },
+  // generate shaders, initialize camera, start rendering loop 
+  createScene( ...args ) {
+    const scene = this.Scene( args, this.canvas )
+
+    this.requiredGeometries = []
+    this.requiredOps = []
+    this.memo = {}
+
+    return scene
+  },
+
+  start( fs, width, height, shouldAnimate ) {
+    if( this.render !== null ) this.render.running = false
+
+    this.fs = fs
+    this.callbacks.length = 0
+
+    this.render = this.initWebGL( this.defaultVertexSource, fs, width, height, shouldAnimate )
+    this.render.running = true
+
+    this.camera.init( this.gl, this.program, cb => { 
+      this.callbacks.push( cb )
+    })
+
+    setTimeout( ()=> this.render( 0.0 ), 0 )
+  },
+
+  generateSDF( __scene ) {
+    let scene = { preface:'' }
+
+    /* if there is more than one object in our scene, chain pairs of objects
+       in Unions. So, given objects a,b,c, and d create:
+
+       Union( a, Union( b, Union( c,d ) ) )
+
+       ... or something like that. If there is only a single object,
+       use that object as the entire scene.
+     */
+
+    let objs = __scene.objs
+    if( objs.length > 1 ) {
+      // reduce objects to nested Unions
+      scene.output = objs.reduce( ( current, next ) => this.Union( current, next ) )
+    }else{
+      scene.output = objs[0]
+    }
+
+    // create an fancy emit() function that wraps the scene
+    // with an id #.
+
+    scene.output.__emit = scene.output.emit.bind( scene.output )
+    scene.output.emit = function( ...args ) {
+      const emitted = scene.output.__emit(...args)
+      const output = {
+        out:     emitted.out,
+        preface: emitted.preface || '' 
+      }
+
+      return output 
+    }
+
+    this.scene = scene.output
+
+    let variablesDeclaration = scene.output.emit_decl()
+    const sceneRendering = scene.output.emit()
+
+    // fog etc. maybe msaa?
+    let pp = ''
+    for( let processor of __scene.postprocessing ) {
+      pp += processor.emit()
+      variablesDeclaration += processor.emit_decl()
+    }
+    
+    this.postprocessing = __scene.postprocessing
+
+    return [ variablesDeclaration, sceneRendering, pp ]
+  },
+
+	compile( type, source ) {
+    const gl = this.gl
+
+		const shader = this.shader = gl.createShader( type );
+		gl.shaderSource( shader, source )
+		gl.compileShader( shader )
+
+		if( gl.getShaderParameter( shader, gl.COMPILE_STATUS) !== true ) {
+			let log = gl.getShaderInfoLog( shader )
+			gl.deleteShader( shader )
+
+			console.log( source )
+			console.log( log )
+
+			return null
+		}
+
+		return shader
+	},
+
+  createProgram( vs_source, fs_source ) {
+    const gl = this.gl
+		const vs = this.compile( gl.VERTEX_SHADER, vs_source )
+		const fs = this.compile( gl.FRAGMENT_SHADER, fs_source )
+
+		if( null === vs || null === fs ) return null
+
+		const program = gl.createProgram()
+		gl.attachShader( program, vs )
+		gl.attachShader( program, fs )
+		gl.linkProgram( program )
+
+		if( gl.getProgramParameter( program, gl.LINK_STATUS ) !== true ){
+			const log = gl.getProgramInfoLog( program )
+			gl.deleteShader(vs)
+			gl.deleteShader(fs)
+			gl.deleteProgram(program)
+
+			console.error( log )
+			return null
+		}
+
+    const drawProgram = gl.createProgram()
+    const fragSource = ` #version 300 es
+  precision mediump float;
+
+  uniform sampler2D uSampler;
+  uniform vec2 resolution;
+
+  out vec4 col;
+  void main() {
+    // copy color info from texture
+    col = vec4( texture( uSampler, gl_FragCoord.xy / resolution ).rgb, 1. );
+  }`
+
+    const fs_draw = this.compile( gl.FRAGMENT_SHADER, fragSource )
+    const vs_draw = this.compile( gl.VERTEX_SHADER, vs_source )
+
+    gl.attachShader( drawProgram, vs_draw )
+		gl.attachShader( drawProgram, fs_draw )
+		gl.linkProgram( drawProgram )
+
+    return [ program, drawProgram ]
+  },
+
+  clear() {
+    if( this.callbacks !== undefined ) this.callbacks.length = 0
+    if( this.postrendercallbacks !== undefined ) this.postrendercallbacks.length = 0
+    if( this.render !== null ) this.render.running = false
+
+    // remove post-processing fx
+    this.fx.clear()
+
+    this.geometries.length = 0
+
+    const gl = this.gl
+    gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT )
+  },
+
+  pause() {
+    this.__isPaused = !this.__isPaused
+  },
+
+  initBuffers( width, height, colorTexture, depthTexture ) {
+    const gl = this.gl
+    gl.clearColor( 0.0, 0.0, 0.0, 0.0 )
+    gl.clear(gl.COLOR_BUFFER_BIT)
+
+    const framebuffer = gl.createFramebuffer()
+    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+    const vbo = gl.createBuffer()
+
+    const vertices = new Float32Array([
+      -1, -1,
+      1,  -1,
+      -1, 1,
+      -1, 1,
+      1, -1,
+      1, 1
+    ])
+
+    // initialize memory for buffer and populate it. Give
+    // open gl hint contents will not change dynamically.
+    gl.bindBuffer( gl.ARRAY_BUFFER, vbo )
+    gl.bufferData( gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW )
+
+    gl.drawBuffers([
+      gl.COLOR_ATTACHMENT0,
+      gl.COLOR_ATTACHMENT1 
+    ])
+
+    return { vbo, vertices, framebuffer }
+  },
+
+  initUniforms( gl, program ) {
+    const aPos = this.gl.getAttribLocation( this.program, "a_pos" )
+
+    const uTime= this.gl.getUniformLocation( this.program, "time" )
+    const uResolution = this.gl.getUniformLocation( this.program, "resolution" )
+
+    return { aPos, uTime, uResolution } 
+  },
+
+  initTextures( gl, width, height ) {
+    gl.getExtension( 'EXT_color_buffer_float' )
+
+    const colorTexture = gl.createTexture()
+    gl.bindTexture(gl.TEXTURE_2D, colorTexture)
+    
+    // must use linear interpolation for merge-pass integration 
+    gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR )
+    gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR )
+    gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE )
+    gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE )
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
+    gl.myColorTexture = colorTexture
+
+    // store depth in floating point texture
+    const depthTexture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, depthTexture)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, width, height, 0, gl.RGBA, gl.FLOAT, null)
+
+    return { colorTexture, depthTexture }
+  },
+
+  updateLocations() {
+    this.postprocessing.forEach( pp => pp.update_location( this.gl, this.program ) )
+    this.scene.update_location( this.gl, this.program )
+    this.textures.update_location( this.gl, this.program )
+    this.materials.update_location( this.gl, this.program )
+    this.lighting.update_location( this.gl, this.program )
+  },
+
+  initShaderProgram( vs, fs, gl ) {
+    const programs = this.createProgram( vs, fs )
+    this.program = programs[0]
+
+    return programs
+  },
+
+  uploadData( gl ) {
+    this.materials.upload_data( gl )
+    this.textures.upload_data( gl )
+    this.scene.upload_data( gl )
+    this.lighting.upload_data( gl )
+    this.postprocessing.forEach( pp => pp.upload_data( gl ) )
+  },
+
+  uploadVertices( gl, aPos, vertices ) {
+    gl.bufferData( gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW )
+
+    gl.enableVertexAttribArray( aPos )
+    gl.vertexAttribPointer( aPos, 2, gl.FLOAT, false, 0, 0)
+  },
+
+  initWebGL( vs, fs, width, height,shouldAnimate=false ) {
+    this.canvas.width = width 
+    this.canvas.height = height 
+
+    this.fx.MP.settings.offset = this.textures.textures.length 
+
+    const gl                                = this.gl,
+          programs                          = this.initShaderProgram( vs, fs, gl ),
+          { colorTexture, depthTexture }    = this.initTextures( gl, width, height ),
+          { aPos, uTime, uResolution }      = this.initUniforms( gl, programs[0] ),
+          { vbo, vertices, framebuffer }    = this.initBuffers( width, height, colorTexture, depthTexture )
+ 
+    let total_time = 0.0,
+        frameCount = 0
+
+    // only init post-processing if effects have been registered
+    if( this.fx.chain.length > 0 ) this.fx.init( colorTexture, depthTexture, gl )
+
+    gl.useProgram( this.program )
+    this.updateLocations( gl, this.program )
+    this.uploadVertices( gl, aPos, vertices )
+
+    gl.viewport( 0,0,width,height )
+    gl.uniform2f( uResolution, width, height )
+ 
+    const render = function( timestamp ){
+      if( render.running === true && shouldAnimate === true ) {
+        window.requestAnimationFrame( render )
+      }else if( render.running === false ) {
+        gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT )
+        return
+      }
+
+      gl.useProgram( this.program )
+      gl.bindFramebuffer( gl.FRAMEBUFFER, framebuffer )
+    
+      if( this.fx.merger !== null ) {
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.fx.merger.tex.back.tex, 0 )
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, this.fx.merger.tex.bufTextures[0].tex, 0)
+      }else{
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, colorTexture, 0)
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, depthTexture, 0)
+      }
+
+      gl.enableVertexAttribArray( aPos )
+
+      if( this.__isPaused === false ) {
+        this.currentTime = timestamp
+
+        if( this.delay !== 0 && this.delay >= frameCount ) {
+          frameCount++
+          return
+        }else if( this.delay !== 0 ) {
+          frameCount = 0
+        }
+
+        total_time = timestamp / 1000.0
+        gl.uniform1f( uTime, total_time )
+
+        this.callbacks.forEach( cb => cb( total_time, this.currentTime ) )
+
+        if( typeof window.onframe === 'function' ) window.onframe( total_time )
+      }
+
+      //this.textures.update_location( gl, this.program )
+      // transfer all data associated with uniforms in marching.js
+      this.uploadData( gl )
+
+      // draw to color and depth texturese
+      gl.bindBuffer( gl.ARRAY_BUFFER, vbo )
+
+      // if post-processing is not being used,
+      // draw directly to screen
+      if( this.fx.merger === null ) {
+        gl.bindFramebuffer( gl.FRAMEBUFFER, null )
+      }
+
+      gl.drawArrays( gl.TRIANGLES, 0, 6 )
+
+      /********* UNCOMMENT THIS LINE TO CHECK MARCHING.JS COLOR OUPTUT ***************/
+      // this.runCopyShader( gl, width, height, aPos, programs, colorTexture, vbo )
+      
+      /********* UNCOMMENT THIS LINE TO CHECK MARCHING.JS DEPTH OUPTUT ***************/
+      // this.runCopyShader( gl, width, height, aPos, programs, depthTexture, vbo )
+ 
+      // conditional mergepass render
+      if( this.fx.merger !== null ) this.fx.merger.draw( total_time )
+
+      this.postrendercallbacks.forEach( fnc => fnc( total_time ) )
+
+    }.bind( SDF )
+
+    render.running = true
+
+    return render    
+  },
+
+  runCopyShader( gl, width, height, loc_a_pos, programs, colorTexture, vbo ) {
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null )
+
+    gl.bindTexture(gl.TEXTURE_2D, colorTexture)
+    gl.viewport(0, 0, width, height )
+
+    gl.bindBuffer( gl.ARRAY_BUFFER, vbo )
+    gl.useProgram( programs[1] )
+
+    const u_resolution = gl.getUniformLocation(programs[1], "resolution" )
+    gl.uniform2f( u_resolution, width, height )
+
+    gl.drawArrays( gl.TRIANGLES, 0, 6 )
+  }
+}
+
+module.exports = SDF
+
+},{"./alterations.js":348,"./audio.js":349,"./camera.js":351,"./distanceDeformations.js":352,"./distanceOperations.js":353,"./domainOperations.js":355,"./lighting.js":361,"./material.js":363,"./mergepass.js":364,"./noise.js":365,"./primitives.js":367,"./renderFragmentShader.js":368,"./scene.js":369,"./texture.js":371,"./var.js":376,"./vec.js":377}],363:[function(require,module,exports){
+const SceneNode = require( './sceneNode.js' ),
+      { param_wrap, MaterialID } = require( './utils.js' ),
+      { Var, float_var_gen, vec2_var_gen, vec3_var_gen, vec4_var_gen } = require( './var.js' ),
+      { Vec2, Vec3, Vec4 } = require( './vec.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 (function() {
   Object.create = Object.create || (function() {
@@ -67498,10 +74139,15 @@ G=function(b,c,a){a=F(b,c,a);a===e?delete b[c]:b[c]=a},F=function(b,c,a){var d=b
 
   var currentTopScope;
 
+<<<<<<< HEAD
   var parsePath = exports.parsePath = function(path, scope) {
     var cx = infer.cx(), cached = cx.paths[path], origPath = path;
     if (cached != null) return cached;
     cx.paths[path] = infer.ANull;
+=======
+},{"./sceneNode.js":370,"./utils.js":375,"./var.js":376,"./vec.js":377,"glslify":519}],364:[function(require,module,exports){
+const MP   = require( '@bandaloo/merge-pass' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     var base = scope || currentTopScope || cx.topScope;
 
@@ -67881,10 +74527,18 @@ G=function(b,c,a){a=F(b,c,a);a===e?delete b[c]:b[c]=a},F=function(b,c,a){var d=b
 // Analysis is done in a context, which is tracked by the dynamically
 // bound cx variable. Use withContext to set the current context.
 
+<<<<<<< HEAD
 // For memory-saving reasons, individual types export an interface
 // similar to abstract values (which can hold multiple types), and can
 // thus be used in place abstract values that only ever contain a
 // single type.
+=======
+},{"@bandaloo/merge-pass":430}],365:[function(require,module,exports){
+const glsl = require( 'glslify' )
+const SceneNode = require( './sceneNode.js' )
+const { param_wrap, MaterialID } = require( './utils.js' )
+const { Var, float_var_gen, vec2_var_gen, vec3_var_gen, vec4_var_gen } = require( './var.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 (function(root, mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
@@ -68046,11 +74700,16 @@ G=function(b,c,a){a=F(b,c,a);a===e?delete b[c]:b[c]=a},F=function(b,c,a){var d=b
       var computed = this.propertyOf && this.makeupPropType(this.propertyOf);
       if (computed) return computed;
 
+<<<<<<< HEAD
       if (!this.forward) return null;
       for (var i = this.forward.length - 1; i >= 0; --i) {
         var hint = this.forward[i].typeHint();
         if (hint && !hint.isEmpty()) {guessing = true; return hint;}
       }
+=======
+},{"./sceneNode.js":370,"./utils.js":375,"./var.js":376,"glslify":519}],366:[function(require,module,exports){
+const glsl = require( 'glslify' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
       var props = Object.create(null), foundProp = null;
       for (var i = 0; i < this.forward.length; ++i) {
@@ -68395,7 +75054,16 @@ G=function(b,c,a){a=F(b,c,a);a===e?delete b[c]:b[c]=a},F=function(b,c,a){var d=b
     propHint: function() { return this.inner.propHint(); }
   });
 
+<<<<<<< HEAD
   // TYPE OBJECTS
+=======
+},{"glslify":519}],367:[function(require,module,exports){
+const { Var, float_var_gen, vec2_var_gen, vec3_var_gen, vec4_var_gen, int_var_gen, VarAlloc }  = require( './var.js' )
+const SceneNode = require( './sceneNode.js' )
+const { param_wrap, MaterialID } = require( './utils.js' )
+const { Vec2, Vec3, Vec4 } = require( './vec.js' )
+const Transform = require( './transform.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   var Type = exports.Type = function() {};
   Type.prototype = extend(ANull, {
@@ -68939,6 +75607,7 @@ G=function(b,c,a){a=F(b,c,a);a===e?delete b[c]:b[c]=a},F=function(b,c,a){var d=b
 
   // SCOPE GATHERING PASS
 
+<<<<<<< HEAD
   function addVar(scope, nameNode) {
     return scope.defProp(nameNode.name, nameNode);
   }
@@ -68950,6 +75619,17 @@ G=function(b,c,a){a=F(b,c,a);a===e?delete b[c]:b[c]=a},F=function(b,c,a){var d=b
     if (node.type == "RestElement") return "..." + patternName(node.argument);
     return "_";
   }
+=======
+},{"./primitiveDescriptions.js":366,"./sceneNode.js":370,"./transform.js":374,"./utils.js":375,"./var.js":376,"./vec.js":377}],368:[function(require,module,exports){
+const getMainContinuous = function( steps, minDistance, maxDistance, postprocessing ) {
+  const out = `
+  // adapted from https://www.shadertoy.com/view/ldfSWs
+  vec3 calcNormal(vec3 pos, float eps) {
+    const vec3 v1 = vec3( 1.0,-1.0,-1.0);
+    const vec3 v2 = vec3(-1.0,-1.0, 1.0);
+    const vec3 v3 = vec3(-1.0, 1.0,-1.0);
+    const vec3 v4 = vec3( 1.0, 1.0, 1.0);
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   function isBlockScopedDecl(node) {
     return node.type == "VariableDeclaration" && node.kind != "var" ||
@@ -69624,6 +76304,7 @@ G=function(b,c,a){a=F(b,c,a);a===e?delete b[c]:b[c]=a},F=function(b,c,a){var d=b
 
   // PARSING
 
+<<<<<<< HEAD
   var parse = exports.parse = function(text, options, thirdArg) {
     if (!options || Array.isArray(options)) options = thirdArg;
     var ast;
@@ -69631,6 +76312,14 @@ G=function(b,c,a){a=F(b,c,a);a===e?delete b[c]:b[c]=a},F=function(b,c,a){var d=b
     catch(e) { ast = acorn_loose.parse(text, options); }
     return ast;
   };
+=======
+},{}],369:[function(require,module,exports){
+const getFog = require( './fog.js' )
+const vignette = require( './vignette.js' )
+const { param_wrap, MaterialID } = require( './utils.js' )
+const __lighting = require( './lighting.js' )
+const { Var, float_var_gen, vec2_var_gen, vec3_var_gen, vec4_var_gen, int_var_gen, VarAlloc } = require('./var.js')
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   // ANALYSIS INTERFACE
 
@@ -70115,9 +76804,15 @@ G=function(b,c,a){a=F(b,c,a);a===e?delete b[c]:b[c]=a},F=function(b,c,a){var d=b
 
   // INIT DEF MODULE
 
+<<<<<<< HEAD
   // Delayed initialization because of cyclic dependencies.
   def = exports.def = def.init({}, exports);
 });
+=======
+},{"./background.js":350,"./fog.js":358,"./lighting.js":361,"./utils.js":375,"./var.js":376,"./vignette.js":378}],370:[function(require,module,exports){
+const SceneNode = ()=> Object.create( SceneNode.prototype )
+const Matrix = require( './external/matrix.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 },{"./def":477,"./signal":479,"acorn":59,"acorn-loose":57,"acorn-walk":58}],479:[function(require,module,exports){
 (function(root, mod) {
@@ -70265,6 +76960,21 @@ G=function(b,c,a){a=F(b,c,a);a===e?delete b[c]:b[c]=a},F=function(b,c,a){var d=b
     srv.signal("postParse", ast, text);
     return ast;
   }
+<<<<<<< HEAD
+=======
+})
+
+module.exports = SceneNode
+
+},{"./external/matrix.js":356}],371:[function(require,module,exports){
+const SceneNode = require( './sceneNode.js' ),
+      getPixels = require( 'get-pixels' ),
+      createTexture = require( 'gl-texture2d' ),
+      { param_wrap, MaterialID } = require( './utils.js' ),
+      { Var, float_var_gen, vec2_var_gen, vec3_var_gen, vec4_var_gen, int_var_gen, VarAlloc }  = require( './var.js' ), 
+      { Vec2, Vec3, Vec4 } = require( './vec.js' )
+
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   var astral = /[\uD800-\uDBFF]/g;
 
@@ -70740,7 +77450,12 @@ G=function(b,c,a){a=F(b,c,a);a===e?delete b[c]:b[c]=a},F=function(b,c,a){var d=b
     }
   }
 
+<<<<<<< HEAD
   var offsetSkipLines = 25;
+=======
+},{"./sceneNode.js":370,"./textureDescriptions.js":372,"./textureWrap.js":373,"./utils.js":375,"./var.js":376,"./vec.js":377,"get-pixels":441,"gl-texture2d":472}],372:[function(require,module,exports){
+const glsl = require( 'glslify' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   function forwardCharacters(file, start, chars) {
     var pos = start + chars, m;
@@ -71020,6 +77735,7 @@ G=function(b,c,a){a=F(b,c,a);a===e?delete b[c]:b[c]=a},F=function(b,c,a){var d=b
   var findExpr = exports.findQueryExpr = function(file, query, wide) {
     if (query.end == null) throw ternError("missing .query.end field");
 
+<<<<<<< HEAD
     if (query.variable) {
       var scope = infer.scopeAt(file.ast, resolvePos(file, query.end), file.scope);
       return {node: {type: "Identifier", name: query.variable, start: query.end, end: query.end + 1},
@@ -71043,6 +77759,19 @@ G=function(b,c,a){a=F(b,c,a);a===e?delete b[c]:b[c]=a},F=function(b,c,a){var d=b
       return expr;
     }
   };
+=======
+},{"glslify":519}],373:[function(require,module,exports){
+module.exports = `
+    // p = point on surface, p0 = object center
+    vec2 getUVCubic(vec3 p ){
+      vec3 absp = abs(p);
+        
+      // First conditional: If the point is in one of the sextants to the 
+      // left or right of the x-axis, the uv cordinate will be (0.5*p.zy)/(p.x).
+      // If you trace a line out to a zy plane that is 0.5 units from the zero origin,  
+      // (0.5*p.xyz)/(p.x) will be the result, and
+      // the yz components will be our uv coordinates, hence (0.5*p.zy)/(p.x).
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   function findExprAround(file, query, wide) {
     var start = query.start && resolvePos(file, query.start), end = resolvePos(file, query.end);
@@ -71061,9 +77790,25 @@ G=function(b,c,a){a=F(b,c,a);a===e?delete b[c]:b[c]=a},F=function(b,c,a){var d=b
     throw ternError("No expression at the given position.");
   }
 
+<<<<<<< HEAD
   function ensureObj(tp) {
     if (!tp || !(tp = tp.getType()) || !(tp instanceof infer.Obj)) return null;
     return tp;
+=======
+},{}],374:[function(require,module,exports){
+const { param_wrap, MaterialID } = require( './utils.js' )
+const { Var, float_var_gen, vec2_var_gen, vec3_var_gen, vec4_var_gen, int_var_gen, VarAlloc }  = require( './var.js' )
+const Matrix = require( './external/matrix.js' )
+window.Matrix = Matrix
+const MatrixWrap = function ( shouldInvert = false ) {
+  const m = Object.create( MatrixWrap.prototype )
+  m.dirty = true
+  m.translation = {}
+  m.scale = {}
+  m.shouldInvert = shouldInvert
+  m.rotation = {
+    axis: {}
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
   }
 
   function findExprType(srv, query, file, expr) {
@@ -71340,10 +78085,16 @@ G=function(b,c,a){a=F(b,c,a);a===e?delete b[c]:b[c]=a},F=function(b,c,a){var d=b
     throw ternError("Not at a variable or property name.");
   }
 
+<<<<<<< HEAD
   function buildRename(srv, query, file) {
     if (typeof query.newName != "string") throw ternError(".query.newName should be a string");
     var expr = findExprOrThrow(file, query);
     if (!expr || expr.node.type != "Identifier") throw ternError("Not at a variable.");
+=======
+},{"./external/matrix.js":356,"./utils.js":375,"./var.js":376}],375:[function(require,module,exports){
+const Var = require('./var.js').Var
+const { Vec2, Vec3, Vec4 } = require( './vec.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     var data = findRefsToVariable(srv, query, file, expr, query.newName), refs = data.refs;
     delete data.refs;
@@ -71384,6 +78135,7 @@ G=function(b,c,a){a=F(b,c,a);a===e?delete b[c]:b[c]=a},F=function(b,c,a){var d=b
 
   var WG_MADEUP = 1, WG_STRONG = 101;
 
+<<<<<<< HEAD
   tern.registerPlugin("doc_comment", function(server, options) {
     server.mod.jsdocTypedefs = Object.create(null);
     server.on("reset", function() {
@@ -71393,6 +78145,12 @@ G=function(b,c,a){a=F(b,c,a);a===e?delete b[c]:b[c]=a},F=function(b,c,a){var d=b
       weight: options && options.strong ? WG_STRONG : undefined,
       fullDocs: options && options.fullDocs
     };
+=======
+},{"./var.js":376,"./vec.js":377}],376:[function(require,module,exports){
+const { Vec2, Vec3, Vec4 } = require( './vec.js' )
+const float = require( './float.js' )
+const int   = require( './int.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     server.on("postParse", postParse);
     server.on("postInfer", postInfer);
@@ -71565,9 +78323,22 @@ G=function(b,c,a){a=F(b,c,a);a===e?delete b[c]:b[c]=a},F=function(b,c,a){var d=b
   // Parses a subset of JSDoc-style comments in order to include the
   // explicitly defined types in the analysis.
 
+<<<<<<< HEAD
   function skipSpace(str, pos) {
     while (/\s/.test(str.charAt(pos))) ++pos;
     return pos;
+=======
+},{"./float.js":357,"./int.js":360,"./vec.js":377}],377:[function(require,module,exports){
+const Vec2 = function (x=0, y=0) {
+  if( x.type === 'vec2' ) return x  
+  const v = Object.create( Vec2.prototype )
+  if( Array.isArray( x ) ) {
+    v.x = x[0]; v.y = x[1]; 
+  } else if( y === undefined ) {
+    v.x = v.y = x
+  }else{
+    v.x = x; v.y = y; 
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
   }
 
   function isIdentifier(string) {
@@ -71903,8 +78674,15 @@ var Stream = require('stream')
 // a stream that does nothing but re-emit the input.
 // useful for aggregating a series of changing but not ending streams into one stream)
 
+<<<<<<< HEAD
 exports = module.exports = through
 through.through = through
+=======
+},{}],378:[function(require,module,exports){
+const SceneNode = require( './sceneNode.js' ),
+      { param_wrap, MaterialID } = require( './utils.js' ),
+      { Var, float_var_gen, vec2_var_gen, vec3_var_gen, vec4_var_gen, int_var_gen, VarAlloc } = require( './var.js' )
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 //create a readable writable stream.
 
@@ -71973,6 +78751,7 @@ function through (write, end, opts) {
     return stream
   }
 
+<<<<<<< HEAD
   stream.destroy = function () {
     if(destroyed) return
     destroyed = true
@@ -71982,6 +78761,29 @@ function through (write, end, opts) {
     stream.emit('close')
     return stream
   }
+=======
+},{"./sceneNode.js":370,"./utils.js":375,"./var.js":376}],379:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CodeBuilder = exports.channelSamplerName = void 0;
+const expr_1 = require("./exprs/expr");
+const webglprogramloop_1 = require("./webglprogramloop");
+const settings_1 = require("./settings");
+/** @ignore */
+const FRAG_SET = `  gl_FragColor = texture2D(uSampler, gl_FragCoord.xy / uResolution);\n`;
+/** @ignore */
+const SCENE_SET = `uniform sampler2D uSceneSampler;\n`;
+/** @ignore */
+const TIME_SET = `uniform mediump float uTime;\n`;
+/** @ignore */
+const MOUSE_SET = `uniform mediump vec2 uMouse;\n`;
+/** @ignore */
+const COUNT_SET = `uniform int uCount;\n`;
+/** @ignore */
+const BOILERPLATE = `#ifdef GL_ES
+precision mediump float;
+#endif
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   stream.pause = function () {
     if(stream.paused) return
@@ -72280,6 +79082,7 @@ function peg$parse(input, options) {
           type: 'polymeter' 
         }
 
+<<<<<<< HEAD
         addLoc( result.left, location() )
         addLoc( result.right, location() )
         addLoc( result, location() )
@@ -72372,6 +79175,196 @@ function peg$parse(input, options) {
   if ("startRule" in options) {
     if (!(options.startRule in peg$startRuleFunctions)) {
       throw new Error("Can't start parsing from rule \"" + options.startRule + "\".");
+=======
+},{"./exprs/expr":393,"./settings":432,"./webglprogramloop":434}],380:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.a1 = exports.Arity1HomogenousExpr = void 0;
+const expr_1 = require("./expr");
+/** @ignore */
+function genArity1SourceList(name, val) {
+    return {
+        sections: [name + "(", ")"],
+        values: [val],
+    };
+}
+/** arity 1 homogenous function expression */
+class Arity1HomogenousExpr extends expr_1.Operator {
+    constructor(val, operation) {
+        super(val, genArity1SourceList(operation, val), ["uVal"]);
+        this.val = val;
+    }
+    /** set the value being passed into the arity 1 homogenous function */
+    setVal(val) {
+        this.setUniform("uVal" + this.id, val);
+        this.val = expr_1.wrapInValue(val);
+    }
+}
+exports.Arity1HomogenousExpr = Arity1HomogenousExpr;
+/**
+ * built-in functions that take in one `genType x` and return a `genType x`
+ * @param name function name (see [[Arity1HomogenousName]] for valid function names)
+ * @param val the `genType x` argument
+ */
+function a1(name, val) {
+    return new Arity1HomogenousExpr(expr_1.wrapInValue(val), name);
+}
+exports.a1 = a1;
+
+},{"./expr":393}],381:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.a2 = exports.Arity2HomogenousExpr = void 0;
+const expr_1 = require("./expr");
+// note: glsl has atan(y/x) as well as atan(y, x)
+/** @ignore */
+function genArity1SourceList(name, val1, val2) {
+    return {
+        sections: [name + "(", ",", ")"],
+        values: [val1, val2],
+    };
+}
+/** arity 2 homogenous function expression */
+class Arity2HomogenousExpr extends expr_1.Operator {
+    constructor(name, val1, val2) {
+        super(val1, genArity1SourceList(name, val1, val2), ["uVal1", "uVal2"]);
+        this.val1 = val1;
+        this.val2 = val2;
+    }
+    /** set the first value being passed into the arity 2 homogenous function */
+    setFirstVal(val1) {
+        this.setUniform("uVal1" + this.id, val1);
+        this.val1 = expr_1.wrapInValue(val1);
+    }
+    /** set the second value being passed into the arity 2 homogenous function */
+    setSecondVal(val2) {
+        this.setUniform("uVal2" + this.id, val2);
+        this.val2 = expr_1.wrapInValue(val2);
+    }
+}
+exports.Arity2HomogenousExpr = Arity2HomogenousExpr;
+// implementation
+/**
+ * built-in functions that take in two `genType x` arguments and return a `genType x`
+ * @param name function name (see [[Arity2HomogenousName]] for valid function names)
+ * @param val1 the first `genType x` argument
+ * @param val2 the second `genType x` argument
+ */
+function a2(name, val1, val2) {
+    return new Arity2HomogenousExpr(name, expr_1.wrapInValue(val1), expr_1.wrapInValue(val2));
+}
+exports.a2 = a2;
+
+},{"./expr":393}],382:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.bloom = exports.BloomLoop = void 0;
+const mergepass_1 = require("../mergepass");
+const arity2_1 = require("./arity2");
+const blurexpr_1 = require("./blurexpr");
+const brightnessexpr_1 = require("./brightnessexpr");
+const channelsampleexpr_1 = require("./channelsampleexpr");
+const contrastexpr_1 = require("./contrastexpr");
+const expr_1 = require("./expr");
+const fragcolorexpr_1 = require("./fragcolorexpr");
+const opexpr_1 = require("./opexpr");
+const vecexprs_1 = require("./vecexprs");
+// TODO bloom uses `input` so it has to be the first
+// TODO maybe a way to update the scene buffer?
+/** bloom loop */
+class BloomLoop extends mergepass_1.EffectLoop {
+    constructor(threshold = expr_1.float(expr_1.mut(0.4)), horizontal = expr_1.float(expr_1.mut(1)), vertical = expr_1.float(expr_1.mut(1)), boost = expr_1.float(expr_1.mut(1.3)), samplerNum = 1, taps = 9, reps = 3) {
+        const bright = expr_1.cfloat(expr_1.tag `((${channelsampleexpr_1.channel(samplerNum)}.r + ${channelsampleexpr_1.channel(samplerNum)}.g + ${channelsampleexpr_1.channel(samplerNum)}.b) / 3.)`);
+        const step = arity2_1.a2("step", bright, threshold);
+        const col = expr_1.cvec4(expr_1.tag `vec4(${channelsampleexpr_1.channel(samplerNum)}.rgb * (1. - ${step}), 1.)`);
+        const list = [
+            mergepass_1.loop([col]).target(samplerNum),
+            mergepass_1.loop([
+                blurexpr_1.gauss(vecexprs_1.vec2(horizontal, 0), taps),
+                blurexpr_1.gauss(vecexprs_1.vec2(0, vertical), taps),
+                brightnessexpr_1.brightness(0.1),
+                contrastexpr_1.contrast(boost),
+            ], reps).target(samplerNum),
+            opexpr_1.op(fragcolorexpr_1.fcolor(), "+", channelsampleexpr_1.channel(samplerNum)),
+        ];
+        super(list, { num: 1 });
+        this.threshold = threshold;
+        this.horizontal = horizontal;
+        this.vertical = vertical;
+        this.boost = boost;
+    }
+    /**
+     * set the horizontal stretch of the blur effect (no greater than 1 for best
+     * effect)
+     */
+    setHorizontal(num) {
+        if (!(this.horizontal instanceof expr_1.BasicFloat))
+            throw new Error("horizontal expression not basic float");
+        this.horizontal.setVal(num);
+    }
+    /**
+     * set the vertical stretch of the blur effect (no greater than 1 for best
+     * effect)
+     */
+    setVertical(num) {
+        if (!(this.vertical instanceof expr_1.BasicFloat))
+            throw new Error("vertical expression not basic float");
+        this.vertical.setVal(num);
+    }
+    /** set the treshold */
+    setThreshold(num) {
+        if (!(this.threshold instanceof expr_1.BasicFloat))
+            throw new Error("threshold expression not basic float");
+        this.threshold.setVal(num);
+    }
+    /** set the contrast boost */
+    setBoost(num) {
+        if (!(this.boost instanceof expr_1.BasicFloat))
+            throw new Error("boost expression not basic float");
+        this.boost.setVal(num);
+    }
+}
+exports.BloomLoop = BloomLoop;
+/**
+ * creates a bloom loop
+ * @param threshold values below this brightness don't get blurred (0.4 is
+ * about reasonable, which is also the default)
+ * @param horizontal how much to blur vertically (defaults to 1 pixel)
+ * @param vertical how much to blur horizontally (defaults to 1 pixel)
+ * @param taps how many taps for the blur (defaults to 9)
+ * @param reps how many times to loop the blur (defaults to 3)
+ */
+function bloom(threshold, horizontal, vertical, boost, samplerNum, taps, reps) {
+    return new BloomLoop(expr_1.wrapInValue(threshold), expr_1.wrapInValue(horizontal), expr_1.wrapInValue(vertical), expr_1.wrapInValue(boost), samplerNum, taps, reps);
+}
+exports.bloom = bloom;
+
+},{"../mergepass":431,"./arity2":381,"./blurexpr":384,"./brightnessexpr":385,"./channelsampleexpr":387,"./contrastexpr":388,"./expr":393,"./fragcolorexpr":394,"./opexpr":411,"./vecexprs":427}],383:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.blur2d = exports.Blur2dLoop = void 0;
+const mergepass_1 = require("../mergepass");
+const blurexpr_1 = require("./blurexpr");
+const expr_1 = require("./expr");
+const vecexprs_1 = require("./vecexprs");
+/** 2D blur loop */
+class Blur2dLoop extends mergepass_1.EffectLoop {
+    constructor(horizontal = expr_1.float(expr_1.mut(1)), vertical = expr_1.float(expr_1.mut(1)), reps = 2, taps, samplerNum) {
+        const side = blurexpr_1.gauss(vecexprs_1.vec2(horizontal, 0), taps, samplerNum);
+        const up = blurexpr_1.gauss(vecexprs_1.vec2(0, vertical), taps, samplerNum);
+        super([side, up], { num: reps });
+        this.horizontal = horizontal;
+        this.vertical = vertical;
+    }
+    /**
+     * set the horizontal stretch of the blur effect (no greater than 1 for best
+     * effect)
+     */
+    setHorizontal(num) {
+        if (!(this.horizontal instanceof expr_1.BasicFloat))
+            throw new Error("horizontal expression not basic float");
+        this.horizontal.setVal(num);
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
 
     peg$startRuleFunction = peg$startRuleFunctions[options.startRule];
@@ -72458,6 +79451,17 @@ function peg$parse(input, options) {
     var startPosDetails = peg$computePosDetails(startPos),
         endPosDetails   = peg$computePosDetails(endPos);
 
+<<<<<<< HEAD
+=======
+},{"../mergepass":431,"./blurexpr":384,"./expr":393,"./vecexprs":427}],384:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.gauss = exports.BlurExpr = void 0;
+const glslfunctions_1 = require("../glslfunctions");
+const expr_1 = require("./expr");
+/** @ignore */
+function genBlurSource(direction, taps) {
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     return {
       start: {
         offset: startPos,
@@ -72508,6 +79512,7 @@ function peg$parse(input, options) {
       return cached.result;
     }
 
+<<<<<<< HEAD
     s0 = peg$currPos;
     s1 = peg$parsefeet();
     if (s1 === peg$FAILED) {
@@ -72515,6 +79520,21 @@ function peg$parse(input, options) {
       if (s1 === peg$FAILED) {
         s1 = peg$parseterm();
       }
+=======
+},{"../glslfunctions":429,"./expr":393}],385:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.brightness = exports.Brightness = void 0;
+const glslfunctions_1 = require("../glslfunctions");
+const expr_1 = require("./expr");
+const fragcolorexpr_1 = require("./fragcolorexpr");
+/** brightness expression */
+class Brightness extends expr_1.ExprVec4 {
+    constructor(brightness, col = fragcolorexpr_1.fcolor()) {
+        super(expr_1.tag `brightness(${brightness}, ${col})`, ["uBrightness", "uColor"]);
+        this.brightness = brightness;
+        this.externalFuncs = [glslfunctions_1.glslFuncs.brightness];
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
     if (s1 !== peg$FAILED) {
       peg$savedPos = s0;
@@ -72522,6 +79542,7 @@ function peg$parse(input, options) {
     }
     s0 = s1;
 
+<<<<<<< HEAD
     peg$resultsCache[key] = { nextPos: peg$currPos, result: s0 };
 
     return s0;
@@ -72537,8 +79558,43 @@ function peg$parse(input, options) {
       peg$currPos = cached.nextPos;
 
       return cached.result;
+=======
+},{"../glslfunctions":429,"./expr":393,"./fragcolorexpr":394}],386:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.changecomp = exports.ChangeCompExpr = void 0;
+const expr_1 = require("./expr");
+const getcompexpr_1 = require("./getcompexpr");
+/** @ignore */
+function getChangeFunc(typ, id, setter, comps, op = "") {
+    return `${typ} changecomp_${id}(${typ} col, ${setter.typeString()} setter) {
+  col.${comps} ${op}= setter;
+  return col;
+}`;
+}
+/**
+ * throws a runtime error if component access is not valid, and disallows
+ * duplicate components because duplicate components can not be in a left
+ * expression. (for example `v.xyx = vec3(1., 2., 3.)` is illegal, but `v1.xyz
+ * = v2.xyx` is legal.) also checks for type errors such as `v1.xy = vec3(1.,
+ * 2., 3.)`; the right hand side can only be a `vec2` if only two components
+ * are supplied
+ * @param comps component string
+ * @param setter how the components are being changed
+ * @param vec the vector where components are being accessed
+ */
+function checkChangeComponents(comps, setter, vec) {
+    // setter has different length than components
+    if (comps.length !== getcompexpr_1.typeStringToLength(setter.typeString())) {
+        throw new Error("components length must be equal to the target float/vec");
+    }
+    // duplicate components
+    if (duplicateComponents(comps)) {
+        throw new Error("duplicate components not allowed on left side");
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
 
+<<<<<<< HEAD
     s0 = peg$currPos;
     s1 = peg$parse_();
     if (s1 !== peg$FAILED) {
@@ -72581,8 +79637,41 @@ function peg$parse(input, options) {
     } else {
       peg$currPos = s0;
       s0 = peg$FAILED;
+=======
+},{"./expr":393,"./getcompexpr":398}],387:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.channel = exports.ChannelSampleExpr = void 0;
+const codebuilder_1 = require("../codebuilder");
+const expr_1 = require("./expr");
+const normfragcoordexpr_1 = require("./normfragcoordexpr");
+const glslfunctions_1 = require("../glslfunctions");
+/** @ignore */
+function genChannelSampleSource(buf, coord) {
+    return {
+        sections: ["channel(", `, ${codebuilder_1.channelSamplerName(buf)})`],
+        values: [coord],
+    };
+}
+// TODO create a way to sample but not clamp by region
+/** channel sample expression */
+class ChannelSampleExpr extends expr_1.ExprVec4 {
+    constructor(buf, coord = normfragcoordexpr_1.pos()) {
+        super(genChannelSampleSource(buf, coord), ["uVec"]);
+        this.coord = coord;
+        this.externalFuncs = [glslfunctions_1.glslFuncs.channel];
+        if (buf !== -1)
+            this.needs.extraBuffers = new Set([buf]);
+        else
+            this.needs.neighborSample = true;
+    }
+    setCoord(coord) {
+        this.setUniform("uVec", coord);
+        this.coord = coord;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
 
+<<<<<<< HEAD
     peg$resultsCache[key] = { nextPos: peg$currPos, result: s0 };
 
     return s0;
@@ -72598,6 +79687,58 @@ function peg$parse(input, options) {
       peg$currPos = cached.nextPos;
 
       return cached.result;
+=======
+},{"../codebuilder":379,"../glslfunctions":429,"./expr":393,"./normfragcoordexpr":409}],388:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.contrast = exports.ContrastExpr = void 0;
+const glslfunctions_1 = require("../glslfunctions");
+const expr_1 = require("./expr");
+const fragcolorexpr_1 = require("./fragcolorexpr");
+class ContrastExpr extends expr_1.ExprVec4 {
+    constructor(contrast, col = fragcolorexpr_1.fcolor()) {
+        super(expr_1.tag `contrast(${contrast}, ${col})`, ["uVal", "uCol"]);
+        this.contrast = contrast;
+        this.externalFuncs = [glslfunctions_1.glslFuncs.contrast];
+    }
+    /** sets the contrast */
+    setContrast(contrast) {
+        this.setUniform("uContrast" + this.id, contrast);
+        this.contrast = expr_1.wrapInValue(contrast);
+    }
+}
+exports.ContrastExpr = ContrastExpr;
+/**
+ * changes the contrast of a color
+ * @param val float for how much to change the contrast by (should probably be
+ * between -1 and 1)
+ * @param col the color to increase the contrast of (defaults to current
+ * fragment color)
+ */
+function contrast(val, col) {
+    return new ContrastExpr(expr_1.wrapInValue(val), col);
+}
+exports.contrast = contrast;
+
+},{"../glslfunctions":429,"./expr":393,"./fragcolorexpr":394}],389:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.depth2occlusion = exports.DepthToOcclusionExpr = void 0;
+const channelsampleexpr_1 = require("./channelsampleexpr");
+const expr_1 = require("./expr");
+const vecexprs_1 = require("./vecexprs");
+/** depth info to occlussion info expression */
+class DepthToOcclusionExpr extends expr_1.ExprVec4 {
+    constructor(depthCol = channelsampleexpr_1.channel(0), newCol = expr_1.mut(vecexprs_1.pvec4(1, 1, 1, 1)), threshold = expr_1.mut(expr_1.pfloat(0.01))) {
+        super(expr_1.tag `depth2occlusion(${depthCol}, ${newCol}, ${threshold})`, [
+            "uDepth",
+            "uNewCol",
+            "uThreshold",
+        ]);
+        this.depthCol = depthCol;
+        this.newCol = newCol;
+        this.threshold = threshold;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
 
     peg$silentFails++;
@@ -72691,6 +79832,7 @@ function peg$parse(input, options) {
       return cached.result;
     }
 
+<<<<<<< HEAD
     peg$silentFails++;
     s0 = peg$currPos;
     s1 = peg$parseeuclid();
@@ -72726,6 +79868,28 @@ function peg$parse(input, options) {
           }
         }
       }
+=======
+},{"./channelsampleexpr":387,"./expr":393,"./vecexprs":427}],390:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.dof = exports.DoFLoop = void 0;
+const mergepass_1 = require("../mergepass");
+const arity2_1 = require("./arity2");
+const blurexpr_1 = require("./blurexpr");
+const channelsampleexpr_1 = require("./channelsampleexpr");
+const expr_1 = require("./expr");
+const gaussianexpr_1 = require("./gaussianexpr");
+const getcompexpr_1 = require("./getcompexpr");
+const opexpr_1 = require("./opexpr");
+const vecexprs_1 = require("./vecexprs");
+class DoFLoop extends mergepass_1.EffectLoop {
+    constructor(depth = expr_1.mut(expr_1.pfloat(0.3)), rad = expr_1.mut(expr_1.pfloat(0.01)), depthInfo = getcompexpr_1.getcomp(channelsampleexpr_1.channel(0), "r"), reps = 2, taps = 13) {
+        let guassianExpr = gaussianexpr_1.gaussian(depthInfo, depth, rad);
+        const side = blurexpr_1.gauss(vecexprs_1.vec2(arity2_1.a2("pow", opexpr_1.op(1, "-", guassianExpr), 4), 0), taps);
+        const up = blurexpr_1.gauss(vecexprs_1.vec2(0, arity2_1.a2("pow", opexpr_1.op(1, "-", guassianExpr), 4)), taps);
+        super([side, up], { num: reps });
+        this.gaussian = guassianExpr;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
     if (s1 !== peg$FAILED) {
       s2 = peg$parse_();
@@ -72747,6 +79911,7 @@ function peg$parse(input, options) {
       if (peg$silentFails === 0) { peg$fail(peg$c8); }
     }
 
+<<<<<<< HEAD
     peg$resultsCache[key] = { nextPos: peg$currPos, result: s0 };
 
     return s0;
@@ -72762,8 +79927,70 @@ function peg$parse(input, options) {
       peg$currPos = cached.nextPos;
 
       return cached.result;
+=======
+},{"../mergepass":431,"./arity2":381,"./blurexpr":384,"./channelsampleexpr":387,"./expr":393,"./gaussianexpr":397,"./getcompexpr":398,"./opexpr":411,"./vecexprs":427}],391:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.edgecolor = exports.EdgeColorExpr = void 0;
+const arity2_1 = require("./arity2");
+const expr_1 = require("./expr");
+const fragcolorexpr_1 = require("./fragcolorexpr");
+const monochromeexpr_1 = require("./monochromeexpr");
+const sobelexpr_1 = require("./sobelexpr");
+const vecexprs_1 = require("./vecexprs");
+/** edge color expression */
+class EdgeColorExpr extends expr_1.WrappedExpr {
+    constructor(color, samplerNum, stepped = true) {
+        const expr = stepped
+            ? expr_1.cvec4(expr_1.tag `mix(${color}, ${fragcolorexpr_1.fcolor()}, ${monochromeexpr_1.monochrome(arity2_1.a2("step", vecexprs_1.vec4(0.5, 0.5, 0.5, 0.0), sobelexpr_1.sobel(samplerNum)))})`)
+            : expr_1.cvec4(expr_1.tag `mix(${color}, ${fragcolorexpr_1.fcolor()}, ${monochromeexpr_1.monochrome(sobelexpr_1.sobel(samplerNum))})`);
+        super(expr);
+        this.color = color;
+        this.expr = expr;
+    }
+    setColor(color) {
+        this.expr.setUniform("uCustomName0" + this.expr.id, color);
+        this.color = color;
+    }
+}
+exports.EdgeColorExpr = EdgeColorExpr;
+/**
+ * creates a colored edge detection expression
+ * @param color what color to make the edge
+ * @param samplerNum where to sample from
+ * @param stepped whether to round the result of sobel edge detection (defaults
+ * to true)
+ */
+function edgecolor(color, samplerNum, stepped) {
+    return new EdgeColorExpr(color, samplerNum, stepped);
+}
+exports.edgecolor = edgecolor;
+
+},{"./arity2":381,"./expr":393,"./fragcolorexpr":394,"./monochromeexpr":404,"./sobelexpr":422,"./vecexprs":427}],392:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.edge = exports.EdgeExpr = void 0;
+const brightnessexpr_1 = require("./brightnessexpr");
+const expr_1 = require("./expr");
+const getcompexpr_1 = require("./getcompexpr");
+const invertexpr_1 = require("./invertexpr");
+const monochromeexpr_1 = require("./monochromeexpr");
+const opexpr_1 = require("./opexpr");
+const sobelexpr_1 = require("./sobelexpr");
+class EdgeExpr extends expr_1.WrappedExpr {
+    constructor(mult = expr_1.mut(-1.0), samplerNum) {
+        const operator = opexpr_1.op(getcompexpr_1.getcomp(invertexpr_1.invert(monochromeexpr_1.monochrome(sobelexpr_1.sobel(samplerNum))), "r"), "*", mult);
+        super(brightnessexpr_1.brightness(operator));
+        this.mult = mult;
+        this.operator = operator;
+    }
+    setMult(mult) {
+        this.operator.setRight(mult);
+        this.mult = expr_1.wrapInValue(mult);
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
 
+<<<<<<< HEAD
     s0 = peg$currPos;
     s1 = peg$parse_();
     if (s1 !== peg$FAILED) {
@@ -72775,6 +80002,54 @@ function peg$parse(input, options) {
         } else {
           s3 = peg$FAILED;
           if (peg$silentFails === 0) { peg$fail(peg$c11); }
+=======
+},{"./brightnessexpr":385,"./expr":393,"./getcompexpr":398,"./invertexpr":402,"./monochromeexpr":404,"./opexpr":411,"./sobelexpr":422}],393:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.tag = exports.wrapInValue = exports.pfloat = exports.Operator = exports.WrappedExpr = exports.ExprVec4 = exports.ExprVec3 = exports.ExprVec2 = exports.float = exports.ExprFloat = exports.BasicFloat = exports.ExprVec = exports.BasicVec4 = exports.BasicVec3 = exports.BasicVec2 = exports.BasicVec = exports.PrimitiveVec4 = exports.PrimitiveVec3 = exports.PrimitiveVec2 = exports.PrimitiveVec = exports.PrimitiveFloat = exports.Primitive = exports.mut = exports.Mutable = exports.cvec4 = exports.cvec3 = exports.cvec2 = exports.cfloat = exports.Expr = void 0;
+const mergepass_1 = require("../mergepass");
+const webglprogramloop_1 = require("../webglprogramloop");
+const utils_1 = require("../utils");
+/**
+ * adds a `.` after a number if needed (e.g converts `1` to `"1."` but leaves
+ * `1.2` as `"1.2"`)
+ * @param num number to convert
+ */
+function toGLSLFloatString(num) {
+    let str = "" + num;
+    if (!str.includes("."))
+        str += ".";
+    return str;
+}
+class Expr {
+    constructor(sourceLists, defaultNames) {
+        // update me on change to needs
+        this.needs = {
+            neighborSample: false,
+            centerSample: false,
+            sceneBuffer: false,
+            timeUniform: false,
+            mouseUniform: false,
+            passCount: false,
+            extraBuffers: new Set(),
+        };
+        this.uniformValChangeMap = {};
+        this.defaultNameMap = {};
+        this.externalFuncs = [];
+        this.sourceCode = "";
+        this.funcIndex = 0;
+        this.regionBranded = false;
+        this.id = "_id_" + Expr.count;
+        Expr.count++;
+        if (sourceLists.sections.length - sourceLists.values.length !== 1) {
+            // this cannot happen if you use `tag` to destructure a template string
+            throw new Error("wrong lengths for source and values");
+        }
+        if (sourceLists.values.length !== defaultNames.length) {
+            console.log(sourceLists);
+            console.log(defaultNames);
+            throw new Error("default names list length doesn't match values list length");
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
         }
         if (s3 !== peg$FAILED) {
           s4 = peg$parse_();
@@ -74093,6 +81368,7 @@ function peg$parse(input, options) {
     }
     s0 = s1;
 
+<<<<<<< HEAD
     peg$resultsCache[key] = { nextPos: peg$currPos, result: s0 };
 
     return s0;
@@ -74108,14 +81384,85 @@ function peg$parse(input, options) {
       peg$currPos = cached.nextPos;
 
       return cached.result;
+=======
+},{"../mergepass":431,"../utils":433,"../webglprogramloop":434}],394:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.fcolor = exports.FragColorExpr = void 0;
+const expr_1 = require("./expr");
+/** fragment color expression */
+class FragColorExpr extends expr_1.ExprVec4 {
+    constructor() {
+        super(expr_1.tag `gl_FragColor`, []);
+        this.needs.centerSample = true;
+    }
+}
+exports.FragColorExpr = FragColorExpr;
+/** creates an expression that evaluates to the fragment color */
+function fcolor() {
+    return new FragColorExpr();
+}
+exports.fcolor = fcolor;
+
+},{"./expr":393}],395:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.pixel = exports.FragCoordExpr = void 0;
+const expr_1 = require("./expr");
+/** frag coord expression (xy components only) */
+class FragCoordExpr extends expr_1.ExprVec2 {
+    constructor() {
+        super(expr_1.tag `gl_FragCoord.xy`, []);
+    }
+}
+exports.FragCoordExpr = FragCoordExpr;
+/**
+ * creates an expression that evaluates to the frag coord in pixels (samplers
+ * take normalized coordinates, so you might want [[nfcoord]] instead)
+ */
+function pixel() {
+    return new FragCoordExpr();
+}
+exports.pixel = pixel;
+
+},{"./expr":393}],396:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.fxaa = void 0;
+const expr_1 = require("./expr");
+const glslfunctions_1 = require("../glslfunctions");
+/** FXAA expression */
+class FXAAExpr extends expr_1.ExprVec4 {
+    constructor() {
+        super(expr_1.tag `fxaa()`, []);
+        this.externalFuncs = [glslfunctions_1.glslFuncs.fxaa];
+        this.needs.neighborSample = true;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
 
+<<<<<<< HEAD
     if (input.charCodeAt(peg$currPos) === 46) {
       s0 = peg$c51;
       peg$currPos++;
     } else {
       s0 = peg$FAILED;
       if (peg$silentFails === 0) { peg$fail(peg$c52); }
+=======
+},{"../glslfunctions":429,"./expr":393}],397:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.gaussian = exports.GaussianExpr = void 0;
+const glslfunctions_1 = require("../glslfunctions");
+const expr_1 = require("./expr");
+/** gaussian expression */
+class GaussianExpr extends expr_1.ExprFloat {
+    constructor(x, a, b) {
+        super(expr_1.tag `gaussian(${x}, ${a}, ${b})`, ["uFloatX", "uFloatA", "uFloatB"]);
+        this.x = x;
+        this.a = a;
+        this.b = b;
+        this.externalFuncs = [glslfunctions_1.glslFuncs.gaussian];
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
 
     peg$resultsCache[key] = { nextPos: peg$currPos, result: s0 };
@@ -74160,6 +81507,7 @@ function peg$parse(input, options) {
       return cached.result;
     }
 
+<<<<<<< HEAD
     s0 = peg$currPos;
     if (input.charCodeAt(peg$currPos) === 45) {
       s1 = peg$c53;
@@ -74167,6 +81515,25 @@ function peg$parse(input, options) {
     } else {
       s1 = peg$FAILED;
       if (peg$silentFails === 0) { peg$fail(peg$c54); }
+=======
+},{"../glslfunctions":429,"./expr":393}],398:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.get4comp = exports.get3comp = exports.get2comp = exports.getcomp = exports.Get4CompExpr = exports.Get3CompExpr = exports.Get2CompExpr = exports.GetCompExpr = exports.checkLegalComponents = exports.typeStringToLength = void 0;
+const expr_1 = require("./expr");
+// TODO this should probably be somewhere else
+/** @ignore */
+function typeStringToLength(str) {
+    switch (str) {
+        case "float":
+            return 1;
+        case "vec2":
+            return 2;
+        case "vec3":
+            return 3;
+        case "vec4":
+            return 4;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
     if (s1 === peg$FAILED) {
       s1 = null;
@@ -74380,6 +81747,7 @@ function peg$parse(input, options) {
   }
 }
 
+<<<<<<< HEAD
 module.exports = {
   SyntaxError: peg$SyntaxError,
   parse:       peg$parse
@@ -74437,12 +81805,113 @@ const Pattern = ( patternString, opts ) => {
       }else{
         console.log( 'No events have been generated from the pattern; have you queried it yet?' )
       }
+=======
+},{"./expr":393}],399:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.godrays = exports.GodRaysExpr = void 0;
+const glslfunctions_1 = require("../glslfunctions");
+const expr_1 = require("./expr");
+const fragcolorexpr_1 = require("./fragcolorexpr");
+const vecexprs_1 = require("./vecexprs");
+/**
+ * @ignore
+ * the number of samples in the source code already
+ */
+const DEFAULT_SAMPLES = 100;
+/** godrays expression */
+class GodRaysExpr extends expr_1.ExprVec4 {
+    // sane godray defaults from https://github.com/Erkaman/glsl-godrays/blob/master/example/index.js
+    constructor(col = fragcolorexpr_1.fcolor(), exposure = expr_1.mut(1.0), decay = expr_1.mut(1.0), density = expr_1.mut(1.0), weight = expr_1.mut(0.01), lightPos = expr_1.mut(vecexprs_1.pvec2(0.5, 0.5)), samplerNum = 0, numSamples = DEFAULT_SAMPLES, convertDepth) {
+        // TODO the metaprogramming here is not so good!
+        // leaving off the function call section for now (we addd it back later)
+        const sourceLists = expr_1.tag `${col}, ${exposure}, ${decay}, ${density}, ${weight}, ${lightPos}, ${convertDepth !== undefined ? convertDepth.threshold : expr_1.float(0)}, ${convertDepth !== undefined ? convertDepth.newColor : vecexprs_1.vec4(0, 0, 0, 0)})`;
+        // TODO make this more generic
+        // append the _<num> onto the function name
+        // also add _depth if this is a version of the function that uses depth buffer
+        const customName = `godrays${convertDepth !== undefined ? "_depth" : ""}${numSamples !== 100 ? "_s" + numSamples : ""}(`;
+        sourceLists.sections[0] = customName;
+        super(sourceLists, [
+            "uCol",
+            "uExposure",
+            "uDecay",
+            "uDensity",
+            "uWeight",
+            "uLightPos",
+            "uThreshold",
+            "uNewColor",
+        ]);
+        this.col = col;
+        this.exposure = exposure;
+        this.decay = decay;
+        this.density = density;
+        this.weight = weight;
+        this.lightPos = lightPos;
+        this.threshold = convertDepth === null || convertDepth === void 0 ? void 0 : convertDepth.threshold;
+        this.newColor = convertDepth === null || convertDepth === void 0 ? void 0 : convertDepth.newColor;
+        // will be 1 if needs to convert depth, and 0 otherwise
+        this.funcIndex = ~~(convertDepth !== undefined);
+        let customGodRayFunc = glslfunctions_1.glslFuncs.godrays
+            .split("godrays(")
+            .join(customName)
+            .replace(`NUM_SAMPLES = ${DEFAULT_SAMPLES}`, "NUM_SAMPLES = " + numSamples);
+        if (convertDepth !== undefined) {
+            // with regex, uncomment the line in the source code that does the
+            // conversion (if you think about it that's basically what a preprocessor
+            // does...)
+            customGodRayFunc = customGodRayFunc.replace(/\/\/uncomment\s/g, "");
+            this.externalFuncs.push(glslfunctions_1.glslFuncs.depth2occlusion);
+        }
+        this.externalFuncs.push(customGodRayFunc);
+        this.brandExprWithChannel(this.funcIndex, samplerNum);
+    }
+    /** sets the light color */
+    setColor(color) {
+        this.setUniform("uCol" + this.id, color);
+        this.col = color;
+    }
+    /** sets the exposure */
+    setExposure(exposure) {
+        this.setUniform("uExposure" + this.id, exposure);
+        this.exposure = expr_1.wrapInValue(exposure);
+    }
+    /** sets the decay */
+    setDecay(decay) {
+        this.setUniform("uDecay" + this.id, decay);
+        this.decay = expr_1.wrapInValue(decay);
+    }
+    /** sets the density */
+    setDensity(density) {
+        this.setUniform("uDensity" + this.id, density);
+        this.density = expr_1.wrapInValue(density);
+    }
+    /** sets the weight */
+    setWeight(weight) {
+        this.setUniform("uWeight" + this.id, weight);
+        this.weight = expr_1.wrapInValue(weight);
+    }
+    /** sets the light position */
+    setLightPos(lightPos) {
+        this.setUniform("uLightPos" + this.id, lightPos);
+        this.lightPos = lightPos;
+    }
+    // these only matter when you're using a depth buffer and not an occlusion
+    // buffer (although right now, you'll still be able to set them)
+    setThreshold(threshold) {
+        this.setUniform("uThreshold" + this.id, threshold);
+        this.threshold = expr_1.wrapInValue(threshold);
+    }
+    setNewColor(newColor) {
+        this.setUniform("uNewColor" + this.id, newColor);
+        this.newColor = newColor;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
   }
 
   return ptrn
 }
 
+<<<<<<< HEAD
 module.exports = Pattern
 
 },{"../dist/tidal.js":483,"./queryArc.js":485,"fraction.js":80}],485:[function(require,module,exports){
@@ -74455,6 +81924,29 @@ const srand    = require( 'seedrandom' )
 const rnd = function( phase ) {
   //console.log( 'phase', phase.toFraction() )
   return new srand( phase.toFraction() )()
+=======
+},{"../glslfunctions":429,"./expr":393,"./fragcolorexpr":394,"./vecexprs":427}],400:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.grain = exports.GrainExpr = void 0;
+const glslfunctions_1 = require("../glslfunctions");
+const expr_1 = require("./expr");
+// TODO consider getting rid of this since it's easy to make your own with
+// `random` and `brightness`
+/** grain expression */
+class GrainExpr extends expr_1.ExprVec4 {
+    constructor(grain) {
+        super(expr_1.tag `vec4((1.0 - ${grain} * random(gl_FragCoord.xy)) * gl_FragColor.rgb, gl_FragColor.a);`, ["uGrain"]);
+        this.grain = grain;
+        this.externalFuncs = [glslfunctions_1.glslFuncs.random];
+        this.needs.centerSample = true;
+    }
+    /** sets the grain level  */
+    setGrain(grain) {
+        this.setUniform("uGrain" + this.id, grain);
+        this.grain = expr_1.wrapInValue(grain);
+    }
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 }
 
 /* queryArc
@@ -74471,6 +81963,7 @@ const queryArc = function( pattern, phase, duration ) {
         // get phase offset if scheduling begins in middle of event arc
         adjustedPhase = adjustPhase( phase, getPhaseIncr( pattern ), end )
 
+<<<<<<< HEAD
   let eventList
 
   // if we're querying an arc that is less than or equal to one cycle in length..
@@ -74498,6 +81991,25 @@ const queryArc = function( pattern, phase, duration ) {
           false
         )
       )
+=======
+},{"../glslfunctions":429,"./expr":393}],401:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.hsv2rgb = exports.HSVToRGBExpr = void 0;
+const expr_1 = require("./expr");
+const glslfunctions_1 = require("../glslfunctions");
+/** HSV to RGB expression */
+class HSVToRGBExpr extends expr_1.ExprVec4 {
+    constructor(color) {
+        super(expr_1.tag `hsv2rgb(${color})`, ["uHSVCol"]);
+        this.color = color;
+        this.externalFuncs = [glslfunctions_1.glslFuncs.hsv2rgb];
+    }
+    /** sets the color to convert */
+    setColor(color) {
+        this.setUniform("uHSVCol", color);
+        this.color = color;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
   }
 
@@ -74517,6 +82029,7 @@ const queryArc = function( pattern, phase, duration ) {
   return eventList
 }
 
+<<<<<<< HEAD
 // if an event is found that represents a pattern (as opposed to a constant) this function
 // is called to query the pattern and map any generated events to the appropriate timespan
 const processPattern = ( pattern, duration, phase, phaseIncr=null, override = null, shouldRemapArcs=false ) => {
@@ -74546,6 +82059,26 @@ const processPattern = ( pattern, duration, phase, phaseIncr=null, override = nu
   }
  
   return events 
+=======
+},{"../glslfunctions":429,"./expr":393}],402:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.invert = exports.InvertExpr = void 0;
+const expr_1 = require("./expr");
+const glslfunctions_1 = require("../glslfunctions");
+/** invert expression */
+class InvertExpr extends expr_1.ExprVec4 {
+    constructor(color) {
+        super(expr_1.tag `invert(${color})`, ["uColor"]);
+        this.externalFuncs = [glslfunctions_1.glslFuncs.invert];
+        this.color = color;
+    }
+    /** sets the color */
+    setColor(color) {
+        this.setUniform("uColor", color);
+        this.color = color;
+    }
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 }
 // placeholder for potentially adding more goodies (parent arc etc.) later
 const Arc = ( start, end ) => ({ start, end })
@@ -74575,6 +82108,7 @@ const getMappedArc = ( arc, phase, phaseIncr ) => {
   return mappedArc
 }
 
+<<<<<<< HEAD
 // if initial phase is in the middle of an arc, advance to the end by calculating the difference
 // between the current phase and the start of the next arc, and increasing phase accordingly.
 const adjustPhase = ( phase, phaseIncr, end ) => phase.valueOf() === 0 
@@ -74594,6 +82128,22 @@ const getIndex = ( pattern, phase ) => {
   if( pattern.options !== undefined ) {
     if( pattern.options.overrideIncr === true ) {
       idx = phase.div( pattern.options.incr ).mod( pattern.values.length ).floor()
+=======
+},{"../glslfunctions":429,"./expr":393}],403:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.len = exports.LenExpr = void 0;
+const expr_1 = require("./expr");
+/** length expression */
+class LenExpr extends expr_1.ExprFloat {
+    constructor(vec) {
+        super(expr_1.tag `length(${vec})`, ["uVec"]);
+        this.vec = vec;
+    }
+    setVec(vec) {
+        this.setUniform("uVec" + this.id, vec);
+        this.vec = vec;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
   }else{
     // default list behavior
@@ -74603,6 +82153,7 @@ const getIndex = ( pattern, phase ) => {
   return idx.valueOf()
 }
 
+<<<<<<< HEAD
 // in addition to 'fast', phase resets are also necessary when indexing subpatterns,
 // which are currently arrays with no defined .type property, hence the inclusion of
 // undefined in the array below
@@ -74614,8 +82165,101 @@ const shouldReset = pattern => {
   const parent = pattern.parent !== undefined && shouldResetPhase.indexOf( pattern.parent.type ) > -1
 
   return reset && parent
+=======
+},{"./expr":393}],404:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.monochrome = exports.MonochromeExpr = void 0;
+const expr_1 = require("./expr");
+const glslfunctions_1 = require("../glslfunctions");
+/** monochrome expression */
+class MonochromeExpr extends expr_1.ExprVec4 {
+    constructor(color) {
+        super(expr_1.tag `monochrome(${color})`, ["uColor"]);
+        this.externalFuncs = [glslfunctions_1.glslFuncs.monochrome];
+        this.color = color;
+    }
+    /** sets the color */
+    setColor(color) {
+        this.setUniform("uColor", color);
+        this.color = color;
+    }
+}
+exports.MonochromeExpr = MonochromeExpr;
+/**
+ * creates an expression that converts a color into grayscale, keeping the
+ * original alpha
+ */
+function monochrome(col) {
+    return new MonochromeExpr(col);
+}
+exports.monochrome = monochrome;
+
+},{"../glslfunctions":429,"./expr":393}],405:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.motionblur = exports.MotionBlurLoop = void 0;
+const mergepass_1 = require("../mergepass");
+const channelsampleexpr_1 = require("./channelsampleexpr");
+const expr_1 = require("./expr");
+const fragcolorexpr_1 = require("./fragcolorexpr");
+const opexpr_1 = require("./opexpr");
+/** frame averaging motion blur loop */
+class MotionBlurLoop extends mergepass_1.EffectLoop {
+    constructor(target = 0, persistence = expr_1.float(expr_1.mut(0.3))) {
+        const col1 = opexpr_1.op(channelsampleexpr_1.channel(target), "*", persistence);
+        const col2 = opexpr_1.op(fragcolorexpr_1.fcolor(), "*", opexpr_1.op(1, "-", persistence));
+        const effects = [
+            mergepass_1.loop([opexpr_1.op(col1, "+", col2)]).target(target),
+            channelsampleexpr_1.channel(target),
+        ];
+        super(effects, { num: 1 });
+        this.persistence = persistence;
+    }
+    /** set the persistence (keep between 0 and 1) */
+    setPersistence(float) {
+        if (!(this.persistence instanceof expr_1.BasicFloat))
+            throw new Error("persistence expression not basic float");
+        this.persistence.setVal(float);
+    }
+}
+exports.MotionBlurLoop = MotionBlurLoop;
+/**
+ * creates a frame averaging motion blur effect
+ * @param target the channel where your accumulation buffer is (defaults to 0,
+ * which you might be using for something like the depth texture, so be sure to
+ * change this to suit your needs)
+ * @param persistence close to 0 is more ghostly, and close to 1 is nearly no
+ * motion blur at all (defaults to 0.3)
+ */
+function motionblur(target, persistence) {
+    return new MotionBlurLoop(target, expr_1.wrapInValue(persistence));
+}
+exports.motionblur = motionblur;
+
+},{"../mergepass":431,"./channelsampleexpr":387,"./expr":393,"./fragcolorexpr":394,"./opexpr":411}],406:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.mouse = exports.MouseExpr = void 0;
+const expr_1 = require("./expr");
+/** mouse position expression */
+class MouseExpr extends expr_1.ExprVec2 {
+    constructor() {
+        super(expr_1.tag `uMouse`, []);
+        this.needs.mouseUniform = true;
+    }
+}
+exports.MouseExpr = MouseExpr;
+/**
+ * creates an expression that evaluates to a vector representing the mouse
+ * position in pixels
+ */
+function mouse() {
+    return new MouseExpr();
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 }
 
+<<<<<<< HEAD
 // I assume this will need to be a switch on pattern.type in the future...
 const getPhaseIncr = pattern => {
   let incr
@@ -74638,8 +82282,98 @@ const getPhaseIncr = pattern => {
   }
 
   return incr
+=======
+},{"./expr":393}],407:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.center = exports.NormCenterFragCoordExpr = void 0;
+const expr_1 = require("./expr");
+/** normalized centered frag coord expression */
+class NormCenterFragCoordExpr extends expr_1.ExprVec2 {
+    constructor() {
+        super(expr_1.tag `(gl_FragCoord.xy / uResolution - 0.5)`, []);
+    }
+}
+exports.NormCenterFragCoordExpr = NormCenterFragCoordExpr;
+/**
+ * creates an expression that calculates the normalized centered coord
+ * (coordinates range from -0.5 to 0.5)
+ */
+function center() {
+    return new NormCenterFragCoordExpr();
+}
+exports.center = center;
+
+},{"./expr":393}],408:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.norm = exports.NormExpr = void 0;
+const expr_1 = require("./expr");
+/** normalize expression */
+class NormExpr extends expr_1.Operator {
+    constructor(vec) {
+        super(vec, expr_1.tag `normalize(${vec})`, ["uVec"]);
+        this.vec = vec;
+    }
+    /** sets the vec to normalize */
+    setVec(vec) {
+        this.setUniform("uVec" + this.id, vec);
+        this.vec = vec;
+    }
+}
+exports.NormExpr = NormExpr;
+/** creates an expression that normalizes a vector */
+function norm(vec) {
+    return new NormExpr(vec);
+}
+exports.norm = norm;
+
+},{"./expr":393}],409:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.pos = exports.NormFragCoordExpr = void 0;
+const expr_1 = require("./expr");
+/** normalized frag coord expression */
+class NormFragCoordExpr extends expr_1.ExprVec2 {
+    constructor() {
+        // don't remove these parens! even if you think you are being clever about
+        // order of operations
+        super(expr_1.tag `(gl_FragCoord.xy / uResolution)`, []);
+    }
+}
+exports.NormFragCoordExpr = NormFragCoordExpr;
+/**
+ * creates an expression that calculates the normalized frag coord (coordinates
+ * range from 0 to 1)
+ */
+function pos() {
+    return new NormFragCoordExpr();
+}
+exports.pos = pos;
+
+},{"./expr":393}],410:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.nmouse = exports.NormMouseExpr = void 0;
+const expr_1 = require("./expr");
+/** normalized mouse position expression */
+class NormMouseExpr extends expr_1.ExprVec2 {
+    constructor() {
+        super(expr_1.tag `(uMouse / uResolution.xy)`, []);
+        this.needs.mouseUniform = true;
+    }
+}
+exports.NormMouseExpr = NormMouseExpr;
+/**
+ * creates an expression that calculates the normalized mouse position
+ * (coordinates range from 0 to 1)
+ */
+function nmouse() {
+    return new NormMouseExpr();
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 }
 
+<<<<<<< HEAD
 const handlers = {
   rest( state ) { return state },
 
@@ -74696,9 +82430,224 @@ const handlers = {
         const evt = { 
           value:member.value, 
           arc:Arc( phase, phase.add( dur ) ),
+=======
+},{"./expr":393}],411:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.op = exports.OpExpr = void 0;
+const expr_1 = require("./expr");
+function genOpSourceList(left, op, right) {
+    return {
+        sections: ["(", ` ${op} `, ")"],
+        values: [left, right],
+    };
+}
+class OpExpr extends expr_1.Operator {
+    constructor(left, op, right) {
+        super(left, genOpSourceList(left, op, right), ["uLeft", "uRight"]);
+        this.left = left;
+        this.right = right;
+    }
+    setLeft(left) {
+        this.setUniform("uLeft" + this.id, left);
+        this.left = expr_1.wrapInValue(left);
+    }
+    setRight(right) {
+        this.setUniform("uRight" + this.id, right);
+        this.right = expr_1.wrapInValue(right);
+    }
+}
+exports.OpExpr = OpExpr;
+// implementation
+/**
+ * creates an arithmetic operator expression
+ * @param left expression left of operator
+ * @param op string representing arithmetic operator
+ * @param right expression right of operator
+ */
+function op(left, op, right) {
+    return new OpExpr(expr_1.wrapInValue(left), op, expr_1.wrapInValue(right));
+}
+exports.op = op;
+
+},{"./expr":393}],412:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.fractalize = exports.perlin = exports.PerlinExpr = void 0;
+const glslfunctions_1 = require("../glslfunctions");
+const expr_1 = require("./expr");
+const opexpr_1 = require("./opexpr");
+/** Perlin noise expression */
+class PerlinExpr extends expr_1.ExprFloat {
+    // TODO include a default
+    constructor(pos) {
+        super(expr_1.tag `gradientnoise(${pos})`, ["uPos"]);
+        this.pos = pos;
+        this.externalFuncs = [glslfunctions_1.glslFuncs.random2, glslfunctions_1.glslFuncs.gradientnoise];
+    }
+    /** sets the position to calculate noise value of */
+    setPos(pos) {
+        this.setUniform("uPos", pos);
+        this.pos = pos;
+    }
+}
+exports.PerlinExpr = PerlinExpr;
+/**
+ * creates a perlin noise expression; values range from -1 to 1 but they tend
+ * to be grayer than the [[simplex]] implementation
+ * @param pos position
+ */
+function perlin(pos) {
+    return new PerlinExpr(pos);
+}
+exports.perlin = perlin;
+/**
+ * take any function from a position to a float, and repeatedly sum calls to it
+ * with doubling frequency and halving amplitude (works well with [[simplex]]
+ * and [[perlin]])
+ * @param pos position
+ * @param octaves how many layers deep to make the fractal
+ * @param func the function to fractalize
+ */
+function fractalize(pos, octaves, func) {
+    if (octaves < 0)
+        throw new Error("octaves can't be < 0");
+    const recurse = (pos, size, level) => {
+        if (level <= 0)
+            return expr_1.pfloat(0);
+        return opexpr_1.op(func(opexpr_1.op(pos, "/", size * 2)), "+", recurse(pos, size / 2, level - 1));
+    };
+    return recurse(pos, 0.5, octaves);
+}
+exports.fractalize = fractalize;
+
+},{"../glslfunctions":429,"./expr":393,"./opexpr":411}],413:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.pblur = exports.PowerBlurLoop = void 0;
+const mergepass_1 = require("../mergepass");
+const blurexpr_1 = require("./blurexpr");
+const vecexprs_1 = require("./vecexprs");
+const expr_1 = require("./expr");
+const baseLog = (x, y) => Math.log(y) / Math.log(x);
+// TODO consider getting rid of this, as it pretty much never looks good
+/** power blur loop */
+class PowerBlurLoop extends mergepass_1.EffectLoop {
+    constructor(size) {
+        const side = blurexpr_1.gauss(expr_1.mut(vecexprs_1.pvec2(size, 0)));
+        const up = blurexpr_1.gauss(expr_1.mut(vecexprs_1.pvec2(0, size)));
+        const reps = Math.ceil(baseLog(2, size));
+        super([side, up], {
+            num: reps + 1,
+        });
+        this.size = size;
+        this.loopInfo.func = (i) => {
+            const distance = this.size / Math.pow(2, i);
+            up.setDirection(vecexprs_1.pvec2(0, distance));
+            side.setDirection(vecexprs_1.pvec2(distance, 0));
+        };
+    }
+    /** sets the size of the radius */
+    setSize(size) {
+        this.size = size;
+        this.loopInfo.num = Math.ceil(baseLog(2, size));
+    }
+}
+exports.PowerBlurLoop = PowerBlurLoop;
+/**
+ * fast approximate blur for large blur radius that might look good in some cases
+ * @param size the radius of the blur
+ */
+function pblur(size) {
+    return new PowerBlurLoop(size);
+}
+exports.pblur = pblur;
+
+},{"../mergepass":431,"./blurexpr":384,"./expr":393,"./vecexprs":427}],414:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.random = exports.RandomExpr = void 0;
+const glslfunctions_1 = require("../glslfunctions");
+const expr_1 = require("./expr");
+const normfragcoordexpr_1 = require("./normfragcoordexpr");
+/** psuedorandom number expression */
+class RandomExpr extends expr_1.ExprFloat {
+    constructor(seed = normfragcoordexpr_1.pos()) {
+        super(expr_1.tag `random(${seed})`, ["uSeed"]);
+        this.seed = seed;
+        this.externalFuncs = [glslfunctions_1.glslFuncs.random];
+    }
+    /** sets the seed (vary this over time to get a moving effect) */
+    setSeed(seed) {
+        this.setUniform("uSeed", seed);
+        this.seed = seed;
+    }
+}
+exports.RandomExpr = RandomExpr;
+/**
+ * creates expression that evaluates to a pseudorandom number between 0 and 1
+ * @param seed vec2 to to seed the random number (defaults to the normalized
+ * frag coord)
+ */
+function random(seed) {
+    return new RandomExpr(seed);
+}
+exports.random = random;
+
+},{"../glslfunctions":429,"./expr":393,"./normfragcoordexpr":409}],415:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.region = void 0;
+const mergepass_1 = require("../mergepass");
+const expr_1 = require("./expr");
+const getcompexpr_1 = require("./getcompexpr");
+const normfragcoordexpr_1 = require("./normfragcoordexpr");
+const opexpr_1 = require("./opexpr");
+const ternaryexpr_1 = require("./ternaryexpr");
+const fragcolorexpr_1 = require("./fragcolorexpr");
+// form: x1, y1, x2, y2
+function createDifferenceFloats(floats) {
+    const axes = "xy";
+    const differences = [];
+    if (floats.length !== 4) {
+        throw new Error("incorrect amount of points specified for region");
+    }
+    for (let i = 0; i < 2; i++) {
+        differences.push(opexpr_1.op(getcompexpr_1.getcomp(normfragcoordexpr_1.pos(), axes[i]), "-", floats[i]));
+    }
+    for (let i = 2; i < floats.length; i++) {
+        differences.push(opexpr_1.op(floats[i], "-", getcompexpr_1.getcomp(normfragcoordexpr_1.pos(), axes[i - 2])));
+    }
+    return differences;
+}
+/**
+ * restrict an effect to a region of the screen
+ * @param space top left, top right, bottom left, bottom right corners of the
+ * region, or just a number if you wish to sample from a channel as the region
+ * @param success expression for being inside the region
+ * @param failure expression for being outside the region
+ * @param not whether to invert the region
+ */
+function region(space, success, failure, not = false) {
+    const floats = Array.isArray(space)
+        ? space.map((f) => expr_1.wrapInValue(f))
+        : typeof space === "number"
+            ? expr_1.wrapInValue(space)
+            : space;
+    if (failure instanceof mergepass_1.EffectLoop) {
+        if (!(success instanceof mergepass_1.EffectLoop)) {
+            [success, failure] = [failure, success]; // swap the order
+            not = !not; // invert the region
+        }
+    }
+    if (success instanceof mergepass_1.EffectLoop) {
+        if (!(failure instanceof mergepass_1.EffectLoop)) {
+            return success.regionWrap(floats, failure, true, not);
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
         }
         if( member.uid !== undefined ) evt.uid = member.uid 
 
+<<<<<<< HEAD
         eventList.push( evt )
       }
 
@@ -74710,8 +82659,46 @@ const handlers = {
         // advance phase to next phase increment
         phase = phase.add( phaseIncr.sub( phase.mod( phaseIncr ) ) ) 
       }
+=======
+},{"../mergepass":431,"./expr":393,"./fragcolorexpr":394,"./getcompexpr":398,"./normfragcoordexpr":409,"./opexpr":411,"./ternaryexpr":423}],416:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.resolution = exports.ResolutionExpr = void 0;
+const expr_1 = require("./expr");
+/** resolution expression */
+class ResolutionExpr extends expr_1.ExprVec2 {
+    constructor() {
+        super(expr_1.tag `uResolution`, []);
+    }
+}
+exports.ResolutionExpr = ResolutionExpr;
+/** creates an expression that evaluates to a vector representing the resolution */
+function resolution() {
+    return new ResolutionExpr();
+}
+exports.resolution = resolution;
+
+},{"./expr":393}],417:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.rgb2hsv = exports.RGBToHSVExpr = void 0;
+const expr_1 = require("./expr");
+const glslfunctions_1 = require("../glslfunctions");
+/** RGB to HSV expression */
+class RGBToHSVExpr extends expr_1.ExprVec4 {
+    constructor(color) {
+        super(expr_1.tag `rgb2hsv(${color})`, ["uRGBCol"]);
+        this.color = color;
+        this.externalFuncs = [glslfunctions_1.glslFuncs.rgb2hsv];
+    }
+    /** sets the color to convert */
+    setColor(color) {
+        this.setUniform("uRGBCol", color);
+        this.color = color;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
 
+<<<<<<< HEAD
     // prune any events that fall before our start phase or after our end phase
     eventList = eventList.filter( evt => {
       return evt.arc.start.valueOf() >= start.valueOf() && evt.arc.start.valueOf() < end.valueOf()
@@ -74738,11 +82725,67 @@ const handlers = {
         onesAndZeros.push( left )
         rotation++
       }
+=======
+},{"../glslfunctions":429,"./expr":393}],418:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.rotate = exports.RotateExpr = void 0;
+const glslfunctions_1 = require("../glslfunctions");
+const expr_1 = require("./expr");
+/** rotate expression */
+class RotateExpr extends expr_1.ExprVec2 {
+    constructor(vec, angle) {
+        super(expr_1.tag `rotate2d(${vec}, ${angle})`, ["uVec", "uAngle"]);
+        this.vec = vec;
+        this.angle = angle;
+        this.externalFuncs = [glslfunctions_1.glslFuncs.rotate2d];
+    }
+    /** set the vector to rotate */
+    setVec(vec) {
+        this.setUniform("uVec" + this.id, vec);
+        this.vec = vec;
+    }
+    /** set the angle to rotate by */
+    setAngle(angle) {
+        this.setUniform("uAngle" + this.id, angle);
+        this.angle = expr_1.wrapInValue(angle);
+    }
+}
+exports.RotateExpr = RotateExpr;
+/**
+ * creates an expression that rotates a vector by a given angle
+ * @param vec the vector to rotate
+ * @param angle radians to rotate vector by
+ */
+function rotate(vec, angle) {
+    return new RotateExpr(vec, expr_1.wrapInValue(angle));
+}
+exports.rotate = rotate;
+
+},{"../glslfunctions":429,"./expr":393}],419:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.input = exports.SceneSampleExpr = void 0;
+const expr_1 = require("./expr");
+const normfragcoordexpr_1 = require("./normfragcoordexpr");
+/** scene sample expression */
+class SceneSampleExpr extends expr_1.ExprVec4 {
+    constructor(coord = normfragcoordexpr_1.pos()) {
+        super(expr_1.tag `texture2D(uSceneSampler, ${coord})`, ["uCoord"]);
+        this.coord = coord;
+        this.needs.sceneBuffer = true;
+    }
+    /** sets coordinate where scene is being sampled from */
+    setCoord(coord) {
+        this.setUniform("uCoord", coord);
+        this.coord = coord;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
     }
     
     const slotDuration = duration.div( pattern.slots.value )
     const valueIsValue = pattern.value.type === 'number' || pattern.value.type === 'string'
 
+<<<<<<< HEAD
     const events = onesAndZeros.map( ( shouldInclude, i, arr ) => {
       let evt
       // don't process unless an actual event will be included...
@@ -74806,6 +82849,388 @@ const handlers = {
 
     return state
   },
+=======
+},{"./expr":393,"./normfragcoordexpr":409}],420:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SetColorExpr = void 0;
+const expr_1 = require("./expr");
+/**
+ * set fragment color expression (not needed for the user; used internally for
+ * wrapping any kind of [[Vec4]] in an [[ExprVec4]])
+ */
+class SetColorExpr extends expr_1.ExprVec4 {
+    constructor(vec) {
+        super(expr_1.tag `(${vec})`, ["uVal"]);
+        this.vec = vec;
+    }
+}
+exports.SetColorExpr = SetColorExpr;
+
+},{"./expr":393}],421:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.simplex = exports.SimplexNoise = void 0;
+const glslfunctions_1 = require("../glslfunctions");
+const expr_1 = require("./expr");
+/** simplex noise expression */
+class SimplexNoise extends expr_1.ExprFloat {
+    constructor(pos) {
+        super(expr_1.tag `simplexnoise(${pos})`, ["uPos"]);
+        this.pos = pos;
+        this.externalFuncs = [glslfunctions_1.glslFuncs.simplexhelpers, glslfunctions_1.glslFuncs.simplexnoise];
+    }
+    setPos(pos) {
+        this.setUniform("uPos", pos);
+        this.pos = pos;
+    }
+}
+exports.SimplexNoise = SimplexNoise;
+/**
+ * creates a simplex noise expression; values range from -1 to 1
+ * @param pos position
+ */
+function simplex(pos) {
+    return new SimplexNoise(pos);
+}
+exports.simplex = simplex;
+
+},{"../glslfunctions":429,"./expr":393}],422:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.sobel = exports.SobelExpr = void 0;
+const glslfunctions_1 = require("../glslfunctions");
+const expr_1 = require("./expr");
+/** Sobel edge detection expression */
+class SobelExpr extends expr_1.ExprVec4 {
+    constructor(samplerNum) {
+        super(expr_1.tag `sobel()`, []);
+        this.externalFuncs = [glslfunctions_1.glslFuncs.sobel];
+        this.brandExprWithChannel(0, samplerNum);
+    }
+}
+exports.SobelExpr = SobelExpr;
+/**
+ * creates a Sobel edge detection expression that outputs the raw result; for
+ * more highly processed edge detection expressions, see [[edgecolor]] or
+ * [[edge]]
+ * @param samplerNum where to sample from
+ */
+function sobel(samplerNum) {
+    return new SobelExpr(samplerNum);
+}
+exports.sobel = sobel;
+
+},{"../glslfunctions":429,"./expr":393}],423:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ternary = exports.TernaryExpr = void 0;
+const expr_1 = require("./expr");
+function genTernarySourceList(floats, success, failure, not) {
+    const sourceList = {
+        sections: [`(${not ? "!" : ""}(`],
+        values: [],
+    };
+    let counter = 0;
+    // generate the boolean expression
+    if (floats !== null) {
+        for (const f of floats) {
+            counter++;
+            const last = counter === floats.length;
+            sourceList.values.push(f);
+            sourceList.sections.push(` > 0.${last ? ") ? " : " && "}`);
+        }
+    }
+    else {
+        sourceList.sections[0] += "uCount == 0) ? ";
+    }
+    // generate the success expression and colon
+    sourceList.values.push(success);
+    sourceList.sections.push(" : ");
+    // generate the failure expression
+    sourceList.values.push(failure);
+    sourceList.sections.push(")");
+    return sourceList;
+}
+class TernaryExpr extends expr_1.Operator {
+    constructor(floats, success, failure, not) {
+        super(success, genTernarySourceList(floats, success, failure, not), [
+            ...(floats !== null
+                ? Array.from(floats, (val, index) => "uFloat" + index)
+                : []),
+            "uSuccess",
+            "uFailure",
+        ]);
+        this.success = success;
+        this.failure = failure;
+        this.needs.passCount = floats === null;
+    }
+}
+exports.TernaryExpr = TernaryExpr;
+/**
+ * creates a ternary expression; the boolean expression is if all the floats
+ * given are greater than 0
+ * @param floats if all these floats (or the single float) are above 0, then
+ * evaluates to success expression
+ * @param success
+ * @param failure
+ * @param not whether to invert the ternary
+ */
+function ternary(floats, success, failure, not = false) {
+    // TODO make this type safe (ran into a type error here)
+    // wrap single float in array if need be
+    if (!Array.isArray(floats) && floats !== null)
+        floats = [floats].map((f) => expr_1.wrapInValue(f));
+    // TODO get rid of this cast
+    return new TernaryExpr(floats, expr_1.wrapInValue(success), expr_1.wrapInValue(failure), not);
+}
+exports.ternary = ternary;
+
+},{"./expr":393}],424:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.time = exports.TimeExpr = void 0;
+const expr_1 = require("./expr");
+/** time expression */
+class TimeExpr extends expr_1.ExprFloat {
+    constructor() {
+        super(expr_1.tag `uTime`, []);
+        this.needs.timeUniform = true;
+    }
+}
+exports.TimeExpr = TimeExpr;
+/** creates a time expression that evaluates to the current time */
+function time() {
+    return new TimeExpr();
+}
+exports.time = time;
+
+},{"./expr":393}],425:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.translate = exports.TranslateExpr = void 0;
+const expr_1 = require("./expr");
+// really just adding two vecs together, but it might be confusing that there's
+// rotate but no translate, so this is included. also it could make some
+// operations more readable
+/** sets the translate expression */
+class TranslateExpr extends expr_1.ExprVec2 {
+    constructor(vec, pos) {
+        super(expr_1.tag `(${vec} + ${pos})`, ["uVec", "uPos"]);
+        this.vec = vec;
+        this.pos = pos;
+    }
+    /** sets the starting position */
+    setVec(vec) {
+        this.setUniform("uVec" + this.id, vec);
+        this.vec = vec;
+    }
+    /** sets how far the vector will be translated */
+    setPos(pos) {
+        this.setUniform("uPos" + this.id, pos);
+        this.pos = pos;
+    }
+}
+exports.TranslateExpr = TranslateExpr;
+/** translates the position of a vector by another vector */
+function translate(vec, pos) {
+    return new TranslateExpr(vec, pos);
+}
+exports.translate = translate;
+
+},{"./expr":393}],426:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.truedepth = exports.TrueDepthExpr = void 0;
+const expr_1 = require("./expr");
+const glslfunctions_1 = require("../glslfunctions");
+/** true depth expression */
+class TrueDepthExpr extends expr_1.ExprFloat {
+    constructor(depth) {
+        super(expr_1.tag `truedepth(${depth})`, ["uDist"]);
+        this.depth = depth;
+        this.externalFuncs = [glslfunctions_1.glslFuncs.truedepth];
+    }
+    /** sets the distance to convert to the true depth */
+    setDist(depth) {
+        this.setUniform("uDist", depth);
+        this.depth = expr_1.wrapInValue(depth);
+    }
+}
+exports.TrueDepthExpr = TrueDepthExpr;
+/** calculates the linear depth from inverse depth value `1 / distance` */
+function truedepth(depth) {
+    return new TrueDepthExpr(expr_1.wrapInValue(depth));
+}
+exports.truedepth = truedepth;
+
+},{"../glslfunctions":429,"./expr":393}],427:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.pvec4 = exports.pvec3 = exports.pvec2 = exports.vec4 = exports.vec3 = exports.vec2 = void 0;
+const expr_1 = require("./expr");
+/** @ignore */
+function vecSourceList(...components) {
+    const sections = ["vec" + components.length + "("];
+    for (let i = 0; i < components.length - 1; i++) {
+        sections.push(", ");
+    }
+    const defaultNames = [];
+    for (let i = 0; i < components.length; i++) {
+        defaultNames.push("uComp" + i);
+    }
+    sections.push(")");
+    return [{ sections: sections, values: components }, defaultNames];
+}
+// expression vector shorthands
+/** creates a basic vec2 expression */
+function vec2(comp1, comp2) {
+    return new expr_1.BasicVec2(...vecSourceList(...[comp1, comp2].map((c) => expr_1.wrapInValue(c))));
+}
+exports.vec2 = vec2;
+/** creates a basic vec3 expression */
+function vec3(comp1, comp2, comp3) {
+    return new expr_1.BasicVec3(...vecSourceList(...[comp1, comp2, comp3].map((c) => expr_1.wrapInValue(c))));
+}
+exports.vec3 = vec3;
+/** creates a basic vec4 expression */
+function vec4(comp1, comp2, comp3, comp4) {
+    return new expr_1.BasicVec4(...vecSourceList(...[comp1, comp2, comp3, comp4].map((c) => expr_1.wrapInValue(c))));
+}
+exports.vec4 = vec4;
+// primitive vector shorthands
+/** creates a primitive vec2 expression */
+function pvec2(comp1, comp2) {
+    return new expr_1.PrimitiveVec2([comp1, comp2]);
+}
+exports.pvec2 = pvec2;
+/** creates a primitive vec3 expression */
+function pvec3(comp1, comp2, comp3) {
+    return new expr_1.PrimitiveVec3([comp1, comp2, comp3]);
+}
+exports.pvec3 = pvec3;
+/** creates a primitive vec4 expression */
+function pvec4(comp1, comp2, comp3, comp4) {
+    return new expr_1.PrimitiveVec4([comp1, comp2, comp3, comp4]);
+}
+exports.pvec4 = pvec4;
+
+},{"./expr":393}],428:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+
+},{}],429:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.glslFuncs = void 0;
+// adapted from The Book of Shaders
+/** glsl source code for external functions */
+exports.glslFuncs = {
+    // TODO bad to calculate single pixel width every time; maybe it can be a need
+    texture2D_region: `vec4 texture2D_region(
+  float r_x_min,
+  float r_y_min,
+  float r_x_max,
+  float r_y_max,
+  sampler2D sampler,
+  vec2 uv
+) {
+  vec2 d = vec2(1., 1.) / uResolution; // pixel width
+  return texture2D(sampler, clamp(uv, vec2(r_x_min + d.x, r_y_min + d.x), vec2(r_x_max - d.y, r_y_max - d.y)));
+}`,
+    // TODO replace with a better one
+    // adapted from The Book of Shaders
+    random: `float random(vec2 st) {
+  return fract(sin(dot(st.xy / 99., vec2(12.9898, 78.233))) * 43758.5453123);
+}`,
+    // adapted from The Book of Shaders
+    random2: `vec2 random2(vec2 st) {
+  st = vec2(dot(st,vec2(127.1,311.7)), dot(st,vec2(269.5,183.3)));
+  return -1.0 + 2.0*fract(sin(st)*43758.5453123);
+}`,
+    rotate2d: `vec2 rotate2d(vec2 v, float angle) {
+  return mat2(cos(angle), -sin(angle), sin(angle), cos(angle)) * v;
+}`,
+    // adapted from The Book of Shaders
+    hsv2rgb: `vec4 hsv2rgb(vec4 co){
+  vec3 c = co.xyz;
+  vec3 rgb = clamp(abs(mod(
+    c.x * 6.0 + vec3(0.0, 4.0, 2.0), 6.0) - 3.0) - 1.0, 0.0, 1.0);
+  rgb = rgb * rgb * (3.0 - 2.0 * rgb);
+  vec3 hsv = c.z * mix(vec3(1.0), rgb, c.y);
+  return vec4(hsv.x, hsv.y, hsv.z, co.a);
+}`,
+    // adapted from The Book of Shaders
+    rgb2hsv: `vec4 rgb2hsv(vec4 co){
+  vec3 c = co.rgb;
+  vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+  vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+  vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+  float d = q.x - min(q.w, q.y);
+  float e = 1.0e-10;
+  return vec4(abs(q.z + (q.w - q.y) / (6.0 * d + e)),
+              d / (q.x + e),
+              q.x, co.a);
+}`,
+    // all gaussian blurs adapted from:
+    // https://github.com/Jam3/glsl-fast-gaussian-blur/blob/master/5.glsl
+    gauss5: `vec4 gauss5(vec2 dir) {
+  vec2 uv = gl_FragCoord.xy / uResolution;
+  vec4 col = vec4(0.0);
+  vec2 off1 = vec2(1.3333333333333333) * dir;
+  col += texture2D(uSampler, uv) * 0.29411764705882354;
+  col += texture2D(uSampler, uv + (off1 / uResolution)) * 0.35294117647058826;
+  col += texture2D(uSampler, uv - (off1 / uResolution)) * 0.35294117647058826;
+  return col;
+}`,
+    gauss9: `vec4 gauss9(vec2 dir) {
+  vec2 uv = gl_FragCoord.xy / uResolution;
+  vec4 col = vec4(0.0);
+  vec2 off1 = vec2(1.3846153846) * dir;
+  vec2 off2 = vec2(3.2307692308) * dir;
+  col += texture2D(uSampler, uv) * 0.2270270270;
+  col += texture2D(uSampler, uv + (off1 / uResolution)) * 0.3162162162;
+  col += texture2D(uSampler, uv - (off1 / uResolution)) * 0.3162162162;
+  col += texture2D(uSampler, uv + (off2 / uResolution)) * 0.0702702703;
+  col += texture2D(uSampler, uv - (off2 / uResolution)) * 0.0702702703;
+  return col;
+}`,
+    gauss13: `vec4 gauss13(vec2 dir) {
+  vec2 uv = gl_FragCoord.xy / uResolution;
+  vec4 col = vec4(0.0);
+  vec2 off1 = vec2(1.411764705882353) * dir;
+  vec2 off2 = vec2(3.2941176470588234) * dir;
+  vec2 off3 = vec2(5.176470588235294) * dir;
+  col += texture2D(uSampler, uv) * 0.1964825501511404;
+  col += texture2D(uSampler, uv + (off1 / uResolution)) * 0.2969069646728344;
+  col += texture2D(uSampler, uv - (off1 / uResolution)) * 0.2969069646728344;
+  col += texture2D(uSampler, uv + (off2 / uResolution)) * 0.09447039785044732;
+  col += texture2D(uSampler, uv - (off2 / uResolution)) * 0.09447039785044732;
+  col += texture2D(uSampler, uv + (off3 / uResolution)) * 0.010381362401148057;
+  col += texture2D(uSampler, uv - (off3 / uResolution)) * 0.010381362401148057;
+  return col;
+}`,
+    contrast: `vec4 contrast(float val, vec4 col) {
+  col.rgb /= col.a;
+  col.rgb = ((col.rgb - 0.5) * val) + 0.5;
+  col.rgb *= col.a;
+  return col;
+}`,
+    brightness: `vec4 brightness(float val, vec4 col) {
+  col.rgb /= col.a;
+  col.rgb += val;
+  col.rgb *= col.a;
+  return col;
+}`,
+    // adapted from https://www.shadertoy.com/view/ls3GWS which was adapted from
+    // http://www.geeks3d.com/20110405/fxaa-fast-approximate-anti-aliasing-demo-glsl-opengl-test-radeon-geforce/3/
+    // original algorithm created by Timothy Lottes
+    fxaa: `vec4 fxaa() {
+  float FXAA_SPAN_MAX = 8.0;
+  float FXAA_REDUCE_MUL = 1.0 / FXAA_SPAN_MAX;
+  float FXAA_REDUCE_MIN = 1.0 / 128.0;
+  float FXAA_SUBPIX_SHIFT = 1.0 / 4.0;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   number( state, pattern, phase, duration ) {
     //if( phase.valueOf() === 0 ) {
@@ -75043,8 +83468,22 @@ var nextImmediateId = 0;
 
 // DOM APIs, for completeness
 
+<<<<<<< HEAD
 exports.setTimeout = function() {
   return new Timeout(apply.call(setTimeout, window, arguments), clearTimeout);
+=======
+},{}],430:[function(require,module,exports){
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !exports.hasOwnProperty(p)) __createBinding(exports, m, p);
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 };
 exports.setInterval = function() {
   return new Timeout(apply.call(setInterval, window, arguments), clearInterval);
@@ -75052,9 +83491,36 @@ exports.setInterval = function() {
 exports.clearTimeout =
 exports.clearInterval = function(timeout) { timeout.close(); };
 
+<<<<<<< HEAD
 function Timeout(id, clearFn) {
   this._id = id;
   this._clearFn = clearFn;
+=======
+},{"./exprs/arity1":380,"./exprs/arity2":381,"./exprs/bloomloop":382,"./exprs/blur2dloop":383,"./exprs/blurexpr":384,"./exprs/brightnessexpr":385,"./exprs/changecompexpr":386,"./exprs/channelsampleexpr":387,"./exprs/contrastexpr":388,"./exprs/depthtoocclusionexpr":389,"./exprs/dofloop":390,"./exprs/edgecolorexpr":391,"./exprs/edgeexpr":392,"./exprs/expr":393,"./exprs/fragcolorexpr":394,"./exprs/fragcoordexpr":395,"./exprs/fxaaexpr":396,"./exprs/getcompexpr":398,"./exprs/godraysexpr":399,"./exprs/grainexpr":400,"./exprs/hsvtorgbexpr":401,"./exprs/invertexpr":402,"./exprs/lenexpr":403,"./exprs/monochromeexpr":404,"./exprs/motionblurloop":405,"./exprs/mouseexpr":406,"./exprs/normcenterfragcoordexpr":407,"./exprs/normexpr":408,"./exprs/normfragcoordexpr":409,"./exprs/normmouseexpr":410,"./exprs/opexpr":411,"./exprs/perlinexpr":412,"./exprs/powerblur":413,"./exprs/randomexpr":414,"./exprs/regiondecorator":415,"./exprs/resolutionexpr":416,"./exprs/rgbtohsvexpr":417,"./exprs/rotateexpr":418,"./exprs/scenesampleexpr":419,"./exprs/simplexexpr":421,"./exprs/sobelexpr":422,"./exprs/ternaryexpr":423,"./exprs/timeexpr":424,"./exprs/translateexpr":425,"./exprs/truedepthexpr":426,"./exprs/vecexprs":427,"./exprtypes":428,"./glslfunctions":429,"./mergepass":431,"./settings":432}],431:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.sendTexture = exports.makeTexture = exports.Merger = exports.loop = exports.EffectLoop = exports.EffectDictionary = void 0;
+const codebuilder_1 = require("./codebuilder");
+const expr_1 = require("./exprs/expr");
+const fragcolorexpr_1 = require("./exprs/fragcolorexpr");
+const regiondecorator_1 = require("./exprs/regiondecorator");
+const scenesampleexpr_1 = require("./exprs/scenesampleexpr");
+const setcolorexpr_1 = require("./exprs/setcolorexpr");
+const ternaryexpr_1 = require("./exprs/ternaryexpr");
+const settings_1 = require("./settings");
+const webglprogramloop_1 = require("./webglprogramloop");
+function wrapInSetColors(effects) {
+    return effects.map((e) => e instanceof expr_1.ExprVec4 || e instanceof EffectLoop ? e : new setcolorexpr_1.SetColorExpr(e));
+}
+// should be function of loop?
+function processEffectMap(eMap) {
+    const result = {};
+    for (const name in eMap) {
+        const val = eMap[name];
+        result[name] = wrapInSetColors(val);
+    }
+    return result;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 }
 Timeout.prototype.unref = Timeout.prototype.ref = function() {};
 Timeout.prototype.close = function() {
@@ -75177,6 +83643,7 @@ exports.free = function free(array) {
     DATA[log_n].push(array)
   }
 }
+<<<<<<< HEAD
 
 function freeArrayBuffer(buffer) {
   if(!buffer) {
@@ -75185,6 +83652,37 @@ function freeArrayBuffer(buffer) {
   var n = buffer.length || buffer.byteLength
   var log_n = bits.log2(n)
   DATA[log_n].push(buffer)
+=======
+exports.sendTexture = sendTexture;
+
+},{"./codebuilder":379,"./exprs/expr":393,"./exprs/fragcolorexpr":394,"./exprs/regiondecorator":415,"./exprs/scenesampleexpr":419,"./exprs/setcolorexpr":420,"./exprs/ternaryexpr":423,"./settings":432,"./webglprogramloop":434}],432:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.settings = void 0;
+exports.settings = {
+    /**
+     * set to 1 if you want reasonable logging for debugging, such as the
+     * generated GLSL code and program tree. set to 100 if you want texture debug
+     * info (you probably don't want to do this, as it logs many lines every
+     * frame!)
+     */
+    verbosity: 0,
+    /** texture offset */
+    offset: 0,
+};
+
+},{}],433:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.brandWithRegion = exports.brandWithChannel = exports.captureAndAppend = void 0;
+const glslfunctions_1 = require("./glslfunctions");
+/** @ignore */
+function captureAndAppend(str, reg, suffix) {
+    const matches = str.match(reg);
+    if (matches === null)
+        throw new Error("no match in the given string");
+    return str.replace(reg, matches[0] + suffix);
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 }
 
 function freeTypedArray(array) {
@@ -75254,6 +83752,7 @@ exports.malloc = function malloc(n, dtype) {
   return null
 }
 
+<<<<<<< HEAD
 function mallocArrayBuffer(n) {
   var n = bits.nextPow2(n)
   var log_n = bits.log2(n)
@@ -75262,6 +83761,24 @@ function mallocArrayBuffer(n) {
     return d.pop()
   }
   return new ArrayBuffer(n)
+=======
+},{"./glslfunctions":429}],434:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.WebGLProgramLoop = exports.WebGLProgramLeaf = exports.updateNeeds = void 0;
+const settings_1 = require("./settings");
+// update me on change to needs
+function updateNeeds(acc, curr) {
+    return {
+        neighborSample: acc.neighborSample || curr.neighborSample,
+        centerSample: acc.centerSample || curr.centerSample,
+        sceneBuffer: acc.sceneBuffer || curr.sceneBuffer,
+        timeUniform: acc.timeUniform || curr.timeUniform,
+        mouseUniform: acc.mouseUniform || curr.mouseUniform,
+        passCount: acc.passCount || curr.passCount,
+        extraBuffers: new Set([...acc.extraBuffers, ...curr.extraBuffers]),
+    };
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 }
 exports.mallocArrayBuffer = mallocArrayBuffer
 
@@ -86308,6 +94825,18 @@ module.exports = function( Marker ) {
   return ArrayExpression
 }
 
+<<<<<<< HEAD
+=======
+},{"./settings":432}],435:[function(require,module,exports){
+/**
+ * Bit twiddling hacks for JavaScript.
+ *
+ * Author: Mikola Lysenko
+ *
+ * Ported from Stanford bit twiddling hack library:
+ *    http://graphics.stanford.edu/~seander/bithacks.html
+ */
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 },{"../utilities.js":513}],500:[function(require,module,exports){
 module.exports = function( Marker ) {
@@ -86745,10 +95274,15 @@ const Utility = require( '../utilities.js' )
 const $ = Utility.create
 const EuclidAnnotation = require( '../update/euclidAnnotation.js' )
 
+<<<<<<< HEAD
 module.exports = function( node, cm, track, objectName, state, cb ) {
   const Marker = Gibber.Environment.codeMarkup 
   const steps = node.arguments[ 0 ].properties
   const Identifier = Marker.patternMarkupFunctions.Identifier
+=======
+},{}],436:[function(require,module,exports){
+"use strict"
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   track.markup.textMarkers[ 'step' ] = []
   track.markup.textMarkers[ 'step' ].children = []
@@ -86782,8 +95316,13 @@ module.exports = function( node, cm, track, objectName, state, cb ) {
         step.loc.start.ch += 1
         step.loc.end.ch += 1
 
+<<<<<<< HEAD
         // replace comma with a comma and a space
         cm.replaceRange( ", ", step.loc.start, step.loc.end )
+=======
+},{"./lib/thunk.js":438}],437:[function(require,module,exports){
+"use strict"
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
         step.loc.start.ch += 1
         step.loc.end.ch += 1
@@ -86845,8 +95384,13 @@ module.exports = function( node, cm, track, objectName, state, cb ) {
 
 },{"../update/euclidAnnotation.js":511,"../utilities.js":513}],507:[function(require,module,exports){
 
+<<<<<<< HEAD
 const Utility = require( '../utilities.js' )
 const $ = Utility.create
+=======
+},{"uniq":529}],438:[function(require,module,exports){
+"use strict"
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 module.exports = function( node, cm, track, objectName, vOffset=0 ) {
   let timelineNodes = node.arguments[ 0 ].elements
@@ -86883,10 +95427,15 @@ const Utility = require( '../utilities.js' )
 const $ = Utility.create
 const EuclidAnnotation = require( '../update/euclidAnnotation.js' )
 
+<<<<<<< HEAD
 module.exports = function( node, cm, track, objectName, state, cb ) {
   const Marker = Gibber.Environment.codeMarkup 
   const steps = node.arguments[ 0 ].properties
   const Identifier = Marker.patternMarkupFunctions.Identifier
+=======
+},{"./compile.js":437}],439:[function(require,module,exports){
+(function (Buffer){
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   track.markup.textMarkers[ 'step' ] = []
   track.markup.textMarkers[ 'step' ].children = []
@@ -86957,6 +95506,7 @@ module.exports = function( node, cm, track, objectName, state, cb ) {
 
         pattern = instance.seqs[ nodename ].values
 
+<<<<<<< HEAD
         ////patternNode, state, seq, patternType, container=null, index=0, isLookup=false 
         if( typeof step.value !== 'string' ) {
           Marker.patternMarkupFunctions[ step.type ](
@@ -86965,6 +95515,11 @@ module.exports = function( node, cm, track, objectName, state, cb ) {
         }else{
           marker = cm.markText( step.loc.start, step.loc.end, { className } )
           track.markup.textMarkers.step[ key ] = marker
+=======
+}).call(this,require("buffer").Buffer)
+},{"buffer":137}],440:[function(require,module,exports){
+"use strict"
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
           track.markup.textMarkers.step[ key ].pattern = []
           const mark = ( _step, _key, _cm, _track ) => {
@@ -86983,7 +95538,14 @@ module.exports = function( node, cm, track, objectName, state, cb ) {
 
           mark( step, key, cm, track )
 
+<<<<<<< HEAD
           let count = 0, update, tm
+=======
+module.exports = dupe
+},{}],441:[function(require,module,exports){
+(function (Buffer,process){
+'use strict'
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
           const _key = nodename, 
                 patternObject = window[ objectName ].seqs[ _key ].values
@@ -87064,9 +95626,17 @@ module.exports = function( node, cm, track, objectName, state, cb ) {
       Gibber.subscribe( 'clear', pattern.clear )
     }
   }
+<<<<<<< HEAD
+=======
+}
+}).call(this,{"isBuffer":require("../../../gibber/node_modules/is-buffer/index.js")},require('_process'))
+},{"../../../gibber/node_modules/is-buffer/index.js":150,"_process":203,"data-uri-to-buffer":439,"ndarray":525,"ndarray-pack":523,"omggif":526,"path":201,"through":527}],442:[function(require,module,exports){
+module.exports = adjoint;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 }  
 
+<<<<<<< HEAD
 },{"../update/euclidAnnotation.js":511,"../utilities.js":513}],509:[function(require,module,exports){
 module.exports = ( patternObject, marker, className, cm ) => {
   patternObject.commentMarker = marker
@@ -87077,6 +95647,114 @@ module.exports = ( patternObject, marker, className, cm ) => {
 
 
     if( patternValue.length > 8 ) patternValue = patternValue.slice(0,8) 
+=======
+    out[0]  =  (a11 * (a22 * a33 - a23 * a32) - a21 * (a12 * a33 - a13 * a32) + a31 * (a12 * a23 - a13 * a22));
+    out[1]  = -(a01 * (a22 * a33 - a23 * a32) - a21 * (a02 * a33 - a03 * a32) + a31 * (a02 * a23 - a03 * a22));
+    out[2]  =  (a01 * (a12 * a33 - a13 * a32) - a11 * (a02 * a33 - a03 * a32) + a31 * (a02 * a13 - a03 * a12));
+    out[3]  = -(a01 * (a12 * a23 - a13 * a22) - a11 * (a02 * a23 - a03 * a22) + a21 * (a02 * a13 - a03 * a12));
+    out[4]  = -(a10 * (a22 * a33 - a23 * a32) - a20 * (a12 * a33 - a13 * a32) + a30 * (a12 * a23 - a13 * a22));
+    out[5]  =  (a00 * (a22 * a33 - a23 * a32) - a20 * (a02 * a33 - a03 * a32) + a30 * (a02 * a23 - a03 * a22));
+    out[6]  = -(a00 * (a12 * a33 - a13 * a32) - a10 * (a02 * a33 - a03 * a32) + a30 * (a02 * a13 - a03 * a12));
+    out[7]  =  (a00 * (a12 * a23 - a13 * a22) - a10 * (a02 * a23 - a03 * a22) + a20 * (a02 * a13 - a03 * a12));
+    out[8]  =  (a10 * (a21 * a33 - a23 * a31) - a20 * (a11 * a33 - a13 * a31) + a30 * (a11 * a23 - a13 * a21));
+    out[9]  = -(a00 * (a21 * a33 - a23 * a31) - a20 * (a01 * a33 - a03 * a31) + a30 * (a01 * a23 - a03 * a21));
+    out[10] =  (a00 * (a11 * a33 - a13 * a31) - a10 * (a01 * a33 - a03 * a31) + a30 * (a01 * a13 - a03 * a11));
+    out[11] = -(a00 * (a11 * a23 - a13 * a21) - a10 * (a01 * a23 - a03 * a21) + a20 * (a01 * a13 - a03 * a11));
+    out[12] = -(a10 * (a21 * a32 - a22 * a31) - a20 * (a11 * a32 - a12 * a31) + a30 * (a11 * a22 - a12 * a21));
+    out[13] =  (a00 * (a21 * a32 - a22 * a31) - a20 * (a01 * a32 - a02 * a31) + a30 * (a01 * a22 - a02 * a21));
+    out[14] = -(a00 * (a11 * a32 - a12 * a31) - a10 * (a01 * a32 - a02 * a31) + a30 * (a01 * a12 - a02 * a11));
+    out[15] =  (a00 * (a11 * a22 - a12 * a21) - a10 * (a01 * a22 - a02 * a21) + a20 * (a01 * a12 - a02 * a11));
+    return out;
+};
+},{}],443:[function(require,module,exports){
+module.exports = clone;
+
+/**
+ * Creates a new mat4 initialized with values from an existing matrix
+ *
+ * @param {mat4} a matrix to clone
+ * @returns {mat4} a new 4x4 matrix
+ */
+function clone(a) {
+    var out = new Float32Array(16);
+    out[0] = a[0];
+    out[1] = a[1];
+    out[2] = a[2];
+    out[3] = a[3];
+    out[4] = a[4];
+    out[5] = a[5];
+    out[6] = a[6];
+    out[7] = a[7];
+    out[8] = a[8];
+    out[9] = a[9];
+    out[10] = a[10];
+    out[11] = a[11];
+    out[12] = a[12];
+    out[13] = a[13];
+    out[14] = a[14];
+    out[15] = a[15];
+    return out;
+};
+},{}],444:[function(require,module,exports){
+module.exports = copy;
+
+/**
+ * Copy the values from one mat4 to another
+ *
+ * @param {mat4} out the receiving matrix
+ * @param {mat4} a the source matrix
+ * @returns {mat4} out
+ */
+function copy(out, a) {
+    out[0] = a[0];
+    out[1] = a[1];
+    out[2] = a[2];
+    out[3] = a[3];
+    out[4] = a[4];
+    out[5] = a[5];
+    out[6] = a[6];
+    out[7] = a[7];
+    out[8] = a[8];
+    out[9] = a[9];
+    out[10] = a[10];
+    out[11] = a[11];
+    out[12] = a[12];
+    out[13] = a[13];
+    out[14] = a[14];
+    out[15] = a[15];
+    return out;
+};
+},{}],445:[function(require,module,exports){
+module.exports = create;
+
+/**
+ * Creates a new identity mat4
+ *
+ * @returns {mat4} a new 4x4 matrix
+ */
+function create() {
+    var out = new Float32Array(16);
+    out[0] = 1;
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+    out[4] = 0;
+    out[5] = 1;
+    out[6] = 0;
+    out[7] = 0;
+    out[8] = 0;
+    out[9] = 0;
+    out[10] = 1;
+    out[11] = 0;
+    out[12] = 0;
+    out[13] = 0;
+    out[14] = 0;
+    out[15] = 1;
+    return out;
+};
+},{}],446:[function(require,module,exports){
+module.exports = determinant;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     let val ='/* ' + patternValue + ' */',
       pos = patternObject.commentMarker.find(),
@@ -87086,7 +95764,15 @@ module.exports = ( patternObject, marker, className, cm ) => {
     end.ch = pos.from.ch + val.length 
     //pos.from.ch += 1
 
+<<<<<<< HEAD
     cm.replaceRange( val, pos.from, pos.to )
+=======
+    // Calculate the determinant
+    return b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
+};
+},{}],447:[function(require,module,exports){
+module.exports = fromQuat;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     if( patternObject.commentMarker ) patternObject.commentMarker.clear()
 
@@ -87108,9 +95794,16 @@ module.exports = ( patternObject, marker, className, cm ) => {
 }
 
 
+<<<<<<< HEAD
 },{}],510:[function(require,module,exports){
 const Utility = require( '../utilities.js' )
 const $ = Utility.create
+=======
+    return out;
+};
+},{}],448:[function(require,module,exports){
+module.exports = fromRotation
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 module.exports = function( classNamePrefix, patternObject ) {
   let modCount = 0,
@@ -87136,6 +95829,7 @@ module.exports = function( classNamePrefix, patternObject ) {
       case 3: border = 'left'; break;
     }
 
+<<<<<<< HEAD
     // for a pattern holding arrays... like for chord()
     if( isArray === true ) {
       // make sure base border surrounds array before dealing with highlight
@@ -87150,6 +95844,10 @@ module.exports = function( classNamePrefix, patternObject ) {
         case 'right':
           $( className ).remove( 'annotation-' + lastBorder + '-border-cycle' ) 
           $( className + '_end' ).add( 'annotation-right-border-cycle' )
+=======
+},{}],449:[function(require,module,exports){
+module.exports = fromRotationTranslation;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
           break;
         case 'top':
@@ -87165,6 +95863,7 @@ module.exports = function( classNamePrefix, patternObject ) {
           $( className+'_end' ).add( 'annotation-bottom-border-cycle' )
           $( className+'_start' ).add( 'annotation-bottom-border-cycle' )
 
+<<<<<<< HEAD
           break;
         default:
           //$( className ).add( 'annotation-' + border + '-border-cycle' )
@@ -87172,6 +95871,29 @@ module.exports = function( classNamePrefix, patternObject ) {
           $( className+'_end' ).remove( 'annotation-' + border + '-border-cycle' )
           break;
       }
+=======
+    out[0] = 1 - (yy + zz);
+    out[1] = xy + wz;
+    out[2] = xz - wy;
+    out[3] = 0;
+    out[4] = xy - wz;
+    out[5] = 1 - (xx + zz);
+    out[6] = yz + wx;
+    out[7] = 0;
+    out[8] = xz + wy;
+    out[9] = yz - wx;
+    out[10] = 1 - (xx + yy);
+    out[11] = 0;
+    out[12] = v[0];
+    out[13] = v[1];
+    out[14] = v[2];
+    out[15] = 1;
+    
+    return out;
+};
+},{}],450:[function(require,module,exports){
+module.exports = fromScaling
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     }else{
       $( className ).remove( 'annotation-' + border + '-border' )
@@ -87201,8 +95923,13 @@ module.exports = function( classNamePrefix, patternObject ) {
       $( lastClassName ).remove( 'annotation-bottom-border-cycle' )
     }
 
+<<<<<<< HEAD
     lastBorder = null
   }
+=======
+},{}],451:[function(require,module,exports){
+module.exports = fromTranslation
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   // XXX need to delay timing annotations in case value annotations changes underlying text, in
   // which case the underlying CSS of the line gets all wonky.
@@ -87215,11 +95942,17 @@ module.exports = function( classNamePrefix, patternObject ) {
   return __cycle
 }
 
+<<<<<<< HEAD
+=======
+},{}],452:[function(require,module,exports){
+module.exports = fromXRotation
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 },{"../utilities.js":513}],511:[function(require,module,exports){
 const Utility = require( '../utilities.js' )
 const $ = Utility.create
 
+<<<<<<< HEAD
 module.exports = ( patternObject, marker, className, cm, track, patternNode, Marker ) => {
   let val ='/* ' + patternObject.values.join('')  + ' */',
       pos = marker.find(),
@@ -87232,12 +95965,59 @@ module.exports = ( patternObject, marker, className, cm, track, patternNode, Mar
       markStart = null,
       commentMarker,
       currentMarker, chEnd
+=======
+    // Perform axis-specific matrix multiplication
+    out[0] = 1
+    out[1] = 0
+    out[2] = 0
+    out[3] = 0
+    out[4] = 0
+    out[5] = c
+    out[6] = s
+    out[7] = 0
+    out[8] = 0
+    out[9] = -s
+    out[10] = c
+    out[11] = 0
+    out[12] = 0
+    out[13] = 0
+    out[14] = 0
+    out[15] = 1
+    return out
+}
+},{}],453:[function(require,module,exports){
+module.exports = fromYRotation
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   patternObject.__delayAnnotations = false
   end.ch = pos.from.ch + val.length
 
+<<<<<<< HEAD
   pos.to.ch -= 1
   cm.replaceRange( val, pos.from, pos.to )
+=======
+    // Perform axis-specific matrix multiplication
+    out[0] = c
+    out[1] = 0
+    out[2] = -s
+    out[3] = 0
+    out[4] = 0
+    out[5] = 1
+    out[6] = 0
+    out[7] = 0
+    out[8] = s
+    out[9] = 0
+    out[10] = c
+    out[11] = 0
+    out[12] = 0
+    out[13] = 0
+    out[14] = 0
+    out[15] = 1
+    return out
+}
+},{}],454:[function(require,module,exports){
+module.exports = fromZRotation
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   patternObject.commentMarker = cm.markText( pos.from, end, { className, atomic:false })
   patternObject.__onclick = e => {
@@ -87251,6 +96031,7 @@ module.exports = ( patternObject, marker, className, cm, track, patternNode, Mar
     }
   }
 
+<<<<<<< HEAD
   setTimeout( ()=> {
     document.querySelector( '.' + className ).onclick = patternObject.__onclick
   }, 500 )
@@ -87267,6 +96048,127 @@ module.exports = ( patternObject, marker, className, cm, track, patternNode, Mar
     if( pos === undefined ) return
     let memberAnnotationStart   = Object.assign( {}, pos.from ),
         memberAnnotationEnd     = Object.assign( {}, pos.to )
+=======
+    // Perform axis-specific matrix multiplication
+    out[0] = c
+    out[1] = s
+    out[2] = 0
+    out[3] = 0
+    out[4] = -s
+    out[5] = c
+    out[6] = 0
+    out[7] = 0
+    out[8] = 0
+    out[9] = 0
+    out[10] = 1
+    out[11] = 0
+    out[12] = 0
+    out[13] = 0
+    out[14] = 0
+    out[15] = 1
+    return out
+}
+},{}],455:[function(require,module,exports){
+module.exports = frustum;
+
+/**
+ * Generates a frustum matrix with the given bounds
+ *
+ * @param {mat4} out mat4 frustum matrix will be written into
+ * @param {Number} left Left bound of the frustum
+ * @param {Number} right Right bound of the frustum
+ * @param {Number} bottom Bottom bound of the frustum
+ * @param {Number} top Top bound of the frustum
+ * @param {Number} near Near bound of the frustum
+ * @param {Number} far Far bound of the frustum
+ * @returns {mat4} out
+ */
+function frustum(out, left, right, bottom, top, near, far) {
+    var rl = 1 / (right - left),
+        tb = 1 / (top - bottom),
+        nf = 1 / (near - far);
+    out[0] = (near * 2) * rl;
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+    out[4] = 0;
+    out[5] = (near * 2) * tb;
+    out[6] = 0;
+    out[7] = 0;
+    out[8] = (right + left) * rl;
+    out[9] = (top + bottom) * tb;
+    out[10] = (far + near) * nf;
+    out[11] = -1;
+    out[12] = 0;
+    out[13] = 0;
+    out[14] = (far * near * 2) * nf;
+    out[15] = 0;
+    return out;
+};
+},{}],456:[function(require,module,exports){
+module.exports = identity;
+
+/**
+ * Set a mat4 to the identity matrix
+ *
+ * @param {mat4} out the receiving matrix
+ * @returns {mat4} out
+ */
+function identity(out) {
+    out[0] = 1;
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+    out[4] = 0;
+    out[5] = 1;
+    out[6] = 0;
+    out[7] = 0;
+    out[8] = 0;
+    out[9] = 0;
+    out[10] = 1;
+    out[11] = 0;
+    out[12] = 0;
+    out[13] = 0;
+    out[14] = 0;
+    out[15] = 1;
+    return out;
+};
+},{}],457:[function(require,module,exports){
+module.exports = {
+  create: require('./create')
+  , clone: require('./clone')
+  , copy: require('./copy')
+  , identity: require('./identity')
+  , transpose: require('./transpose')
+  , invert: require('./invert')
+  , adjoint: require('./adjoint')
+  , determinant: require('./determinant')
+  , multiply: require('./multiply')
+  , translate: require('./translate')
+  , scale: require('./scale')
+  , rotate: require('./rotate')
+  , rotateX: require('./rotateX')
+  , rotateY: require('./rotateY')
+  , rotateZ: require('./rotateZ')
+  , fromRotation: require('./fromRotation')
+  , fromRotationTranslation: require('./fromRotationTranslation')
+  , fromScaling: require('./fromScaling')
+  , fromTranslation: require('./fromTranslation')
+  , fromXRotation: require('./fromXRotation')
+  , fromYRotation: require('./fromYRotation')
+  , fromZRotation: require('./fromZRotation')
+  , fromQuat: require('./fromQuat')
+  , frustum: require('./frustum')
+  , perspective: require('./perspective')
+  , perspectiveFromFieldOfView: require('./perspectiveFromFieldOfView')
+  , ortho: require('./ortho')
+  , lookAt: require('./lookAt')
+  , str: require('./str')
+}
+
+},{"./adjoint":442,"./clone":443,"./copy":444,"./create":445,"./determinant":446,"./fromQuat":447,"./fromRotation":448,"./fromRotationTranslation":449,"./fromScaling":450,"./fromTranslation":451,"./fromXRotation":452,"./fromYRotation":453,"./fromZRotation":454,"./frustum":455,"./identity":456,"./invert":458,"./lookAt":459,"./multiply":460,"./ortho":461,"./perspective":462,"./perspectiveFromFieldOfView":463,"./rotate":464,"./rotateX":465,"./rotateY":466,"./rotateZ":467,"./scale":468,"./str":469,"./translate":470,"./transpose":471}],458:[function(require,module,exports){
+module.exports = invert;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     if( initialized === false ) {
       memberAnnotationStart.ch = annotationStartCh
@@ -87307,7 +96209,14 @@ module.exports = ( patternObject, marker, className, cm, track, patternNode, Mar
     }
   }
 
+<<<<<<< HEAD
   mark()
+=======
+    return out;
+};
+},{}],459:[function(require,module,exports){
+var identity = require('./identity');
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   // XXX: there's a bug when you sequence pattern transformations, and then insert newlines ABOVE the annotation
   let count = 0, span, update, activeSpans = []
@@ -87357,8 +96266,15 @@ module.exports = ( patternObject, marker, className, cm, track, patternNode, Mar
 
     //for( let i = 0; i < patternObject.values.length; i++ ) {
 
+<<<<<<< HEAD
     //  let markerCh = track.markup.textMarkers[ className ][ i ],
     //      pos = markerCh.find()
+=======
+    return out;
+};
+},{"./identity":456}],460:[function(require,module,exports){
+module.exports = multiply;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     //  // break for loop and remark pattern if a character
     //  // isn't found
@@ -87393,6 +96309,7 @@ module.exports = ( patternObject, marker, className, cm, track, patternNode, Mar
   // XXX remove global reference somehow...
   Gibber.subscribe( 'clear', patternObject.clear )
 
+<<<<<<< HEAD
   return update 
 }
 
@@ -87400,6 +96317,88 @@ module.exports = ( patternObject, marker, className, cm, track, patternNode, Mar
 },{"../utilities.js":513}],512:[function(require,module,exports){
 module.exports = ( patternObject, marker, className, cm, track, patternNode, patternType, seqNumber ) => {
   Gibber.Environment.codeMarkup.processGen( patternNode, cm, null, patternObject, null, -1 )
+=======
+    b0 = b[12]; b1 = b[13]; b2 = b[14]; b3 = b[15];
+    out[12] = b0*a00 + b1*a10 + b2*a20 + b3*a30;
+    out[13] = b0*a01 + b1*a11 + b2*a21 + b3*a31;
+    out[14] = b0*a02 + b1*a12 + b2*a22 + b3*a32;
+    out[15] = b0*a03 + b1*a13 + b2*a23 + b3*a33;
+    return out;
+};
+},{}],461:[function(require,module,exports){
+module.exports = ortho;
+
+/**
+ * Generates a orthogonal projection matrix with the given bounds
+ *
+ * @param {mat4} out mat4 frustum matrix will be written into
+ * @param {number} left Left bound of the frustum
+ * @param {number} right Right bound of the frustum
+ * @param {number} bottom Bottom bound of the frustum
+ * @param {number} top Top bound of the frustum
+ * @param {number} near Near bound of the frustum
+ * @param {number} far Far bound of the frustum
+ * @returns {mat4} out
+ */
+function ortho(out, left, right, bottom, top, near, far) {
+    var lr = 1 / (left - right),
+        bt = 1 / (bottom - top),
+        nf = 1 / (near - far);
+    out[0] = -2 * lr;
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+    out[4] = 0;
+    out[5] = -2 * bt;
+    out[6] = 0;
+    out[7] = 0;
+    out[8] = 0;
+    out[9] = 0;
+    out[10] = 2 * nf;
+    out[11] = 0;
+    out[12] = (left + right) * lr;
+    out[13] = (top + bottom) * bt;
+    out[14] = (far + near) * nf;
+    out[15] = 1;
+    return out;
+};
+},{}],462:[function(require,module,exports){
+module.exports = perspective;
+
+/**
+ * Generates a perspective projection matrix with the given bounds
+ *
+ * @param {mat4} out mat4 frustum matrix will be written into
+ * @param {number} fovy Vertical field of view in radians
+ * @param {number} aspect Aspect ratio. typically viewport width/height
+ * @param {number} near Near bound of the frustum
+ * @param {number} far Far bound of the frustum
+ * @returns {mat4} out
+ */
+function perspective(out, fovy, aspect, near, far) {
+    var f = 1.0 / Math.tan(fovy / 2),
+        nf = 1 / (near - far);
+    out[0] = f / aspect;
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+    out[4] = 0;
+    out[5] = f;
+    out[6] = 0;
+    out[7] = 0;
+    out[8] = 0;
+    out[9] = 0;
+    out[10] = (far + near) * nf;
+    out[11] = -1;
+    out[12] = 0;
+    out[13] = 0;
+    out[14] = (2 * far * near) * nf;
+    out[15] = 0;
+    return out;
+};
+},{}],463:[function(require,module,exports){
+module.exports = perspectiveFromFieldOfView;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   patternNode.arguments[1].offset = patternNode.offset 
 
@@ -87415,10 +96414,15 @@ module.exports = ( patternObject, marker, className, cm, track, patternNode, pat
 }
 
 
+<<<<<<< HEAD
 },{}],513:[function(require,module,exports){
 const Utility = module.exports = {
   elementArray: function( list ) {
     let out = []
+=======
+},{}],464:[function(require,module,exports){
+module.exports = rotate;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     for( var i = 0; i < list.length; i++ ) {
       out.push( list.item( i ) )
@@ -87454,6 +96458,7 @@ module.exports = function( Marker ) {
     return stripped
   }
 
+<<<<<<< HEAD
   const visitors = {
     Literal( node, state, cb ) {
       state.push( node.value )
@@ -87464,6 +96469,18 @@ module.exports = function( Marker ) {
     AssignmentExpression( expression, state, cb ) {
       // first check to see if the right operand is a callexpression
       if( expression.right.type === 'CallExpression' ) {
+=======
+    if (a !== out) { // If the source and destination differ, copy the unchanged last row
+        out[12] = a[12];
+        out[13] = a[13];
+        out[14] = a[14];
+        out[15] = a[15];
+    }
+    return out;
+};
+},{}],465:[function(require,module,exports){
+module.exports = rotateX;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
                 
         let name
@@ -87488,8 +96505,24 @@ module.exports = function( Marker ) {
 
         if( name !== undefined && Marker.standalone[ name ] ) {
 
+<<<<<<< HEAD
           const obj = window[ expression.left.name ]
           if( obj.markup === undefined ) Marker.prepareObject( obj )
+=======
+    // Perform axis-specific matrix multiplication
+    out[4] = a10 * c + a20 * s;
+    out[5] = a11 * c + a21 * s;
+    out[6] = a12 * c + a22 * s;
+    out[7] = a13 * c + a23 * s;
+    out[8] = a20 * c - a10 * s;
+    out[9] = a21 * c - a11 * s;
+    out[10] = a22 * c - a12 * s;
+    out[11] = a23 * c - a13 * s;
+    return out;
+};
+},{}],466:[function(require,module,exports){
+module.exports = rotateY;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
           Marker.standalone[ name ]( 
             expression.right, 
@@ -87522,6 +96555,7 @@ module.exports = function( Marker ) {
           
           Marker.globalIdentifiers[ leftName ] = right
 
+<<<<<<< HEAD
           let righthandName
           if( right.callee.object === undefined ) {
             // no calls to .connect() or to .seq()
@@ -87530,6 +96564,21 @@ module.exports = function( Marker ) {
             // ugen({}).connect()
             // XXX what about handling multiple chained calls to .seq()
             // hopefully this is handled in our earlier try/catch block...
+=======
+    // Perform axis-specific matrix multiplication
+    out[0] = a00 * c - a20 * s;
+    out[1] = a01 * c - a21 * s;
+    out[2] = a02 * c - a22 * s;
+    out[3] = a03 * c - a23 * s;
+    out[8] = a00 * s + a20 * c;
+    out[9] = a01 * s + a21 * c;
+    out[10] = a02 * s + a22 * c;
+    out[11] = a03 * s + a23 * c;
+    return out;
+};
+},{}],467:[function(require,module,exports){
+module.exports = rotateZ;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
             if( right.callee.object.callee !== undefined ) 
               righthandName = right.callee.object.callee.name 
@@ -87538,6 +96587,7 @@ module.exports = function( Marker ) {
           if( righthandName !== undefined ) {
             state.containsGen = Marker.Gibber.Audio.Gen.names.indexOf( righthandName ) > -1
 
+<<<<<<< HEAD
             // if assigning to a global variable...
             if( leftName.indexOf('.') === -1 ) {
               state.gen = window[ leftName ]
@@ -87553,9 +96603,25 @@ module.exports = function( Marker ) {
               //w.target = leftName
             }
           }
+=======
+    // Perform axis-specific matrix multiplication
+    out[0] = a00 * c + a10 * s;
+    out[1] = a01 * c + a11 * s;
+    out[2] = a02 * c + a12 * s;
+    out[3] = a03 * c + a13 * s;
+    out[4] = a10 * c - a00 * s;
+    out[5] = a11 * c - a01 * s;
+    out[6] = a12 * c - a02 * s;
+    out[7] = a13 * c - a03 * s;
+    return out;
+};
+},{}],468:[function(require,module,exports){
+module.exports = scale;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
           cb( right, state )
 
+<<<<<<< HEAD
         }
       }
     },
@@ -87575,6 +96641,43 @@ module.exports = function( Marker ) {
       // will be passed in to the argumenet obj. If this is not passed in, then we need
       // to update the state of the walk by calling the callback. 
       if( obj === undefined && state.containsGen !== true ) cb( node.callee, state )
+=======
+    out[0] = a[0] * x;
+    out[1] = a[1] * x;
+    out[2] = a[2] * x;
+    out[3] = a[3] * x;
+    out[4] = a[4] * y;
+    out[5] = a[5] * y;
+    out[6] = a[6] * y;
+    out[7] = a[7] * y;
+    out[8] = a[8] * z;
+    out[9] = a[9] * z;
+    out[10] = a[10] * z;
+    out[11] = a[11] * z;
+    out[12] = a[12];
+    out[13] = a[13];
+    out[14] = a[14];
+    out[15] = a[15];
+    return out;
+};
+},{}],469:[function(require,module,exports){
+module.exports = str;
+
+/**
+ * Returns a string representation of a mat4
+ *
+ * @param {mat4} mat matrix to represent as a string
+ * @returns {String} string representation of the matrix
+ */
+function str(a) {
+    return 'mat4(' + a[0] + ', ' + a[1] + ', ' + a[2] + ', ' + a[3] + ', ' +
+                    a[4] + ', ' + a[5] + ', ' + a[6] + ', ' + a[7] + ', ' +
+                    a[8] + ', ' + a[9] + ', ' + a[10] + ', ' + a[11] + ', ' + 
+                    a[12] + ', ' + a[13] + ', ' + a[14] + ', ' + a[15] + ')';
+};
+},{}],470:[function(require,module,exports){
+module.exports = translate;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
       // check the state for a member .seq. We use two different techniques for this. 
       // the first finds things like "mysynth.note.seq( 0,0 )" while the second finds
@@ -87600,14 +96703,59 @@ module.exports = function( Marker ) {
           obj = obj[ state[ count++ ] ]
         }
 
+<<<<<<< HEAD
         const tidal = obj.tidals[ seqNumber ]
+=======
+    return out;
+};
+},{}],471:[function(require,module,exports){
+module.exports = transpose;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
         Marker.markPatternsForTidal( tidal, node.arguments, state, cb, node, 0 )
 
+<<<<<<< HEAD
       } else if( foundSequence === true ){
         // check if a gen ugen is stored in the state variable, if so
         // use it as the obj varibale.
         if( state.containsGen === true ) obj = state.gen
+=======
+        out[1] = a[4];
+        out[2] = a[8];
+        out[3] = a[12];
+        out[4] = a01;
+        out[6] = a[9];
+        out[7] = a[13];
+        out[8] = a02;
+        out[9] = a12;
+        out[11] = a[14];
+        out[12] = a03;
+        out[13] = a13;
+        out[14] = a23;
+    } else {
+        out[0] = a[0];
+        out[1] = a[4];
+        out[2] = a[8];
+        out[3] = a[12];
+        out[4] = a[1];
+        out[5] = a[5];
+        out[6] = a[9];
+        out[7] = a[13];
+        out[8] = a[2];
+        out[9] = a[6];
+        out[10] = a[10];
+        out[11] = a[14];
+        out[12] = a[3];
+        out[13] = a[7];
+        out[14] = a[11];
+        out[15] = a[15];
+    }
+    
+    return out;
+};
+},{}],472:[function(require,module,exports){
+'use strict'
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
         // If called via the AssignmentExpression visitor, built up a faux-AST
         // that gives us the object and all subsequenct method calls. For example,
@@ -87938,6 +97086,7 @@ const Waveform = {
       window.requestAnimationFrame( clock )
     }
 
+<<<<<<< HEAD
     clock()
   },
 
@@ -87948,6 +97097,27 @@ const Waveform = {
     if( widget === undefined ) { 
       return 
     }
+=======
+},{"ndarray":525,"ndarray-ops":522,"typedarray-pool":528}],473:[function(require,module,exports){
+module.exports = add;
+
+/**
+ * Adds two vec3's
+ *
+ * @param {vec3} out the receiving vector
+ * @param {vec3} a the first operand
+ * @param {vec3} b the second operand
+ * @returns {vec3} out
+ */
+function add(out, a, b) {
+    out[0] = a[0] + b[0]
+    out[1] = a[1] + b[1]
+    out[2] = a[2] + b[2]
+    return out
+}
+},{}],474:[function(require,module,exports){
+module.exports = angle
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     let value = parseFloat( __value )
 
@@ -87959,6 +97129,7 @@ const Waveform = {
       widget.storage.push( value )
     }
 
+<<<<<<< HEAD
     if( widget.isFade !== true ) {
       if( widget.storage.length > widget.windowSize ) {
         widget.max = Math.max.apply( null, widget.storage )
@@ -87970,9 +97141,14 @@ const Waveform = {
         widget.min = value
       } 
     }
+=======
+},{"./dot":484,"./fromValues":490,"./normalize":501}],475:[function(require,module,exports){
+module.exports = ceil
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     widget.values.shift()
 
+<<<<<<< HEAD
     Waveform.widgets.dirty = true
 
   },
@@ -87982,10 +97158,62 @@ const Waveform = {
     Waveform.widgets.dirty = false
 
     const drawn = []
+=======
+},{}],476:[function(require,module,exports){
+module.exports = clone;
+
+/**
+ * Creates a new vec3 initialized with values from an existing vector
+ *
+ * @param {vec3} a vector to clone
+ * @returns {vec3} a new 3D vector
+ */
+function clone(a) {
+    var out = new Float32Array(3)
+    out[0] = a[0]
+    out[1] = a[1]
+    out[2] = a[2]
+    return out
+}
+},{}],477:[function(require,module,exports){
+module.exports = copy;
+
+/**
+ * Copy the values from one vec3 to another
+ *
+ * @param {vec3} out the receiving vector
+ * @param {vec3} a the source vector
+ * @returns {vec3} out
+ */
+function copy(out, a) {
+    out[0] = a[0]
+    out[1] = a[1]
+    out[2] = a[2]
+    return out
+}
+},{}],478:[function(require,module,exports){
+module.exports = create;
+
+/**
+ * Creates a new, empty vec3
+ *
+ * @returns {vec3} a new 3D vector
+ */
+function create() {
+    var out = new Float32Array(3)
+    out[0] = 0
+    out[1] = 0
+    out[2] = 0
+    return out
+}
+},{}],479:[function(require,module,exports){
+module.exports = cross;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     for( let key in Waveform.widgets ) {
       if( key === 'dirty' || key === 'findByObj' ) continue
 
+<<<<<<< HEAD
       const widget = Waveform.widgets[ key ]
 
       if( widget === undefined || widget === null ) continue
@@ -88011,6 +97239,70 @@ const Waveform = {
         widget.ctx.moveTo( widget.padding + widget.waveWidth + .5, .5 )
         widget.ctx.lineTo( widget.padding + widget.waveWidth + .5, widget.height + .5 )
         widget.ctx.stroke()
+=======
+    out[0] = ay * bz - az * by
+    out[1] = az * bx - ax * bz
+    out[2] = ax * by - ay * bx
+    return out
+}
+},{}],480:[function(require,module,exports){
+module.exports = require('./distance')
+
+},{"./distance":481}],481:[function(require,module,exports){
+module.exports = distance;
+
+/**
+ * Calculates the euclidian distance between two vec3's
+ *
+ * @param {vec3} a the first operand
+ * @param {vec3} b the second operand
+ * @returns {Number} distance between a and b
+ */
+function distance(a, b) {
+    var x = b[0] - a[0],
+        y = b[1] - a[1],
+        z = b[2] - a[2]
+    return Math.sqrt(x*x + y*y + z*z)
+}
+},{}],482:[function(require,module,exports){
+module.exports = require('./divide')
+
+},{"./divide":483}],483:[function(require,module,exports){
+module.exports = divide;
+
+/**
+ * Divides two vec3's
+ *
+ * @param {vec3} out the receiving vector
+ * @param {vec3} a the first operand
+ * @param {vec3} b the second operand
+ * @returns {vec3} out
+ */
+function divide(out, a, b) {
+    out[0] = a[0] / b[0]
+    out[1] = a[1] / b[1]
+    out[2] = a[2] / b[2]
+    return out
+}
+},{}],484:[function(require,module,exports){
+module.exports = dot;
+
+/**
+ * Calculates the dot product of two vec3's
+ *
+ * @param {vec3} a the first operand
+ * @param {vec3} b the second operand
+ * @returns {Number} dot product of a and b
+ */
+function dot(a, b) {
+    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+}
+},{}],485:[function(require,module,exports){
+module.exports = 0.000001
+
+},{}],486:[function(require,module,exports){
+module.exports = equals
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
         // draw waveform
         widget.ctx.beginPath()
@@ -88018,17 +97310,27 @@ const Waveform = {
 
         const wHeight = (widget.height * .85 + .45) - 1
 
+<<<<<<< HEAD
         // needed for fades
         let isReversed = false
+=======
+},{"./epsilon":485}],487:[function(require,module,exports){
+module.exports = exactEquals
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
         if( widget.isFade !== true ) {
 
+<<<<<<< HEAD
           const range = widget.max - widget.min
           for( let i = 0, len = widget.waveWidth; i < len; i++ ) {
             const data = widget.values[ i ]
             const shouldDrawDot = typeof data === 'object'
             const value = shouldDrawDot ? data.value : data
             const scaledValue = ( value - widget.min ) / range
+=======
+},{}],488:[function(require,module,exports){
+module.exports = floor
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
             const yValue = Math.round(scaledValue * (wHeight)) - 1 
             
@@ -88044,6 +97346,7 @@ const Waveform = {
           const range = Math.abs( widget.gen.to - widget.gen.from )
           isReversed = ( widget.gen.from > widget.gen.to )
 
+<<<<<<< HEAD
           if( !isReversed ) {
             widget.ctx.moveTo( widget.padding, widget.height )
             widget.ctx.lineTo( widget.padding + widget.waveWidth, 0 )
@@ -88051,6 +97354,10 @@ const Waveform = {
             widget.ctx.moveTo( widget.padding, 0 )
             widget.ctx.lineTo( widget.padding + widget.waveWidth, widget.height )
           }
+=======
+},{}],489:[function(require,module,exports){
+module.exports = forEach;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
           const value = widget.gen.values[0]
           if( !isNaN( value ) ) {
@@ -88077,6 +97384,7 @@ const Waveform = {
           }
 
         }
+<<<<<<< HEAD
         widget.ctx.stroke()
 
         //const __min = isReversed === false ? widget.min.toFixed(2) : widget.max.toFixed(2)
@@ -88121,18 +97429,237 @@ const Waveform = {
         widget.ctx.lineTo( right - 3, widget.height - .5 )
 
         widget.ctx.stroke()
+=======
+        
+        return a
+}
+},{"./create":478}],490:[function(require,module,exports){
+module.exports = fromValues;
+
+/**
+ * Creates a new vec3 initialized with the given values
+ *
+ * @param {Number} x X component
+ * @param {Number} y Y component
+ * @param {Number} z Z component
+ * @returns {vec3} a new 3D vector
+ */
+function fromValues(x, y, z) {
+    var out = new Float32Array(3)
+    out[0] = x
+    out[1] = y
+    out[2] = z
+    return out
+}
+},{}],491:[function(require,module,exports){
+module.exports = {
+  EPSILON: require('./epsilon')
+  , create: require('./create')
+  , clone: require('./clone')
+  , angle: require('./angle')
+  , fromValues: require('./fromValues')
+  , copy: require('./copy')
+  , set: require('./set')
+  , equals: require('./equals')
+  , exactEquals: require('./exactEquals')
+  , add: require('./add')
+  , subtract: require('./subtract')
+  , sub: require('./sub')
+  , multiply: require('./multiply')
+  , mul: require('./mul')
+  , divide: require('./divide')
+  , div: require('./div')
+  , min: require('./min')
+  , max: require('./max')
+  , floor: require('./floor')
+  , ceil: require('./ceil')
+  , round: require('./round')
+  , scale: require('./scale')
+  , scaleAndAdd: require('./scaleAndAdd')
+  , distance: require('./distance')
+  , dist: require('./dist')
+  , squaredDistance: require('./squaredDistance')
+  , sqrDist: require('./sqrDist')
+  , length: require('./length')
+  , len: require('./len')
+  , squaredLength: require('./squaredLength')
+  , sqrLen: require('./sqrLen')
+  , negate: require('./negate')
+  , inverse: require('./inverse')
+  , normalize: require('./normalize')
+  , dot: require('./dot')
+  , cross: require('./cross')
+  , lerp: require('./lerp')
+  , random: require('./random')
+  , transformMat4: require('./transformMat4')
+  , transformMat3: require('./transformMat3')
+  , transformQuat: require('./transformQuat')
+  , rotateX: require('./rotateX')
+  , rotateY: require('./rotateY')
+  , rotateZ: require('./rotateZ')
+  , forEach: require('./forEach')
+}
+
+},{"./add":473,"./angle":474,"./ceil":475,"./clone":476,"./copy":477,"./create":478,"./cross":479,"./dist":480,"./distance":481,"./div":482,"./divide":483,"./dot":484,"./epsilon":485,"./equals":486,"./exactEquals":487,"./floor":488,"./forEach":489,"./fromValues":490,"./inverse":492,"./len":493,"./length":494,"./lerp":495,"./max":496,"./min":497,"./mul":498,"./multiply":499,"./negate":500,"./normalize":501,"./random":502,"./rotateX":503,"./rotateY":504,"./rotateZ":505,"./round":506,"./scale":507,"./scaleAndAdd":508,"./set":509,"./sqrDist":510,"./sqrLen":511,"./squaredDistance":512,"./squaredLength":513,"./sub":514,"./subtract":515,"./transformMat3":516,"./transformMat4":517,"./transformQuat":518}],492:[function(require,module,exports){
+module.exports = inverse;
+
+/**
+ * Returns the inverse of the components of a vec3
+ *
+ * @param {vec3} out the receiving vector
+ * @param {vec3} a vector to invert
+ * @returns {vec3} out
+ */
+function inverse(out, a) {
+  out[0] = 1.0 / a[0]
+  out[1] = 1.0 / a[1]
+  out[2] = 1.0 / a[2]
+  return out
+}
+},{}],493:[function(require,module,exports){
+module.exports = require('./length')
+
+},{"./length":494}],494:[function(require,module,exports){
+module.exports = length;
+
+/**
+ * Calculates the length of a vec3
+ *
+ * @param {vec3} a vector to calculate length of
+ * @returns {Number} length of a
+ */
+function length(a) {
+    var x = a[0],
+        y = a[1],
+        z = a[2]
+    return Math.sqrt(x*x + y*y + z*z)
+}
+},{}],495:[function(require,module,exports){
+module.exports = lerp;
+
+/**
+ * Performs a linear interpolation between two vec3's
+ *
+ * @param {vec3} out the receiving vector
+ * @param {vec3} a the first operand
+ * @param {vec3} b the second operand
+ * @param {Number} t interpolation amount between the two inputs
+ * @returns {vec3} out
+ */
+function lerp(out, a, b, t) {
+    var ax = a[0],
+        ay = a[1],
+        az = a[2]
+    out[0] = ax + t * (b[0] - ax)
+    out[1] = ay + t * (b[1] - ay)
+    out[2] = az + t * (b[2] - az)
+    return out
+}
+},{}],496:[function(require,module,exports){
+module.exports = max;
+
+/**
+ * Returns the maximum of two vec3's
+ *
+ * @param {vec3} out the receiving vector
+ * @param {vec3} a the first operand
+ * @param {vec3} b the second operand
+ * @returns {vec3} out
+ */
+function max(out, a, b) {
+    out[0] = Math.max(a[0], b[0])
+    out[1] = Math.max(a[1], b[1])
+    out[2] = Math.max(a[2], b[2])
+    return out
+}
+},{}],497:[function(require,module,exports){
+module.exports = min;
+
+/**
+ * Returns the minimum of two vec3's
+ *
+ * @param {vec3} out the receiving vector
+ * @param {vec3} a the first operand
+ * @param {vec3} b the second operand
+ * @returns {vec3} out
+ */
+function min(out, a, b) {
+    out[0] = Math.min(a[0], b[0])
+    out[1] = Math.min(a[1], b[1])
+    out[2] = Math.min(a[2], b[2])
+    return out
+}
+},{}],498:[function(require,module,exports){
+module.exports = require('./multiply')
+
+},{"./multiply":499}],499:[function(require,module,exports){
+module.exports = multiply;
+
+/**
+ * Multiplies two vec3's
+ *
+ * @param {vec3} out the receiving vector
+ * @param {vec3} a the first operand
+ * @param {vec3} b the second operand
+ * @returns {vec3} out
+ */
+function multiply(out, a, b) {
+    out[0] = a[0] * b[0]
+    out[1] = a[1] * b[1]
+    out[2] = a[2] * b[2]
+    return out
+}
+},{}],500:[function(require,module,exports){
+module.exports = negate;
+
+/**
+ * Negates the components of a vec3
+ *
+ * @param {vec3} out the receiving vector
+ * @param {vec3} a vector to negate
+ * @returns {vec3} out
+ */
+function negate(out, a) {
+    out[0] = -a[0]
+    out[1] = -a[1]
+    out[2] = -a[2]
+    return out
+}
+},{}],501:[function(require,module,exports){
+module.exports = normalize;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
         drawn.push( widget )
       }
     }
   }
 }
+<<<<<<< HEAD
+=======
+},{}],502:[function(require,module,exports){
+module.exports = random;
+
+/**
+ * Generates a random vector with the given scale
+ *
+ * @param {vec3} out the receiving vector
+ * @param {Number} [scale] Length of the resulting vector. If ommitted, a unit vector will be returned
+ * @returns {vec3} out
+ */
+function random(out, scale) {
+    scale = scale || 1.0
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 
 module.exports = function( __Gibber ) {
   Gibber = __Gibber
   return Waveform
 }
+<<<<<<< HEAD
+=======
+},{}],503:[function(require,module,exports){
+module.exports = rotateX;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
 },{}],516:[function(require,module,exports){
 const acorn = require( 'acorn' )
@@ -88162,7 +97689,12 @@ const Marker = {
       }
     }
 
+<<<<<<< HEAD
     this.visitors = this.__visitors( this )
+=======
+},{}],504:[function(require,module,exports){
+module.exports = rotateY;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     Gibber.subscribe( 'clear', this.clear )
   },
@@ -88176,11 +97708,16 @@ const Marker = {
     }  
   },
 
+<<<<<<< HEAD
   getObj( path, findSeq = false, seqNumber = 0 ) {
     let obj = window[ path[0] ]
     if( path[1] === 'seq' ) {
       return obj.__sequencers[ seqNumber ]
     } 
+=======
+},{}],505:[function(require,module,exports){
+module.exports = rotateZ;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     for( let i = 1; i < path.length; i++ ) {
       let key = path[ i ]
@@ -88257,16 +97794,22 @@ const Marker = {
     // However, if the timing mode is marked up after, the position information provided by the parser
     // will be off and not valid.
 
+<<<<<<< HEAD
     if( nodes[1] !== undefined ) {
       let timingsNode = nodes[1]
       if( timingsNode.type === 'AssignmentExpression' ) timingsNode = timingsNode.right
       timingsNode.offset = Marker.offset
       Marker.patternMarkupFunctions[ timingsNode.type ]( timingsNode, state, seq, 'timings', container, seqNumber )
     }
+=======
+},{}],506:[function(require,module,exports){
+module.exports = round
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     Marker.patternMarkupFunctions[ valuesNode.type ]( valuesNode, state, seq, 'values', container, seqNumber )
   },
 
+<<<<<<< HEAD
   markPatternsForTidal( tidalObj, nodes, state, cb, container, seqNumber = 0 ) {
     const tidalNode = nodes[0]
     tidalNode.offset = Marker.offset
@@ -88357,6 +97900,159 @@ const Marker = {
 
           //line += lineMod
           //line += Marker.offset.vertical
+=======
+},{}],507:[function(require,module,exports){
+module.exports = scale;
+
+/**
+ * Scales a vec3 by a scalar number
+ *
+ * @param {vec3} out the receiving vector
+ * @param {vec3} a the vector to scale
+ * @param {Number} b amount to scale the vector by
+ * @returns {vec3} out
+ */
+function scale(out, a, b) {
+    out[0] = a[0] * b
+    out[1] = a[1] * b
+    out[2] = a[2] * b
+    return out
+}
+},{}],508:[function(require,module,exports){
+module.exports = scaleAndAdd;
+
+/**
+ * Adds two vec3's after scaling the second operand by a scalar value
+ *
+ * @param {vec3} out the receiving vector
+ * @param {vec3} a the first operand
+ * @param {vec3} b the second operand
+ * @param {Number} scale the amount to scale b by before adding
+ * @returns {vec3} out
+ */
+function scaleAndAdd(out, a, b, scale) {
+    out[0] = a[0] + (b[0] * scale)
+    out[1] = a[1] + (b[1] * scale)
+    out[2] = a[2] + (b[2] * scale)
+    return out
+}
+},{}],509:[function(require,module,exports){
+module.exports = set;
+
+/**
+ * Set the components of a vec3 to the given values
+ *
+ * @param {vec3} out the receiving vector
+ * @param {Number} x X component
+ * @param {Number} y Y component
+ * @param {Number} z Z component
+ * @returns {vec3} out
+ */
+function set(out, x, y, z) {
+    out[0] = x
+    out[1] = y
+    out[2] = z
+    return out
+}
+},{}],510:[function(require,module,exports){
+module.exports = require('./squaredDistance')
+
+},{"./squaredDistance":512}],511:[function(require,module,exports){
+module.exports = require('./squaredLength')
+
+},{"./squaredLength":513}],512:[function(require,module,exports){
+module.exports = squaredDistance;
+
+/**
+ * Calculates the squared euclidian distance between two vec3's
+ *
+ * @param {vec3} a the first operand
+ * @param {vec3} b the second operand
+ * @returns {Number} squared distance between a and b
+ */
+function squaredDistance(a, b) {
+    var x = b[0] - a[0],
+        y = b[1] - a[1],
+        z = b[2] - a[2]
+    return x*x + y*y + z*z
+}
+},{}],513:[function(require,module,exports){
+module.exports = squaredLength;
+
+/**
+ * Calculates the squared length of a vec3
+ *
+ * @param {vec3} a vector to calculate squared length of
+ * @returns {Number} squared length of a
+ */
+function squaredLength(a) {
+    var x = a[0],
+        y = a[1],
+        z = a[2]
+    return x*x + y*y + z*z
+}
+},{}],514:[function(require,module,exports){
+module.exports = require('./subtract')
+
+},{"./subtract":515}],515:[function(require,module,exports){
+module.exports = subtract;
+
+/**
+ * Subtracts vector b from vector a
+ *
+ * @param {vec3} out the receiving vector
+ * @param {vec3} a the first operand
+ * @param {vec3} b the second operand
+ * @returns {vec3} out
+ */
+function subtract(out, a, b) {
+    out[0] = a[0] - b[0]
+    out[1] = a[1] - b[1]
+    out[2] = a[2] - b[2]
+    return out
+}
+},{}],516:[function(require,module,exports){
+module.exports = transformMat3;
+
+/**
+ * Transforms the vec3 with a mat3.
+ *
+ * @param {vec3} out the receiving vector
+ * @param {vec3} a the vector to transform
+ * @param {mat4} m the 3x3 matrix to transform with
+ * @returns {vec3} out
+ */
+function transformMat3(out, a, m) {
+    var x = a[0], y = a[1], z = a[2]
+    out[0] = x * m[0] + y * m[3] + z * m[6]
+    out[1] = x * m[1] + y * m[4] + z * m[7]
+    out[2] = x * m[2] + y * m[5] + z * m[8]
+    return out
+}
+},{}],517:[function(require,module,exports){
+module.exports = transformMat4;
+
+/**
+ * Transforms the vec3 with a mat4.
+ * 4th vector component is implicitly '1'
+ *
+ * @param {vec3} out the receiving vector
+ * @param {vec3} a the vector to transform
+ * @param {mat4} m matrix to transform with
+ * @returns {vec3} out
+ */
+function transformMat4(out, a, m) {
+    var x = a[0], y = a[1], z = a[2],
+        w = m[3] * x + m[7] * y + m[11] * z + m[15]
+    w = w || 1.0
+    out[0] = (m[0] * x + m[4] * y + m[8] * z + m[12]) / w
+    out[1] = (m[1] * x + m[5] * y + m[9] * z + m[13]) / w
+    out[2] = (m[2] * x + m[6] * y + m[10] * z + m[14]) / w
+    return out
+}
+},{}],518:[function(require,module,exports){
+module.exports = transformQuat;
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
           closeParenStart = ch - 1
           isAssignment = false
@@ -88382,6 +98078,7 @@ const Marker = {
     
   },
 
+<<<<<<< HEAD
   processFade( state, node ) { 
     let ch = node.loc.end.column, 
         line = Marker.offset.vertical + node.loc.start.line - 1, 
@@ -88391,6 +98088,28 @@ const Marker = {
     // check to see if a given object is a proxy that already has
     // a widget created; if so, don't make another one!
     const seqExpression = node
+=======
+    // calculate result * inverse quat
+    out[0] = ix * qw + iw * -qx + iy * -qz - iz * -qy
+    out[1] = iy * qw + iw * -qy + iz * -qx - ix * -qz
+    out[2] = iz * qw + iw * -qz + ix * -qy - iy * -qx
+    return out
+}
+},{}],519:[function(require,module,exports){
+module.exports = function(strings) {
+  if (typeof strings === 'string') strings = [strings]
+  var exprs = [].slice.call(arguments,1)
+  var parts = []
+  for (var i = 0; i < strings.length-1; i++) {
+    parts.push(strings[i], exprs[i] || '')
+  }
+  parts.push(strings[i])
+  return parts.join('')
+}
+
+},{}],520:[function(require,module,exports){
+"use strict"
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     let name = state[0]
     let count = 1
@@ -88405,7 +98124,15 @@ const Marker = {
     Marker.waveform.createWaveformWidget( line, closeParenStart, ch-1, false, node, state.cm, gen, null, false, state )
   },
 
+<<<<<<< HEAD
   _createBorderCycleFunction: require( './annotations/update/createBorderCycle.js' ),
+=======
+module.exports = iota
+},{}],521:[function(require,module,exports){
+arguments[4][150][0].apply(exports,arguments)
+},{"dup":150}],522:[function(require,module,exports){
+"use strict"
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   finalizePatternAnnotation( patternObject, className, seqTarget ) {
     patternObject.update =  Marker._createBorderCycleFunction( className, patternObject )
@@ -88612,8 +98339,13 @@ const Marker = {
      expr = /\-/gi
      className = className.replace( expr, '_' )
 
+<<<<<<< HEAD
      expr = /\ /gi
      className = className.replace( expr, '_' )
+=======
+},{"cwise-compiler":436}],523:[function(require,module,exports){
+"use strict"
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
      if( patternNode.offset !== undefined ) {
        start.line += patternNode.offset.vertical - 1
@@ -88625,6 +98357,7 @@ const Marker = {
      return [ className, start, end ]
   },
 
+<<<<<<< HEAD
   _getCallExpressionHierarchy( expr ) {
     let callee = expr.callee,
         obj = callee.object,
@@ -88634,6 +98367,14 @@ const Marker = {
 
     while( obj !== undefined ) {
       let pushValue = null
+=======
+},{"./doConvert.js":524,"ndarray":525}],524:[function(require,module,exports){
+module.exports=require('cwise-compiler')({"args":["array","scalar","index"],"pre":{"body":"{}","args":[],"thisVars":[],"localVars":[]},"body":{"body":"{\nvar _inline_1_v=_inline_1_arg1_,_inline_1_i\nfor(_inline_1_i=0;_inline_1_i<_inline_1_arg2_.length-1;++_inline_1_i) {\n_inline_1_v=_inline_1_v[_inline_1_arg2_[_inline_1_i]]\n}\n_inline_1_arg0_=_inline_1_v[_inline_1_arg2_[_inline_1_arg2_.length-1]]\n}","args":[{"name":"_inline_1_arg0_","lvalue":true,"rvalue":false,"count":1},{"name":"_inline_1_arg1_","lvalue":false,"rvalue":true,"count":1},{"name":"_inline_1_arg2_","lvalue":false,"rvalue":true,"count":4}],"thisVars":[],"localVars":["_inline_1_i","_inline_1_v"]},"post":{"body":"{}","args":[],"thisVars":[],"localVars":[]},"funcName":"convert","blockSize":64})
+
+},{"cwise-compiler":436}],525:[function(require,module,exports){
+var iota = require("iota-array")
+var isBuffer = require("is-buffer")
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
       if( obj.type === 'ThisExpression' ) {
         pushValue = 'this' 
@@ -88769,11 +98510,40 @@ window.onload = function() {
   Promise.all( [ getURL("./gibber.def.json" ) ] ).then( defs => {
     environment.server = server = new CodeMirror.TernServer({defs: defs.map( JSON.parse ), options:{ hintDelay:5000, responseFilter:filter } })
 
+<<<<<<< HEAD
     cm.setOption("extraKeys", {
       "Ctrl-Space": function(cm) { server.complete(cm) },
       "Ctrl-I"    : function(cm) { server.showType(cm) },
       "Ctrl-O"    : function(cm) { server.showDocs(cm) }
     })
+=======
+},{"iota-array":520,"is-buffer":521}],526:[function(require,module,exports){
+// (c) Dean McNamee <dean@gmail.com>, 2013.
+//
+// https://github.com/deanm/omggif
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+//
+// omggif is a JavaScript implementation of a GIF 89a encoder and decoder,
+// including animation and compression.  It does not rely on any specific
+// underlying system, so should run in the browser, Node, or Plask.
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     cm.on( 'cursorActivity', function( cm ) { 
       if( environment.showArgHints === true ) {
@@ -89618,9 +99388,15 @@ const createProxies = function( pre, post, proxiedObj, environment, Gibber ) {
           }
         }
 
+<<<<<<< HEAD
         ugen = value
       }
     })
+=======
+},{}],527:[function(require,module,exports){
+(function (process){
+var Stream = require('stream')
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     environment.proxies.push( prop )
   }
@@ -89741,6 +99517,7 @@ const Theme = function(client) {
     e.stopPropagation()
   }
 
+<<<<<<< HEAD
   this.read = (file, callback) => {
     const reader = new FileReader()
     reader.onload = (event) => {
@@ -89748,6 +99525,12 @@ const Theme = function(client) {
     }
     reader.readAsText(file, 'UTF-8')
   }
+=======
+}).call(this,require('_process'))
+},{"_process":203,"stream":219}],528:[function(require,module,exports){
+(function (global){
+'use strict'
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
   // Helpers
 
@@ -89929,7 +99712,13 @@ const setupShareHandler = function( cm, environment, networkConfig ) {
     document.getElementById('connectname').focus()
     document.getElementById('connectname').select()
 
+<<<<<<< HEAD
     document.getElementById('connect-btn').onclick = closeconnect
+=======
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"bit-twiddle":435,"buffer":137,"dup":440}],529:[function(require,module,exports){
+"use strict"
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665
 
     const blurfnc = ()=> {
       menu.remove()
@@ -90006,4 +99795,8 @@ const makeMsg = function( user, msg ) {
 
 module.exports = { setupShare:setupShareHandler, makeMsg }
 
+<<<<<<< HEAD
 },{"y-codemirror":493,"y-websocket":497,"yjs":498}]},{},[517]);
+=======
+},{}]},{},[256]);
+>>>>>>> f9c30b72ab50caacd2f350c0ae067f29cd449665

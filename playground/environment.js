@@ -51,7 +51,6 @@ window.onload = function() {
   }else{
     document.querySelector('#themer').src = `./resources/themes/noir.png`
   }
-
   
   cm = CodeMirror( document.querySelector('#editor'), {
     mode:   'javascript',
@@ -251,6 +250,27 @@ window.onload = function() {
         Gibber.Audio.Gibberish.utilities.future( fnc, Clock.btos(time*4), dict )
       } 
 
+      window.solo = function( ...soloed ) {
+        if( soloed.length > 0 ) {
+          Gibber.Seq.sequencers.forEach( s => {
+            let shouldStop = true
+            soloed.forEach( solo => {
+              if( s.target === solo.__wrapped__ ) shouldStop = false
+            })
+            if( shouldStop ) { 
+              s.stop()
+            }else{
+              if( s.__isRunning === false )
+                s.start( s.__delay || 0 )
+            }
+          })
+        }else{
+          Gibber.Seq.sequencers.forEach( s => {
+            if( s.__isRunning === false ) s.start( s.__delay || 0 ) 
+          })
+        }
+      }
+
       window.Graphics = Gibber.Graphics
       window.Audio    = Gibber.Audio
       //setupFFT( Marching.FFT )
@@ -303,6 +323,7 @@ window.onload = function() {
   const select = document.querySelector( 'select' ),
         files = [
           ['demo #1: intro', 'newintro.js'],
+          ['demo #2: pick your sample', 'picksomesamples.js'],
           ['demo #2: acid', 'acid.js'],
           ['demo #3: moody', 'intro.js'],
           ['demo #4: geometry melds', 'meld.js'],
@@ -320,8 +341,9 @@ window.onload = function() {
           ['music tutorial #3: arpeggios and signals', 'arp.js' ], 
           ['music tutorial #4: polyphony', 'polyphony.js' ], 
           ['music tutorial #5: freesound', 'freesound.js' ], 
-          ['music tutorial #6: step sequencing', 'steps.js' ], 
-          ['music tutorial #7: creating synths', 'make.js' ], 
+          ['music tutorial #6: samplers', 'sampler.js' ],
+          ['music tutorial #7: step sequencing', 'steps.js' ], 
+          ['music tutorial #8: creating synths', 'make.js' ], 
 
           ['graphics tutorial #1: intro to constructive solid geometry', 'graphics.intro.js' ],  
           ['graphics tutorial #2: lighting and materials', 'graphics.lighting.js' ], 
@@ -391,10 +413,15 @@ const runCodeOverNetwork = function( selectedCode ) {
   commands.unshift([ start.line, start.ch, end.line, end.ch, selectedCode.code ])
 }
 
+// for highlighting "previewed code" across network
+environment.previewCode = function( cm, useBlock=false, useDelay=true, shouldRunNetworkCode=true, selectedCode=null ) {
+  environment.flash( cm, selectedCode.selection )
+}
+
 // shouldRunNetworkCode is used to prevent recursive ws sending of code
 // while isNetworked is used to test for acive ws connection
 // selectedCode can be set via ws messages
-environment.runCode = function( cm, useBlock=false, useDelay=true, shouldRunNetworkCode=true, selectedCode=null ) {
+environment.runCode = function( cm, useBlock=false, useDelay=true, shouldRunNetworkCode=true, selectedCode=null, preview=false ) {
   try {
     if( selectedCode === null ) selectedCode = environment.getSelectionCodeColumn( cm, useBlock )
 
@@ -457,6 +484,7 @@ CodeMirror.keyMap.playground =  {
   'Ctrl-Enter'( cm )  { environment.runCode( cm, false, true  ) },
   'Shift-Enter'( cm ) { environment.runCode( cm, false, false ) },
   'Alt-Enter'( cm )   { environment.runCode( cm, true,  true  ) },
+  'Alt-Shift-Enter'( cm ) { environment.runCode( cm, true, true, true ) },
 
   'Ctrl-.'( cm ) {
     Gibber.clear()
